@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BuffetIQ design reference: Breakfast tomorrow</title>
+<!-- Static snapshot of the approved design. Artboard size 390 x 844. Fictional data. Rebuild this look in Gradio; do not ship this file. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Fraunces:opsz,wght@9..144,500;9..144,600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0F6E6E}a:hover{color:#0A4F4F}
+</style>
+</head>
+<body>
+
+
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 24px 20px 24px; background: #FAF8F4; color: #1F2328; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; gap: 18px">
+
+  <header style="display: flex; align-items: center; justify-content: space-between">
+    <span style="font-family: Fraunces, Georgia, serif; font-size: 22px; font-weight: 600; color: #0F6E6E">[HOTEL NAME]</span>
+    <span style="font-size: 13px; font-weight: 600; color: #0F6E6E; background: #E3F1EF; border-radius: 999px; padding: 6px 12px">Step 1 of 2</span>
+  </header>
+
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h1 style="margin: 0; font-family: Fraunces, Georgia, serif; font-size: 32px; font-weight: 600; line-height: 1.1">Breakfast tomorrow</h1>
+    <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #5F646B">Wednesday 25 November · 06:30 to 10:30 at [RESTAURANT NAME]. Tell us your plans and we will prepare just the right amount, fresh.</p>
+  </div>
+
+  <form style="background: #FFFFFF; border: 1px solid #E7E2D8; border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 18px">
+    <fieldset style="border: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px">
+      <legend style="font-size: 16px; font-weight: 700; padding: 0; margin-bottom: 10px">Will you join us?</legend>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+        <button type="button" aria-pressed="true" style="min-height: 48px; border-radius: 12px; border: 2px solid #0F6E6E; background: #0F6E6E; color: #FFFFFF; font-family: inherit; font-size: 16px; font-weight: 700; cursor: pointer">Yes</button>
+        <button type="button" aria-pressed="false" style="min-height: 48px; border-radius: 12px; border: 2px solid #CFC8BA; background: #FFFFFF; color: #1F2328; font-family: inherit; font-size: 16px; font-weight: 700; cursor: pointer">Not this time</button>
+      </div>
+    </fieldset>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <label for="room" style="font-size: 16px; font-weight: 700">Room number</label>
+      <input id="room" type="text" inputmode="numeric" placeholder="1204" style="min-height: 48px; border-radius: 12px; border: 1.5px solid rgb(207, 200, 186); background: rgb(255, 255, 255); padding: 0px 14px; font-family: inherit; font-size: 17px; color: rgb(31, 35, 40); box-sizing: border-box;">
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+      <span id="partyLabel" style="font-size: 16px; font-weight: 700">How many guests?</span>
+      <div role="group" aria-labelledby="partyLabel" style="display: flex; align-items: center; gap: 10px">
+        <button type="button" aria-label="One fewer guest" style="width: 44px; height: 44px; border-radius: 22px; border: 1.5px solid #CFC8BA; background: #FFFFFF; color: #0F6E6E; font-family: inherit; font-size: 22px; font-weight: 700; cursor: pointer">−</button>
+        <span style="min-width: 28px; text-align: center; font-size: 22px; font-weight: 700">2</span>
+        <button type="button" aria-label="One more guest" style="width: 44px; height: 44px; border-radius: 22px; border: 1.5px solid #0F6E6E; background: #0F6E6E; color: #FFFFFF; font-family: inherit; font-size: 22px; font-weight: 700; cursor: pointer">+</button>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #EFEAE0; padding-top: 16px">
+      <span style="font-size: 16px; font-weight: 700">Dietary needs <span style="font-weight: 400; color: #5F646B">(optional)</span></span>
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <span id="halalLabel" style="font-size: 15px">Halal meals</span>
+        <div role="group" aria-labelledby="halalLabel" style="display: flex; align-items: center; gap: 10px">
+          <button type="button" aria-label="One fewer halal meal" style="width: 44px; height: 44px; border-radius: 22px; border: 1.5px solid #CFC8BA; background: #FFFFFF; color: #0F6E6E; font-family: inherit; font-size: 20px; font-weight: 700; cursor: pointer">−</button>
+          <span style="min-width: 24px; text-align: center; font-size: 18px; font-weight: 700">0</span>
+          <button type="button" aria-label="One more halal meal" style="width: 44px; height: 44px; border-radius: 22px; border: 1.5px solid #CFC8BA; background: #FFFFFF; color: #0F6E6E; font-family: inherit; font-size: 20px; font-weight: 700; cursor: pointer">+</button>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <span id="vegLabel" style="font-size: 15px">Vegetarian meals</span>
+        <div role="group" aria-labelledby="vegLabel" style="display: flex; align-items: center; gap: 10px">
+          <button type="button" aria-label="One fewer vegetarian meal" style="width: 44px; height: 44px; border-radius: 22px; border: 1.5px solid #CFC8BA; background: #FFFFFF; color: #0F6E6E; font-family: inherit; font-size: 20px; font-weight: 700; cursor: pointer">−</button>
+          <span style="min-width: 24px; text-align: center; font-size: 18px; font-weight: 700">0</span>
+          <button type="button" aria-label="One more vegetarian meal" style="width: 44px; height: 44px; border-radius: 22px; border: 1.5px solid #CFC8BA; background: #FFFFFF; color: #0F6E6E; font-family: inherit; font-size: 20px; font-weight: 700; cursor: pointer">+</button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div style="flex: 1"></div>
+
+  <a href="GuestTimes.dc.html" style="min-height: 56px; border-radius: 16px; background: #0F6E6E; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; text-decoration: none">Choose a time</a>
+  <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #5F646B; text-align: center">We use your room number only to plan how much food to prepare, and delete it when you check out.</p>
+</div>
+
+</body>
+</html>

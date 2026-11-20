@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BuffetIQ design reference: Tray check</title>
+<!-- Static snapshot of the approved design. Artboard size 390 x 844. Fictional data. Rebuild this look in Gradio; do not ship this file. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#7FD3C3}a:hover{color:#A8E6DA}
+</style>
+</head>
+<body>
+
+
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 24px 20px 28px; background: #0E1415; color: #F4F1EA; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; gap: 18px">
+
+  <header style="display: flex; align-items: center; justify-content: space-between">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h1 style="margin: 0; font-size: 26px; font-weight: 800">Tray check</h1>
+      <span style="font-size: 14px; color: #A9B4B3">Hot station 1 · 08:40</span>
+    </div>
+    <button type="button" style="min-height: 44px; background: #172123; color: #F4F1EA; border: 1px solid #3C4D4F; border-radius: 12px; padding: 0 14px; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer">Change station</button>
+  </header>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <span style="font-size: 14px; color: #A9B4B3">Which tray?</span>
+    <div role="radiogroup" aria-label="Dish" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+      
+        <button type="button" role="radio" aria-checked="true" style="min-height: 56px; border-radius: 14px; border: 2px solid #7FD3C3; background: #7FD3C3; color: #0B2420; font-family: inherit; font-size: 15px; font-weight: 700; line-height: 1.2; padding: 6px 8px; cursor: pointer">Scrambled eggs</button>
+      
+        <button type="button" role="radio" aria-checked="false" style="min-height: 56px; border-radius: 14px; border: 2px solid #3C4D4F; background: #172123; color: #F4F1EA; font-family: inherit; font-size: 15px; font-weight: 700; line-height: 1.2; padding: 6px 8px; cursor: pointer">Chicken sausages</button>
+      
+        <button type="button" role="radio" aria-checked="false" style="min-height: 56px; border-radius: 14px; border: 2px solid #3C4D4F; background: #172123; color: #F4F1EA; font-family: inherit; font-size: 15px; font-weight: 700; line-height: 1.2; padding: 6px 8px; cursor: pointer">Hash browns</button>
+      
+    </div>
+  </div>
+
+  <div role="img" aria-label="Camera viewfinder" style="position: relative; height: 360px; border-radius: 22px; background: #070B0C; border: 1px solid #2C3A3C; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; overflow: hidden">
+    <span style="position: absolute; top: 18px; left: 18px; width: 34px; height: 34px; border-top: 4px solid #7FD3C3; border-left: 4px solid #7FD3C3; border-radius: 6px 0 0 0"></span>
+    <span style="position: absolute; top: 18px; right: 18px; width: 34px; height: 34px; border-top: 4px solid #7FD3C3; border-right: 4px solid #7FD3C3; border-radius: 0 6px 0 0"></span>
+    <span style="position: absolute; bottom: 18px; left: 18px; width: 34px; height: 34px; border-bottom: 4px solid #7FD3C3; border-left: 4px solid #7FD3C3; border-radius: 0 0 0 6px"></span>
+    <span style="position: absolute; bottom: 18px; right: 18px; width: 34px; height: 34px; border-bottom: 4px solid #7FD3C3; border-right: 4px solid #7FD3C3; border-radius: 0 0 6px 0"></span>
+    <div style="width: 240px; height: 150px; border: 2px dashed #6F8584; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 15px; color: #A9B4B3">Scrambled eggs tray</div>
+    <div style="font-size: 17px; font-weight: 600">Hold the phone above the tray</div>
+    <div style="font-size: 14px; color: #A9B4B3">Whole tray in frame · flash off</div>
+  </div>
+
+  <a href="CameraResult.dc.html" style="min-height: 64px; border-radius: 16px; background: #F2B33D; color: #1A1300; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 20px; font-weight: 800; text-decoration: none">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>
+    Check tray
+  </a>
+
+  <button type="button" style="min-height: 44px; background: transparent; color: #7FD3C3; border: none; font-family: inherit; font-size: 16px; font-weight: 600; text-decoration: underline; cursor: pointer">Camera not working? Set the level by hand</button>
+</div>
+
+</body>
+</html>

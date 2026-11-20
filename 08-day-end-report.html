@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BuffetIQ design reference: Day-end report</title>
+<!-- Static snapshot of the approved design. Artboard size 1440 x 1180. Fictional data. Rebuild this look in Gradio; do not ship this file. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FAF8F4}
+a{color:#0F6E6E}a:hover{color:#0A4F4F}
+</style>
+</head>
+<body>
+
+
+<div style="box-sizing: border-box; padding: 32px 24px 28px; background: #FAF8F4; color: #1F2328; font-family: Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums">
+  <div style="max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px">
+
+    <header style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 15px; font-weight: 800; color: #0F6E6E">BuffetIQ</span>
+        <h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.01em">Day-end report</h1>
+        <span style="font-size: 15px; color: #5F646B">Tuesday 24 November · Breakfast 06:30 to 10:30 · Example data, simulated</span>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px">
+        <button type="button" style="min-height: 48px; border-radius: 12px; border: 1.5px solid #CFC8BA; background: #FFFFFF; color: #1F2328; padding: 0 18px; font-family: inherit; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; cursor: pointer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"></path><path d="M7 10l5 5 5-5"></path><path d="M5 20h14"></path></svg>
+          Export NEA waste file (CSV)
+        </button>
+        <button type="button" style="min-height: 48px; border-radius: 12px; border: 1.5px solid #0F6E6E; background: #0F6E6E; color: #FFFFFF; padding: 0 18px; font-family: inherit; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; cursor: pointer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"></path><path d="M20 5v6h-6"></path></svg>
+          Retrain tonight
+        </button>
+      </div>
+    </header>
+
+    <section aria-label="Key figures" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px">
+      <div style="background: #FFFFFF; border: 1px solid #E7E2D8; border-radius: 18px; padding: 18px 20px; display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 14px; color: #5F646B">Food left over</span>
+        <span style="font-size: 36px; font-weight: 800">18.6 kg</span>
+        <span style="font-size: 14px; color: #0F6E6E; font-weight: 600">55% less than a usual day (41.2 kg)</span>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E7E2D8; border-radius: 18px; padding: 18px 20px; display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 14px; color: #5F646B">Cost of food wasted</span>
+        <span style="font-size: 36px; font-weight: 800">S$96</span>
+        <span style="font-size: 14px; color: #0F6E6E; font-weight: 600">Usual day S$214</span>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E7E2D8; border-radius: 18px; padding: 18px 20px; display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 14px; color: #5F646B">Minutes a dish was empty</span>
+        <span style="font-size: 36px; font-weight: 800">6 min</span>
+        <span style="font-size: 14px; color: #5F646B">Usual day 9 min · pancakes, 08:36 to 08:42</span>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E7E2D8; border-radius: 18px; padding: 18px 20px; display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 14px; color: #5F646B">Guests served</span>
+        <span style="font-size: 36px; font-weight: 800">293</span>
+        <span style="font-size: 14px; color: #5F646B">Forecast 268 · revised to 286 at 08:40</span>
+      </div>
+    </section>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+      <section aria-label="Leftovers by dish" style="flex: 999 1 640px; min-width: 0; background: #FFFFFF; border: 1px solid #E7E2D8; border-radius: 18px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 10px">
+          <h2 style="margin: 0; font-size: 20px; font-weight: 800">Leftovers by dish</h2>
+          <span style="display: flex; gap: 16px; font-size: 13px; color: #5F646B">
+            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #0F6E6E"></span>Today</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #D9D3C7"></span>Usual day</span>
+          </span>
+        </div>
+        <div style="overflow-x: auto">
+          <div role="table" aria-label="Leftovers by dish" style="min-width: 620px; display: flex; flex-direction: column; font-size: 15px">
+            <div role="row" style="display: grid; grid-template-columns: minmax(150px, 1.4fr) 90px 90px 80px minmax(200px, 2fr); gap: 0 8px; color: #5F646B; font-size: 13px; font-weight: 600; border-bottom: 1px solid #E7E2D8">
+              <span role="columnheader" style="padding: 10px 0">Dish</span>
+              <span role="columnheader" style="padding: 10px 0; text-align: right">Prepared</span>
+              <span role="columnheader" style="padding: 10px 0; text-align: right">Eaten</span>
+              <span role="columnheader" style="padding: 10px 0; text-align: right">Left</span>
+              <span role="columnheader" style="padding: 10px 0 10px 12px">Left over, today against a usual day</span>
+            </div>
+            
+              <div role="row" style="display: grid; grid-template-columns: minmax(150px, 1.4fr) 90px 90px 80px minmax(200px, 2fr); gap: 0 8px; align-items: center; border-bottom: 1px solid #F1ECE3">
+                <span role="rowheader" style="padding: 10px 0; font-weight: 600">Scrambled eggs</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">21.0 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">19.8 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right; font-weight: 700">1.2 kg</span>
+                <span role="cell" style="padding: 8px 0 8px 12px; display: flex; flex-direction: column; gap: 4px">
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 11%; background: #0F6E6E; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #1F2328">1.2</span>
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 43%; background: #D9D3C7; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #5F646B">4.8</span>
+                  </span>
+                </span>
+              </div>
+            
+              <div role="row" style="display: grid; grid-template-columns: minmax(150px, 1.4fr) 90px 90px 80px minmax(200px, 2fr); gap: 0 8px; align-items: center; border-bottom: 1px solid #F1ECE3">
+                <span role="rowheader" style="padding: 10px 0; font-weight: 600">Chicken sausages</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">16.5 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">14.1 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right; font-weight: 700">2.4 kg</span>
+                <span role="cell" style="padding: 8px 0 8px 12px; display: flex; flex-direction: column; gap: 4px">
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 21%; background: #0F6E6E; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #1F2328">2.4</span>
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 45%; background: #D9D3C7; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #5F646B">5.1</span>
+                  </span>
+                </span>
+              </div>
+            
+              <div role="row" style="display: grid; grid-template-columns: minmax(150px, 1.4fr) 90px 90px 80px minmax(200px, 2fr); gap: 0 8px; align-items: center; border-bottom: 1px solid #F1ECE3">
+                <span role="rowheader" style="padding: 10px 0; font-weight: 600">Hash browns</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">12.0 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">10.2 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right; font-weight: 700">1.8 kg</span>
+                <span role="cell" style="padding: 8px 0 8px 12px; display: flex; flex-direction: column; gap: 4px">
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 16%; background: #0F6E6E; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #1F2328">1.8</span>
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 35%; background: #D9D3C7; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #5F646B">3.9</span>
+                  </span>
+                </span>
+              </div>
+            
+              <div role="row" style="display: grid; grid-template-columns: minmax(150px, 1.4fr) 90px 90px 80px minmax(200px, 2fr); gap: 0 8px; align-items: center; border-bottom: 1px solid #F1ECE3">
+                <span role="rowheader" style="padding: 10px 0; font-weight: 600">Mee goreng</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">18.0 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">14.9 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right; font-weight: 700">3.1 kg</span>
+                <span role="cell" style="padding: 8px 0 8px 12px; display: flex; flex-direction: column; gap: 4px">
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 28%; background: #0F6E6E; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #1F2328">3.1</span>
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 53%; background: #D9D3C7; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #5F646B">6.0</span>
+                  </span>
+                </span>
+              </div>
+            
+              <div role="row" style="display: grid; grid-template-columns: minmax(150px, 1.4fr) 90px 90px 80px minmax(200px, 2fr); gap: 0 8px; align-items: center; border-bottom: 1px solid #F1ECE3">
+                <span role="rowheader" style="padding: 10px 0; font-weight: 600">Nasi lemak rice</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">20.0 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">17.4 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right; font-weight: 700">2.6 kg</span>
+                <span role="cell" style="padding: 8px 0 8px 12px; display: flex; flex-direction: column; gap: 4px">
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 23%; background: #0F6E6E; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #1F2328">2.6</span>
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 48%; background: #D9D3C7; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #5F646B">5.4</span>
+                  </span>
+                </span>
+              </div>
+            
+              <div role="row" style="display: grid; grid-template-columns: minmax(150px, 1.4fr) 90px 90px 80px minmax(200px, 2fr); gap: 0 8px; align-items: center; border-bottom: 1px solid #F1ECE3">
+                <span role="rowheader" style="padding: 10px 0; font-weight: 600">Croissants</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">9.0 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">7.0 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right; font-weight: 700">2.0 kg</span>
+                <span role="cell" style="padding: 8px 0 8px 12px; display: flex; flex-direction: column; gap: 4px">
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 18%; background: #0F6E6E; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #1F2328">2.0</span>
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 41%; background: #D9D3C7; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #5F646B">4.6</span>
+                  </span>
+                </span>
+              </div>
+            
+              <div role="row" style="display: grid; grid-template-columns: minmax(150px, 1.4fr) 90px 90px 80px minmax(200px, 2fr); gap: 0 8px; align-items: center; border-bottom: 1px solid #F1ECE3">
+                <span role="rowheader" style="padding: 10px 0; font-weight: 600">Pancakes</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">8.0 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">7.1 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right; font-weight: 700">0.9 kg</span>
+                <span role="cell" style="padding: 8px 0 8px 12px; display: flex; flex-direction: column; gap: 4px">
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 8%; background: #0F6E6E; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #1F2328">0.9</span>
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 25%; background: #D9D3C7; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #5F646B">2.8</span>
+                  </span>
+                </span>
+              </div>
+            
+              <div role="row" style="display: grid; grid-template-columns: minmax(150px, 1.4fr) 90px 90px 80px minmax(200px, 2fr); gap: 0 8px; align-items: center; border-bottom: 1px solid #F1ECE3">
+                <span role="rowheader" style="padding: 10px 0; font-weight: 600">Cut fruit</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">24.0 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right">19.4 kg</span>
+                <span role="cell" style="padding: 10px 0; text-align: right; font-weight: 700">4.6 kg</span>
+                <span role="cell" style="padding: 8px 0 8px 12px; display: flex; flex-direction: column; gap: 4px">
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 41%; background: #0F6E6E; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #1F2328">4.6</span>
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 8px">
+                    <span style="height: 10px; width: 76%; background: #D9D3C7; border-radius: 5px; display: block"></span>
+                    <span style="font-size: 12px; color: #5F646B">8.6</span>
+                  </span>
+                </span>
+              </div>
+            
+            <div role="row" style="display: grid; grid-template-columns: minmax(150px, 1.4fr) 90px 90px 80px minmax(200px, 2fr); gap: 0 8px; align-items: center; font-weight: 800">
+              <span role="rowheader" style="padding: 12px 0">Total</span>
+              <span role="cell" style="padding: 12px 0; text-align: right">128.5 kg</span>
+              <span role="cell" style="padding: 12px 0; text-align: right">109.9 kg</span>
+              <span role="cell" style="padding: 12px 0; text-align: right">18.6 kg</span>
+              <span role="cell" style="padding: 12px 0 12px 12px; font-size: 13px; font-weight: 400; color: #5F646B">Usual day 41.2 kg</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+        <section aria-label="What happened today" style="background: #FFFFFF; border: 1px solid #E7E2D8; border-radius: 18px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px">
+          <h2 style="margin: 0; font-size: 20px; font-weight: 800">What happened today</h2>
+          
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 15px; font-weight: 700">Tour group arrived early</span>
+              <span style="font-size: 14px; line-height: 1.45; color: #5F646B">24 guests at 07:45. The forecast was raised from 268 to 286 guests within one check.</span>
+            </div>
+          
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 15px; font-weight: 700">Pancakes ran out for 6 minutes</span>
+              <span style="font-size: 14px; line-height: 1.45; color: #5F646B">Empty from 08:36 to 08:42. The live station cooked 1.5 kg.</span>
+            </div>
+          
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 15px; font-weight: 700">2.1 kg offered on Treatsure</span>
+              <span style="font-size: 14px; line-height: 1.45; color: #5F646B">Mee goreng and cut fruit, flagged at 09:45.</span>
+            </div>
+          
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 15px; font-weight: 700">3 chef overrides</span>
+              <span style="font-size: 14px; line-height: 1.45; color: #5F646B">Two for a VIP breakfast, one for a dropped tray.</span>
+            </div>
+          
+        </section>
+
+        <section aria-label="Forecast learning" style="background: #FFFFFF; border: 1px solid #E7E2D8; border-radius: 18px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <h2 style="margin: 0; font-size: 20px; font-weight: 800">Forecast keeps improving</h2>
+            <span style="font-size: 14px; color: #5F646B">Average error in guests per day, by week of use</span>
+          </div>
+          <div role="img" aria-label="Forecast error falls from 9.8% in week 1 to 2.9% in week 4" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: end; height: 130px">
+            
+              <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; height: 130px">
+                <span style="font-size: 13px; font-weight: 700">9.8%</span>
+                <span style="width: 100%; height: 98px; background: #9FC9C3; border-radius: 6px 6px 0 0; display: block"></span>
+              </div>
+            
+              <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; height: 130px">
+                <span style="font-size: 13px; font-weight: 700">6.1%</span>
+                <span style="width: 100%; height: 61px; background: #9FC9C3; border-radius: 6px 6px 0 0; display: block"></span>
+              </div>
+            
+              <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; height: 130px">
+                <span style="font-size: 13px; font-weight: 700">4.0%</span>
+                <span style="width: 100%; height: 40px; background: #9FC9C3; border-radius: 6px 6px 0 0; display: block"></span>
+              </div>
+            
+              <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; height: 130px">
+                <span style="font-size: 13px; font-weight: 700">2.9%</span>
+                <span style="width: 100%; height: 29px; background: #0F6E6E; border-radius: 6px 6px 0 0; display: block"></span>
+              </div>
+            
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; font-size: 13px; color: #5F646B; text-align: center">
+            <span>Week 1</span><span>Week 2</span><span>Week 3</span><span>Week 4</span>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #5F646B">Example data simulated for the prototype. The NEA file lists each day's food waste by dish in kilograms, ready to adapt to NEA's reporting template.</p>
+  </div>
+</div>
+
+</body>
+</html>
