@@ -1,0 +1,152 @@
+# BuffetIQ configuration. Every value here is fictional and chosen for the prototype.
+# Phase 1 documents the reasoning for each number in docs/ASSUMPTIONS.md.
+
+hotel:
+  name: "Selat House"            # fictional; searched in November 2026 and no hotel of this name was found
+  restaurant: "The Daybreak Room"
+  level: "Level 2"
+  rooms: 300
+  city: "Singapore"
+
+service:
+  start: "06:30"
+  end: "10:30"
+  slot_minutes: 15               # sixteen 15-minute slots
+  guest_slot_minutes: 30         # crowd view on the guest page uses half hours
+  refresh_seconds: 5             # gr.Timer interval for live pages
+
+rules:
+  safety_buffer: 0.10            # b in the refill formula
+  pan_warn_minutes: 210          # footer turns saffron at 3 hours 30 minutes
+  pan_limit_minutes: 240         # Singapore Food Agency 4-hour rule: swap now
+  cook_to_order_threshold: 12    # guests per 15 minutes; the chef can change this
+  treatsure_window_minutes: 60   # last hour of service
+  treatsure_min_surplus_kg: 1.0
+  low_confidence: 0.6            # camera results below this are not sent to the board
+  fill_fraction:                 # amount = pan capacity x fraction
+    empty: 0.0
+    low: 0.15
+    half: 0.5
+    full: 0.9
+
+# Dishes stay in this order on the kitchen board, so cooks build muscle memory.
+# unit: kg or pieces. piece_kg converts pieces to kilograms for the waste report.
+# lead_minutes: from "cook now" to the batch being ready on the line.
+# batch: the amount one cook produces; refill calls are rounded up to it.
+# pan_capacity: what one display pan holds (kg or pieces).
+# last_cook: the latest time a fresh batch may be ready; later calls become "Let it run down".
+# cost_per_kg: food cost in Singapore dollars.
+dishes:
+  - id: scrambled_eggs
+    name: "Scrambled eggs"
+    station: "Hot station 1"
+    unit: kg
+    lead_minutes: 8
+    batch: 1.0
+    pan_capacity: 2.5
+    last_cook: "10:15"
+    cost_per_kg: 5.00
+    halal: true
+    vegetarian: true
+    hot: true
+    synonyms: ["egg", "eggs", "scrambled", "scrambled egg", "scrambled eggs"]
+
+  - id: chicken_sausages
+    name: "Chicken sausages"
+    station: "Hot station 1"
+    unit: kg
+    lead_minutes: 15
+    batch: 1.25
+    pan_capacity: 2.5
+    last_cook: "10:00"
+    cost_per_kg: 7.50
+    halal: true
+    vegetarian: false
+    hot: true
+    synonyms: ["sausage", "sausages", "chicken sausage", "chicken sausages", "hotdog", "hot dog"]
+
+  - id: hash_browns
+    name: "Hash browns"
+    station: "Hot station 1"
+    unit: kg
+    lead_minutes: 12
+    batch: 1.0
+    pan_capacity: 2.0
+    last_cook: "10:05"
+    cost_per_kg: 4.00
+    halal: true
+    vegetarian: true
+    hot: true
+    synonyms: ["hash brown", "hash browns", "hashbrown", "hashbrowns", "potato", "potatoes"]
+
+  - id: pancakes
+    name: "Pancakes"
+    station: "Live station"
+    unit: kg
+    lead_minutes: 6
+    batch: 0.5
+    pan_capacity: 1.5
+    last_cook: "10:15"
+    cost_per_kg: 4.50
+    halal: true
+    vegetarian: true
+    hot: true
+    synonyms: ["pancake", "pancakes", "hotcake", "hotcakes", "flapjack"]
+
+  - id: mee_goreng
+    name: "Mee goreng"
+    station: "Hot station 2"
+    unit: kg
+    lead_minutes: 15
+    batch: 1.5
+    pan_capacity: 3.0
+    last_cook: "10:00"
+    cost_per_kg: 3.50
+    halal: true
+    vegetarian: false
+    hot: true
+    synonyms: ["mee", "mee goreng", "noodle", "noodles", "fried noodles"]
+
+  - id: nasi_lemak_rice
+    name: "Nasi lemak rice"
+    station: "Hot station 2"
+    unit: kg
+    lead_minutes: 25
+    batch: 1.5
+    pan_capacity: 3.0
+    last_cook: "09:55"
+    cost_per_kg: 2.50
+    halal: true
+    vegetarian: true
+    hot: true
+    synonyms: ["rice", "nasi", "nasi lemak", "coconut rice", "nasi lemak rice"]
+
+  - id: croissants
+    name: "Croissants"
+    station: "Bakery"
+    unit: pieces
+    piece_kg: 0.06
+    lead_minutes: 20
+    batch: 24
+    pan_capacity: 40
+    last_cook: "09:50"
+    cost_per_kg: 12.00
+    halal: false
+    vegetarian: true
+    hot: false
+    synonyms: ["croissant", "croissants", "pastry", "pastries", "bread"]
+
+  - id: cut_fruit
+    name: "Cut fruit"
+    station: "Cold station"
+    unit: kg
+    lead_minutes: 10
+    batch: 2.5
+    pan_capacity: 5.0
+    last_cook: "10:10"
+    cost_per_kg: 4.80
+    halal: true
+    vegetarian: true
+    hot: false
+    chilled: true
+    synonyms: ["fruit", "fruits", "cut fruit", "melon", "watermelon", "papaya"]

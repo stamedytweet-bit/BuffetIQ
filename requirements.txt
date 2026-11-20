@@ -1,0 +1,19 @@
+# BuffetIQ prototype. Python 3.11 or newer (Colab currently ships a newer 3.x, which also works).
+# Gradio is pinned because its styling API changed in version 6 (theme, css and head go to launch()).
+gradio==6.32.0
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.5
+plotly>=5.24
+pyyaml>=6.0
+qrcode[pil]>=8.0
+
+# Later phases (installed now so one requirements file serves VS Code and Colab)
+ultralytics>=8.3        # Phase 4: tray fill-level classification
+faster-whisper>=1.1     # Phase 6: local speech to text
+google-genai>=1.0       # Phase 6: Gemini free tier, model ID read from GEMINI_MODEL
+gTTS>=2.5               # Phase 6: spoken answers
+python-dotenv>=1.0      # reads GEMINI_API_KEY from a local .env file
+
+# Tests
+pytest>=8.0

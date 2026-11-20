@@ -1,0 +1,35 @@
+# Secrets: never commit keys
+.env
+.env.*
+!.env.example
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+*.egg-info/
+.venv/
+venv/
+
+# Generated data and models (small samples may be added with git add -f)
+data/*
+!data/.gitkeep
+!data/samples/
+models/*
+!models/.gitkeep
+*.pt
+runs/
+
+# Tray photos are large; keep folders, not images
+tray_photos/**/*.jpg
+tray_photos/**/*.jpeg
+tray_photos/**/*.png
+tray_photos/**/*.heic
+
+# Gradio and OS files
+.gradio/
+flagged/
+.DS_Store
+Thumbs.db
