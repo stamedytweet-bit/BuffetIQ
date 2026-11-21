@@ -9,8 +9,9 @@ The point of difference is timing. Tools such as Winnow Foresight plan quantitie
 | Phase | What it covers | State |
 | --- | --- | --- |
 | 0 | Repository, style tokens, static screens from the approved designs | Done |
-| 1 | Synthetic data for a fictional 300-room Singapore hotel | Next |
-| 2 to 8 | Forecast, guest flow, camera, nowcast and board, voice, report, showcase | Planned |
+| 1 | Synthetic data for a fictional 300-room Singapore hotel (frozen) | Done |
+| 2 | Demand forecast for the night before | Next |
+| 3 to 8 | Guest flow, camera, nowcast and board, voice, report, showcase | Planned |
 
 ## Pages
 
@@ -102,3 +103,13 @@ docs/                  assumptions, evidence and the demo script
 ## Backup if Wi-Fi or Colab fails
 
 Phase 8 adds a checklist for recording a three-minute backup video and a link to it here.
+
+## Regenerate the synthetic data
+
+The fictional year of breakfasts is already in `data/synthetic_breakfast.csv` and is frozen (see `docs/EVIDENCE.md`). To check that the generator still reproduces it, run this from the `src` folder:
+
+```bash
+python -m buffetiq.data_gen
+```
+
+The printed SHA-256 checksum must match the one in `docs/EVIDENCE.md`.
