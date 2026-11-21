@@ -429,6 +429,20 @@ PHONE_CSS = """
 .r-done .txt { display: flex; flex-direction: column; gap: 2px; }
 .r-done .small { font-size: 15px; color: var(--bq-text-3); }
 .r-done .big { font-size: 19px; font-weight: 700; line-height: 1.25; }
+/* the photo input is opened by "Check tray"; it stays in the page but out of sight */
+.r-photo-input { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important;
+  overflow: hidden !important; opacity: 0 !important; }
+.bq-kitchen .bq-btn.r-small-link { font-size: 15px !important; min-height: 44px; margin-top: -8px; }
+.bq-kitchen .bq-btn.r-level { min-height: 64px; width: 100%; border-radius: 16px !important; background: var(--bq-surface) !important;
+  border: 2px solid var(--bq-border-strong) !important; font-size: 22px !important; font-weight: 800 !important;
+  justify-content: flex-start; padding: 0 20px !important; gap: 14px; --bq-ico: 28px; }
+.bq-kitchen .bq-btn.r-level-full, .bq-kitchen .bq-btn.r-level-half { color: var(--bq-ok) !important; }
+.bq-kitchen .bq-btn.r-level-low { color: var(--bq-act) !important; }
+.bq-kitchen .bq-btn.r-level-empty { color: var(--bq-empty) !important; }
+.bq-kitchen .bq-btn.r-level:hover { border-color: var(--bq-text-3) !important; }
+.r-unsure { gap: 10px !important; }
+.r-unsure .est { font-size: 16px; line-height: 1.45; }
+.r-model-note { margin-top: -4px !important; }
 .r-two { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px !important; }
 
 .r-said { align-self: flex-end; max-width: 88%; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; margin-left: auto; }

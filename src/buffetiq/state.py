@@ -28,6 +28,9 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_PATH = ROOT / "config.yaml"
 CHECKINS_PATH = ROOT / "data" / "guest_checkins.csv"
+SERVICE_LOG_PATH = ROOT / "data" / "service_log.csv"
+LOG_FIELDS = ["logged_at", "service_date", "clock", "action", "dish", "level", "amount", "unit",
+              "confidence", "source", "note"]
 DEFAULT_SERVICE_DATE = "2026-11-24"      # the demo morning on the design screens
 DEFAULT_CLOCK = "06:15"                  # before service, when the showcase demo starts
 
@@ -149,7 +152,7 @@ class Service:
     """One breakfast morning: its forecast, its clock and what guests have told us."""
 
     def __init__(self, service_date: str = DEFAULT_SERVICE_DATE, clock: str = DEFAULT_CLOCK,
-                 checkins_path: Path = CHECKINS_PATH, model=None):
+                 checkins_path: Path = CHECKINS_PATH, model=None, log_path: Path | None = None):
         from buffetiq import forecast
 
         self.config = load_config()
@@ -170,6 +173,8 @@ class Service:
         self.p_dine = min(1.0, self.n0 / max(in_house, 1))   # chance an in-house guest eats breakfast
         self.plans: dict[str, GuestPlan] = {}
         self.alerts: list[Alert] = []            # newest first; the board shows three
+        self.trays: dict[str, dict] = {}         # latest tray level per dish id
+        self.log_path = Path(log_path) if log_path else SERVICE_LOG_PATH
         self._load_plans()
 
     # ---- persistence (local file only) ----
@@ -255,6 +260,47 @@ class Service:
         """Counts only, never names or rooms."""
         attending = [p for p in self.plans.values() if p.attending]
         return {"halal": sum(p.halal for p in attending), "vegetarian": sum(p.vegetarian for p in attending)}
+
+    # ---- tray levels (Phase 4) and the action log ----
+    def dish(self, dish_id: str) -> dict:
+        return next(d for d in self.config["dishes"] if d["id"] == dish_id)
+
+    def record_tray(self, dish_id: str, level: str, source: str, confidence: float | None = None,
+                    leftover: bool = False) -> dict:
+        """Store a tray level from the camera or the manual buttons and log it.
+
+        In "Record leftovers" mode the amount is written to the history as food left
+        at the end of service, and the board's live level is not changed.
+        """
+        from buffetiq import camera
+
+        dish = self.dish(dish_id)
+        est = camera.estimate(level, dish)
+        entry = {"dish": dish_id, "level": level, "amount": est["amount"], "capacity": est["capacity"],
+                 "unit": est["unit"], "fraction": est["fraction"], "confidence": confidence,
+                 "source": source, "at": self.clock.strftime("%H:%M")}
+        with LOCK:
+            if not leftover:
+                self.trays[dish_id] = entry
+            self.log_event("leftover" if leftover else "tray_check", dish=dish_id, level=level,
+                           amount=round(est["amount"], 3), unit=est["unit"],
+                           confidence=None if confidence is None else round(confidence, 3), source=source)
+        return entry
+
+    def log_event(self, action: str, **fields) -> None:
+        """Append one row to data/service_log.csv. Never pass room numbers or guest names."""
+        row = {k: "" for k in LOG_FIELDS}
+        row.update({"logged_at": datetime.now().isoformat(timespec="seconds"), "service_date": self.service_date,
+                    "clock": self.clock.strftime("%H:%M"), "action": action})
+        row.update({k: ("" if v is None else v) for k, v in fields.items() if k in LOG_FIELDS})
+        with LOCK:
+            new = not self.log_path.exists()
+            self.log_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.log_path, "a", newline="", encoding="utf-8") as fh:
+                w = csv.DictWriter(fh, fieldnames=LOG_FIELDS)
+                if new:
+                    w.writeheader()
+                w.writerow(row)
 
     # ---- forecast ----
     def expected_diners(self) -> float:

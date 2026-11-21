@@ -11,7 +11,7 @@ from __future__ import annotations
 import gradio as gr
 
 from buffetiq import state
-from buffetiq.style import check_copy, esc, icon
+from buffetiq.style import check_copy, esc, fmt_amount, icon
 from buffetiq.ui import sample
 
 REFRESH_SECONDS = state.load_config()["service"]["refresh_seconds"]
@@ -162,12 +162,31 @@ def live_arrivals() -> dict:
     }
 
 
+def live_dishes() -> list[dict]:
+    """Sample cards, with each dish's level, bar and amount replaced by its latest tray check.
+
+    The action block and pan timer stay sample until the refill engine arrives in Phase 5.
+    """
+    trays = state.service().trays
+    cards = []
+    for d, card in zip(state.load_config()["dishes"], sample.KITCHEN_DISHES):
+        card = dict(card)
+        t = trays.get(d["id"])
+        if t:
+            card["level"] = t["level"].capitalize()
+            card["fill_pct"] = round(t["fraction"] * 100)
+            card["amount"] = fmt_amount(t["amount"], t["capacity"], t["unit"])
+        cards.append(card)
+    return cards
+
+
 def live_alerts() -> list[dict]:
     return state.service().latest_alerts(3)
 
 
 def refresh():
-    return render_header(live_header()), render_arrivals(live_arrivals()), render_alerts(live_alerts())
+    return (render_header(live_header()), render_dishes(live_dishes()), render_arrivals(live_arrivals()),
+            render_alerts(live_alerts()))
 
 
 def build_page() -> dict:
@@ -177,7 +196,7 @@ def build_page() -> dict:
         with gr.Column(elem_id="bq-board"):
             header = gr.HTML(lambda: render_header(live_header()), elem_id="bq-header")
             with gr.Row(elem_id="bq-main"):
-                dishes = gr.HTML(render_dishes(sample.KITCHEN_DISHES), elem_id="bq-dishes")
+                dishes = gr.HTML(lambda: render_dishes(live_dishes()), elem_id="bq-dishes")
                 with gr.Column(elem_id="bq-rail"):
                     arrivals = gr.HTML(lambda: render_arrivals(live_arrivals()), elem_id="bq-arrivals")
                     alerts = gr.HTML(lambda: render_alerts(live_alerts()), elem_id="bq-alerts")
@@ -188,7 +207,7 @@ def build_page() -> dict:
                 ask_btn = gr.Button("Hold to ask BuffetIQ", elem_id="k-ask", elem_classes=["bq-btn", "bq-primary", "bq-ico-mic"])
                 override_btn = gr.Button("Override a call", elem_id="k-override", elem_classes=["bq-btn", "bq-ico-pencil"])
     timer = gr.Timer(REFRESH_SECONDS)
-    timer.tick(refresh, None, [header, arrivals, alerts], show_progress="hidden", queue=False)
+    timer.tick(refresh, None, [header, dishes, arrivals, alerts], show_progress="hidden", queue=False)
     return {
         "timer": timer,
         "header": header, "dishes": dishes, "arrivals": arrivals, "alerts": alerts, "voice": voice,

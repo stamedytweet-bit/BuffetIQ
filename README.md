@@ -12,8 +12,9 @@ The point of difference is timing. Tools such as Winnow Foresight plan quantitie
 | 1 | Synthetic data for a fictional 300-room Singapore hotel (frozen) | Done |
 | 2 | Demand forecast for the night before | Done |
 | 3 | Guest flow with live check-ins and the guest QR code | Done |
-| 4 | Camera tray check | Next |
-| 5 to 8 | Nowcast and board, voice, report, showcase | Planned |
+| 4 | Camera tray check (waiting for the group's photos to train the real model) | Built |
+| 5 | Nowcast, refill engine and live kitchen board | Next |
+| 6 to 8 | Voice, report, showcase | Planned |
 
 ## Pages
 
@@ -139,3 +140,22 @@ python -m buffetiq.forecast
 ```
 
 It trains on the first 300 days, tests on the last 65, prints the errors against the baseline, and redraws the charts in `docs/charts/`. The same steps are in `notebooks/02_evaluate_forecast.ipynb`, which also runs in Colab.
+
+## Train the camera model
+
+1. Take the tray photos following `docs/PHOTO_CHECKLIST.md` and put them in `tray_photos/empty`, `low`, `half` and `full`.
+2. From the `src` folder, check them:
+
+   ```bash
+   python -m buffetiq.camera check
+   ```
+
+3. Train, either in Colab with `notebooks/01_train_camera_model.ipynb` (faster, on a GPU) or on the laptop:
+
+   ```bash
+   python -m buffetiq.camera train
+   ```
+
+   This saves `models/tray_cls.pt` and writes the test accuracy and confusion matrix into `docs/`. Restart the app to use it.
+
+Until then, `python -m buffetiq.camera standin` trains a stand-in model on computer-drawn trays so the runner page can be tried; the page labels its results as coming from a test model.

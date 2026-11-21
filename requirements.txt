@@ -9,7 +9,8 @@ pyyaml>=6.0
 qrcode[pil]>=8.0
 
 # Later phases (installed now so one requirements file serves VS Code and Colab)
-ultralytics>=8.3        # Phase 4: tray fill-level classification
+ultralytics>=8.3        # Phase 4: tray fill-level classification (YOLO26n-cls)
+pillow-heif>=0.18       # Phase 4: opens iPhone HEIC tray photos
 faster-whisper>=1.1     # Phase 6: local speech to text
 google-genai>=1.0       # Phase 6: Gemini free tier, model ID read from GEMINI_MODEL
 gTTS>=2.5               # Phase 6: spoken answers

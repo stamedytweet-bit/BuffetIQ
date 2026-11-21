@@ -46,6 +46,13 @@ def render_about(pages: dict) -> str:
     during service and links them to what guests have told us.</p>
   </section>
   <section class="ab-section">
+    <h2>Tray checks by camera</h2>
+    <p>A runner photographs a tray with a phone and a small image model (YOLO26n-cls) sorts it into Empty, Low, Half or
+    Full, with how sure it is. Below 60% sure, nothing is sent to the board and the runner retakes the photo or sets
+    the level by hand. In a real kitchen, a fixed camera above the buffet would check every tray every one to two
+    minutes; this prototype has no fixed cameras, so it checks on demand.</p>
+  </section>
+  <section class="ab-section">
     <h2>Pages</h2>
     <div class="ab-links">{links}</div>
   </section>
