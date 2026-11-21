@@ -61,3 +61,11 @@ The eight dishes, their stations, lead times, batch sizes, pan capacities, last-
 ## Freezing the data
 
 The data was generated once with seed 20261124 and frozen before Phase 2, with its SHA-256 checksum recorded in `docs/EVIDENCE.md` and checked by a test. Later phases may not change the generator or its settings to improve results. If a realism error is found, it will be fixed only with the group's agreement, logged here with its reason, and every result rerun.
+
+## Forecast settings (Phase 2)
+
+The forecast settings live in the `forecast` section of `config.yaml`. The models train on the first 300 days and test on the last 65; the tuning grid tries tree depths of 8, 12 and unlimited with leaves of 1, 3 and 5 days, using five time-ordered folds. The arrival-curve model replaces the simple average profile only if it is at least 5% more accurate on the training days, a bar set before any results were seen. The shopping list buys for the 80th percentile because raw ingredients keep for days, so a small margin costs little against the cost of running out mid-service.
+
+## Recipe card
+
+The shopping list turns finished amounts into raw ingredients using the `recipes` section of `config.yaml`. The quantities are our own kitchen estimates, not supplier specifications: for example 18 eggs, 0.1 litres of milk and 30 g of butter per kilogram of scrambled eggs, 0.4 kg of raw rice and 0.25 litres of coconut milk per kilogram of nasi lemak rice, 1.1 kg of raw sausages per kilogram cooked (about 10% cooking loss) and 1.6 kg of whole fruit per kilogram of cut fruit (about 60% usable after peeling). A hotel would replace these with its own standard recipes.

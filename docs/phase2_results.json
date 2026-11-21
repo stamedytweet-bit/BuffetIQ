@@ -1,0 +1,294 @@
+{
+  "train": [
+    "2025-11-25",
+    "2026-09-20"
+  ],
+  "test": [
+    "2026-09-21",
+    "2026-11-24"
+  ],
+  "diners_params": {
+    "max_depth": 12,
+    "min_samples_leaf": 1
+  },
+  "diners": {
+    "model": {
+      "mae": 9.107134055873393,
+      "rmse": 11.78780221881256,
+      "mape": 3.220166690216057
+    },
+    "baseline": {
+      "mae": 20.29230769230769,
+      "rmse": 26.960298446191064,
+      "mape": 7.233295566450873
+    },
+    "mean_actual": 280.3538461538462,
+    "p80_coverage": 0.9230769230769231,
+    "tree_p80_coverage": 0.8923076923076924,
+    "p80_factor": 1.0444031040060995
+  },
+  "curve": {
+    "selection_on_training_days": {
+      "profile_mae_pp": 1.4070773006130866,
+      "model_mae_pp": 1.398105369090019,
+      "chosen": "profile"
+    },
+    "test_profile_mae_pp": 1.394723835968875,
+    "test_model_mae_pp": 1.3314021712566597,
+    "chosen": "profile",
+    "slot_diners_mae": 3.951317737550973,
+    "slot_diners_mae_baseline": 4.546153846153846
+  },
+  "dishes": {
+    "scrambled_eggs": {
+      "name": "Scrambled eggs",
+      "unit": "kg",
+      "model": {
+        "mae": 0.9895536005285801,
+        "rmse": 1.3259018012336043,
+        "mape": 5.128088273168633
+      },
+      "fixed_rate": {
+        "mae": 1.1008728540084718,
+        "rmse": 1.3306084555396889,
+        "mape": 5.7186723069036045
+      },
+      "baseline": {
+        "mae": 1.4827307692307687,
+        "rmse": 2.0078710261598745,
+        "mape": 7.722259270812
+      },
+      "rate_choice": "guest mix",
+      "p80_coverage": 0.8615384615384616,
+      "tree_p80_coverage": 0.676923076923077,
+      "p80_factor": 1.075824022993843,
+      "mean_demand": 19.259538461538458
+    },
+    "chicken_sausages": {
+      "name": "Chicken sausages",
+      "unit": "kg",
+      "model": {
+        "mae": 0.7556221624544314,
+        "rmse": 0.903596155951972,
+        "mape": 5.706262497967112
+      },
+      "fixed_rate": {
+        "mae": 0.7556221624544314,
+        "rmse": 0.903596155951972,
+        "mape": 5.706262497967112
+      },
+      "baseline": {
+        "mae": 1.0130384615384618,
+        "rmse": 1.4159425034502364,
+        "mape": 7.67615633980181
+      },
+      "rate_choice": "fixed",
+      "p80_coverage": 0.7538461538461538,
+      "tree_p80_coverage": 0.6615384615384615,
+      "p80_factor": 1.0560193462333536,
+      "mean_demand": 13.320153846153845
+    },
+    "hash_browns": {
+      "name": "Hash browns",
+      "unit": "kg",
+      "model": {
+        "mae": 0.6057398320858185,
+        "rmse": 0.8161954502574001,
+        "mape": 6.222998139729248
+      },
+      "fixed_rate": {
+        "mae": 0.6057398320858185,
+        "rmse": 0.8161954502574001,
+        "mape": 6.222998139729248
+      },
+      "baseline": {
+        "mae": 0.8780000000000001,
+        "rmse": 1.2141149831493279,
+        "mape": 8.909635519238247
+      },
+      "rate_choice": "fixed",
+      "p80_coverage": 0.8615384615384616,
+      "tree_p80_coverage": 0.7384615384615385,
+      "p80_factor": 1.067207690242677,
+      "mean_demand": 9.614923076923077
+    },
+    "pancakes": {
+      "name": "Pancakes",
+      "unit": "kg",
+      "model": {
+        "mae": 0.46655634744125396,
+        "rmse": 0.5730623287051976,
+        "mape": 7.33712824903243
+      },
+      "fixed_rate": {
+        "mae": 0.5333378258529041,
+        "rmse": 0.7354555447864694,
+        "mape": 8.368545762379712
+      },
+      "baseline": {
+        "mae": 0.6583846153846155,
+        "rmse": 0.8553762105287134,
+        "mape": 10.695077641966748
+      },
+      "rate_choice": "guest mix",
+      "p80_coverage": 0.676923076923077,
+      "tree_p80_coverage": 0.6461538461538462,
+      "p80_factor": 1.0565359402176016,
+      "mean_demand": 6.145999999999999
+    },
+    "mee_goreng": {
+      "name": "Mee goreng",
+      "unit": "kg",
+      "model": {
+        "mae": 0.8789790448544426,
+        "rmse": 1.0841547040866681,
+        "mape": 6.317644386780871
+      },
+      "fixed_rate": {
+        "mae": 0.9112151973963477,
+        "rmse": 1.1114738744831494,
+        "mape": 6.502994650880778
+      },
+      "baseline": {
+        "mae": 1.2705000000000004,
+        "rmse": 1.621141662058421,
+        "mape": 9.273388543205808
+      },
+      "rate_choice": "guest mix",
+      "p80_coverage": 0.7230769230769231,
+      "tree_p80_coverage": 0.7076923076923077,
+      "p80_factor": 1.047738627068565,
+      "mean_demand": 13.785076923076923
+    },
+    "nasi_lemak_rice": {
+      "name": "Nasi lemak rice",
+      "unit": "kg",
+      "model": {
+        "mae": 1.1444933269433581,
+        "rmse": 1.452433879502755,
+        "mape": 7.0199191509336405
+      },
+      "fixed_rate": {
+        "mae": 1.1538263748218491,
+        "rmse": 1.4849467564392933,
+        "mape": 7.045949746433474
+      },
+      "baseline": {
+        "mae": 1.868423076923077,
+        "rmse": 2.3495942161933474,
+        "mape": 11.497089123967598
+      },
+      "rate_choice": "guest mix",
+      "p80_coverage": 0.7230769230769231,
+      "tree_p80_coverage": 0.6615384615384615,
+      "p80_factor": 1.0657362035334716,
+      "mean_demand": 16.26492307692308
+    },
+    "croissants": {
+      "name": "Croissants",
+      "unit": "pieces",
+      "model": {
+        "mae": 7.6893184125078795,
+        "rmse": 10.023990617406566,
+        "mape": 7.016699463669484
+      },
+      "fixed_rate": {
+        "mae": 7.855341802589094,
+        "rmse": 10.330522302634312,
+        "mape": 7.131480164428073
+      },
+      "baseline": {
+        "mae": 10.8,
+        "rmse": 13.689552445344813,
+        "mape": 9.688206517397063
+      },
+      "rate_choice": "guest mix",
+      "p80_coverage": 0.8,
+      "tree_p80_coverage": 0.7230769230769231,
+      "p80_factor": 1.060935495394137,
+      "mean_demand": 113.01538461538462
+    },
+    "cut_fruit": {
+      "name": "Cut fruit",
+      "unit": "kg",
+      "model": {
+        "mae": 1.338766866277715,
+        "rmse": 1.651605490357794,
+        "mape": 7.0193844273385135
+      },
+      "fixed_rate": {
+        "mae": 1.338766866277715,
+        "rmse": 1.651605490357794,
+        "mape": 7.0193844273385135
+      },
+      "baseline": {
+        "mae": 1.6466153846153844,
+        "rmse": 2.1121783778838377,
+        "mape": 8.696580826757799
+      },
+      "rate_choice": "fixed",
+      "p80_coverage": 0.7846153846153846,
+      "tree_p80_coverage": 0.7076923076923077,
+      "p80_factor": 1.0728958662966002,
+      "mean_demand": 18.61876923076923
+    }
+  },
+  "importance": {
+    "dow": 0.07214950465098026,
+    "is_weekend": 0.007394265578477406,
+    "public_holiday": 0.00619542124542279,
+    "school_holiday": 0.039477282713658114,
+    "occupancy_rate": 0.15223254530264227,
+    "adults": 15.043828242519858,
+    "children": 1.7361789403022654,
+    "breakfast_inclusive_rooms": 6.915031564479105,
+    "business_share": 1.8001966064979684,
+    "group_booking": -0.006621341693682581,
+    "check_ins": 0.4492261542575959
+  },
+  "demo_morning": {
+    "date": "2026-11-24",
+    "diners": 305.5098876863877,
+    "diners_p80": 319.0754750042181,
+    "actual": 291,
+    "shopping_list": {
+      "butter_kg": 0.86,
+      "chicken_sausages_kg": 16.68,
+      "coconut_milk_l": 4.53,
+      "cooking_oil_l": 0.56,
+      "eggs_pcs": 415,
+      "flour_kg": 2.42,
+      "frozen_croissant_dough_pcs": 128,
+      "frozen_hash_browns_kg": 11.7,
+      "milk_l": 4.96,
+      "mixed_vegetables_kg": 3.0,
+      "pandan_leaves_pcs": 37,
+      "rice_kg": 7.25,
+      "sauce_mix_l": 1.2,
+      "sugar_kg": 0.35,
+      "tofu_kg": 1.5,
+      "whole_fruit_kg": 34.45,
+      "yellow_noodles_kg": 9.0
+    },
+    "dishes": {
+      "scrambled_eggs": 20.320995251598717,
+      "chicken_sausages": 14.359023055490955,
+      "hash_browns": 10.438373835257812,
+      "pancakes": 6.555969279796194,
+      "mee_goreng": 14.312698298796443,
+      "nasi_lemak_rice": 17.01778858712131,
+      "croissants": 120.29784256680824,
+      "cut_fruit": 20.07108558481011
+    },
+    "dishes_p80": {
+      "scrambled_eggs": 21.861814862813713,
+      "chicken_sausages": 15.16340613960921,
+      "hash_browns": 11.139912830615083,
+      "pancakes": 6.926617167067184,
+      "mee_goreng": 14.995966865227569,
+      "nasi_lemak_rice": 18.136473401373905,
+      "croissants": 127.6282511984626,
+      "cut_fruit": 21.534184756028047
+    }
+  }
+}

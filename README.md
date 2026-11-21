@@ -10,8 +10,9 @@ The point of difference is timing. Tools such as Winnow Foresight plan quantitie
 | --- | --- | --- |
 | 0 | Repository, style tokens, static screens from the approved designs | Done |
 | 1 | Synthetic data for a fictional 300-room Singapore hotel (frozen) | Done |
-| 2 | Demand forecast for the night before | Next |
-| 3 to 8 | Guest flow, camera, nowcast and board, voice, report, showcase | Planned |
+| 2 | Demand forecast for the night before | Done |
+| 3 | Guest flow with live check-ins | Next |
+| 4 to 8 | Camera, nowcast and board, voice, report, showcase | Planned |
 
 ## Pages
 
@@ -113,3 +114,13 @@ python -m buffetiq.data_gen
 ```
 
 The printed SHA-256 checksum must match the one in `docs/EVIDENCE.md`.
+
+## Evaluate the forecast
+
+From the `src` folder:
+
+```bash
+python -m buffetiq.forecast
+```
+
+It trains on the first 300 days, tests on the last 65, prints the errors against the baseline, and redraws the charts in `docs/charts/`. The same steps are in `notebooks/02_evaluate_forecast.ipynb`, which also runs in Colab.

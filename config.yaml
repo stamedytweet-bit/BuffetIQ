@@ -259,3 +259,29 @@ calendar:
     - ["2026-09-04", "2026-09-13"]
     - ["2026-10-02", "2026-10-02"]
     - ["2026-11-21", "2026-12-31"]
+
+# ---------------------------------------------------------------------------
+# Phase 2 forecast settings and the recipe card for the shopping list.
+# Recipe quantities are raw ingredients per kg of finished dish (per piece for
+# croissants). They are our own kitchen estimates, not supplier specifications.
+# ---------------------------------------------------------------------------
+forecast:
+  train_days: 300                  # first 300 days train, last 65 test (by date)
+  baseline_weeks: 4                # same weekday over the previous four weeks
+  shopping_quantile: 0.80          # buy for a morning busier than 4 in 5 forecasts
+  cv_splits: 5                     # time-ordered cross-validation inside the training days
+  rf_grid:
+    max_depth: [null, 8, 12]
+    min_samples_leaf: [1, 3, 5]
+  rf_trees: 300
+  curve_tolerance: 0.05            # use the simpler average profile if within 5% of the model's error
+
+recipes:
+  scrambled_eggs:   {eggs_pcs: 18, milk_l: 0.10, butter_kg: 0.03}
+  chicken_sausages: {chicken_sausages_kg: 1.10}
+  hash_browns:      {frozen_hash_browns_kg: 1.05, cooking_oil_l: 0.05}
+  pancakes:         {flour_kg: 0.35, milk_l: 0.40, eggs_pcs: 3, sugar_kg: 0.05, butter_kg: 0.03}
+  mee_goreng:       {yellow_noodles_kg: 0.60, mixed_vegetables_kg: 0.20, tofu_kg: 0.10, sauce_mix_l: 0.08}
+  nasi_lemak_rice:  {rice_kg: 0.40, coconut_milk_l: 0.25, pandan_leaves_pcs: 2}
+  croissants:       {frozen_croissant_dough_pcs: 1.0}
+  cut_fruit:        {whole_fruit_kg: 1.60}       # about 60% usable after peeling and cutting
