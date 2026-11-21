@@ -23,6 +23,12 @@ rules:
   treatsure_window_minutes: 60   # last hour of service
   treatsure_min_surplus_kg: 1.0
   low_confidence: 0.6            # camera results below this are not sent to the board
+  check_minutes: 15              # how often trays are checked; a Hold says "Next check" this far ahead
+  cover_minutes: 45              # a cook call covers expected demand until ready plus this long
+  min_forecast_share: 0.05       # below this share of the morning, the nowcast keeps the night-before forecast
+  override_minutes: 30           # how long a chef override stands before BuffetIQ calls again
+  cook_to_order_waste: 0.03      # share of cooked-to-order food left on plates or pans (our estimate)
+  forecast_jump_alert: 0.05      # alert when expected diners move this much (5%) from the last alert
   fill_fraction:                 # amount = pan capacity x fraction
     empty: 0.0
     low: 0.15
@@ -285,3 +291,11 @@ recipes:
   nasi_lemak_rice:  {rice_kg: 0.40, coconut_milk_l: 0.25, pandan_leaves_pcs: 2}
   croissants:       {frozen_croissant_dough_pcs: 1.0}
   cut_fruit:        {whole_fruit_kg: 1.60}       # about 60% usable after peeling and cutting
+
+# ---------------------------------------------------------------------------
+# Phase 5 replay of the 65 test days (see docs/ASSUMPTIONS.md)
+# ---------------------------------------------------------------------------
+replay:
+  step_minutes: 5                # the morning is replayed in 5-minute steps
+  camera_accuracy: 0.85          # share of tray readings that are right; the rest are one level off
+  acceptance_levels: [0.0, 0.10, 0.20, 0.30]   # share of guests in Busy half hours who accept a quieter one

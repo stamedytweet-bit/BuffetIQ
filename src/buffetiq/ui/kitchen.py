@@ -1,16 +1,18 @@
 """Kitchen board, page "/" (screen 01).
 
 Read, not touched: full screen on a TV at the pass, fixed dish order, no scrolling.
-Each read-only region is a gr.HTML rendered by a function below from a view model
-(sample data in Phase 0, live state from Phase 5). The four backup buttons are
-native gr.Buttons.
+Each read-only region is a gr.HTML rendered from the kitchen engine in state.py
+and refreshed every 5 seconds with gr.Timer. The four backup buttons are native
+gr.Buttons: "Log arrivals +5" counts diners, "Check a tray" shows a QR code for
+the runner page, and "Override a call" opens the override chooser. "Hold to ask
+BuffetIQ" and the last voice answer arrive in Phase 6.
 """
 
 from __future__ import annotations
 
 import gradio as gr
 
-from buffetiq import state
+from buffetiq import nowcast, state, style
 from buffetiq.style import check_copy, esc, fmt_amount, icon
 from buffetiq.ui import sample
 
@@ -124,64 +126,119 @@ def render_voice(v: dict) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Live view models (Phase 3: header and arrivals; dish cards follow in Phase 5)
+# Live view models (Phase 5: everything except the last voice answer, Phase 6)
 # ---------------------------------------------------------------------------
+
+def _level_word(stock: float, capacity: float) -> str:
+    frac = min(stock, capacity) / capacity
+    if frac <= 0.02:
+        return "Empty"
+    if frac < 0.25:
+        return "Low"
+    if frac <= 0.75:
+        return "Half"
+    return "Full"
+
 
 def live_header() -> dict:
     s = state.service()
+    e = s.kitchen()
     cfg = s.config["service"]
-    expected = int(round(s.expected_diners()))
-    was = int(round(s.n0))
-    word, count = s.next_15()
+    n = e.n() if e.started else s.expected_diners()
+    expected, was = int(round(n)), int(round(s.n0))
+    slots = s.expected_slots()
+    now = s.clock_minutes()
+    if e.started and now < nowcast.SERVICE_END:
+        nxt = nowcast.remaining_between(n, e.arrived(), e.shares, now, now + 15)
+    else:
+        nxt = float(slots[0]) if now < nowcast.SERVICE_START else 0.0
+    word = state.crowd_word(nxt, float(max(slots.max(), 1)))
     return {
         "date_line": f"Breakfast service · {state.long_date(s.service_date)} · {cfg['start']} to {cfg['end']} · Fictional data",
         "clock": s.clock.strftime("%H:%M"),
-        "diners_so_far": 0,                      # host arrivals are logged from Phase 5
+        "diners_so_far": int(round(e.arrived())),
         "expected": expected,
         "expected_was": was if was != expected else None,
         "next15_word": word,
-        "next15_count": count,
+        "next15_count": int(round(nxt)),
     }
 
 
 def live_arrivals() -> dict:
     s = state.service()
+    e = s.kitchen()
     cfg = s.config["service"]
     forecast_slots = s.expected_slots()
-    top = max(forecast_slots.max(), 1)
+    actual = e.arrivals
+    top = max(forecast_slots.max(), actual.max(), 1)
     current = s.current_slot_index()
+    f = e.f() if e.started else 0.0
+    if not e.started:
+        finding = f"Service starts at {cfg['start']}"
+    elif f < s.config["rules"]["min_forecast_share"]:
+        finding = "Too early to compare"
+    else:
+        gap = e.arrived() / (f * e.n0) - 1
+        finding = "On forecast" if abs(gap) < 0.03 else f"{abs(gap):.0%} {'ahead of' if gap > 0 else 'behind'} forecast"
+    last = current if current is not None else (len(actual) - 1 if e.started and s.clock_minutes() >= nowcast.SERVICE_END else -1)
     return {
-        "finding": "Service starts at " + cfg["start"] if current is None and s.clock_minutes() < state.minutes(cfg["start"])
-                   else "No arrivals logged yet",
+        "finding": finding,
         "start": cfg["start"],
         "now_label": f"{s.clock.strftime('%H:%M')} now" if current is not None else "",
         "end": cfg["end"],
         "forecast_px": [max(2, round(BAR_AREA_PX * v / top)) for v in forecast_slots],
-        "actual_px": [None] * len(forecast_slots),
+        "actual_px": [max(3, round(BAR_AREA_PX * actual[i] / top)) if i <= last else None for i in range(len(actual))],
         "current_index": current if current is not None else -1,
     }
 
 
 def live_dishes() -> list[dict]:
-    """Sample cards, with each dish's level, bar and amount replaced by its latest tray check.
-
-    The action block and pan timer stay sample until the refill engine arrives in Phase 5.
-    """
-    trays = state.service().trays
+    """One card per dish from the engine: level, amount, call and pan timer."""
+    s = state.service()
+    e = s.kitchen()
+    now = s.clock_minutes()
     cards = []
-    for d, card in zip(state.load_config()["dishes"], sample.KITCHEN_DISHES):
-        card = dict(card)
-        t = trays.get(d["id"])
-        if t:
-            card["level"] = t["level"].capitalize()
-            card["fill_pct"] = round(t["fraction"] * 100)
-            card["amount"] = fmt_amount(t["amount"], t["capacity"], t["unit"])
-        cards.append(card)
+    for d in s.config["dishes"]:
+        did, cap = d["id"], float(d["pan_capacity"])
+        stock = e.stock.get(did, cap)            # before service the opening pan is ready
+        word = _level_word(stock, cap)
+        call = e.calls.get(did)
+        if not e.started or call is None:
+            action, line, kind = "Hold", f"Service starts at {s.config['service']['start']}", "hold"
+        else:
+            action, line = nowcast.action_text(d, call), call.line
+            kind = "hold"
+            if call.action == "cook":
+                kind = "empty" if did in e.empty_since else "act"
+        reserve = stock - cap
+        if action == "Hold" and reserve > 0.05 * cap and e.started and "override" not in line:
+            extra = f"{reserve:.1f} kg" if d["unit"] == "kg" else f"{int(round(reserve))} pieces"
+            line += f" · {extra} in reserve"
+        if d.get("chilled"):
+            timer_kind, timer = "ok", "Chilled display · check temperature"
+        else:
+            timer_kind, timer = nowcast.pan_status(e.out_at.get(did) if e.started else None, now)
+        border = {"limit": "empty", "warn": "act"}.get(timer_kind, kind if kind in ("act", "empty") else "normal")
+        if kind == "empty":
+            border = "empty"
+        cards.append({
+            "name": d["name"], "station": d["station"], "level": word,
+            "fill_pct": round(100 * min(stock, cap) / cap),
+            "amount": fmt_amount(min(stock, cap), cap, d["unit"]),
+            "action": action, "action_kind": kind, "action_line": line,
+            "timer": timer, "timer_kind": timer_kind, "card_kind": border,
+        })
     return cards
 
 
 def live_alerts() -> list[dict]:
-    return state.service().latest_alerts(3)
+    """Kitchen alerts from the engine and guest booking alerts, newest first, three at most."""
+    s = state.service()
+    e = s.kitchen()
+    items = [(a.at, {"kind": a.kind, "title": a.title, "line": a.line}) for a in e.alerts]
+    items += [(state.minutes(a["at"]), a) for a in s.latest_alerts(10)]
+    items.sort(key=lambda x: -x[0])
+    return [a for _, a in items[:3]]
 
 
 def refresh():
@@ -189,9 +246,16 @@ def refresh():
             render_alerts(live_alerts()))
 
 
+OVERRIDE_ACTIONS = [("Cook a batch now", "cook"), ("Hold", "hold"), ("Let it run down", "run_down"),
+                    ("Cook to order", "cook_to_order"), ("Discard the pan (4-hour rule or spoiled)", "discard")]
+OVERRIDE_REASONS = ["VIP or event breakfast", "Dropped or spoiled tray", "Quality problem",
+                    "Looks different by eye", "Pan reached 4 hours", "Other"]
+
+
 def build_page() -> dict:
     """Build the kitchen board inside the current Blocks/route context."""
     gr.Navbar(visible=False)
+    dish_names = [d["name"] for d in state.load_config()["dishes"]]
     with gr.Column(elem_classes=["bq-page", "bq-kitchen", "bq-board-viewport"]):
         with gr.Column(elem_id="bq-board"):
             header = gr.HTML(lambda: render_header(live_header()), elem_id="bq-header")
@@ -206,10 +270,60 @@ def build_page() -> dict:
                 tray_btn = gr.Button("Check a tray", elem_id="k-tray", elem_classes=["bq-btn", "bq-ico-camera"])
                 ask_btn = gr.Button("Hold to ask BuffetIQ", elem_id="k-ask", elem_classes=["bq-btn", "bq-primary", "bq-ico-mic"])
                 override_btn = gr.Button("Override a call", elem_id="k-override", elem_classes=["bq-btn", "bq-ico-pencil"])
+
+            # ---- touch backups, shown over the board only when asked for ----
+            with gr.Column(visible=False, elem_id="k-panel-override", elem_classes=["k-sheet"]) as override_panel:
+                gr.HTML('<h2 class="k-sheet-title">Override a call</h2>')
+                o_dish = gr.Dropdown(dish_names, value=dish_names[0], label="Dish", elem_classes=["k-field"])
+                o_action = gr.Radio([a for a, _ in OVERRIDE_ACTIONS], value=OVERRIDE_ACTIONS[0][0], label="New action",
+                                    elem_classes=["k-field", "k-choice"])
+                o_reason = gr.Dropdown(OVERRIDE_REASONS, value=OVERRIDE_REASONS[0], label="Reason", elem_classes=["k-field"])
+                with gr.Row(elem_classes=["k-sheet-buttons"]):
+                    o_cancel = gr.Button("Cancel", elem_classes=["bq-btn", "k-sheet-secondary"])
+                    o_apply = gr.Button("Apply override", elem_classes=["bq-btn", "k-sheet-primary"])
+            with gr.Column(visible=False, elem_id="k-panel-tray", elem_classes=["k-sheet"]) as tray_panel:
+                tray_html = gr.HTML("")
+                tray_close = gr.Button("Close", elem_classes=["bq-btn", "k-sheet-secondary"])
+
     timer = gr.Timer(REFRESH_SECONDS)
     timer.tick(refresh, None, [header, dishes, arrivals, alerts], show_progress="hidden", queue=False)
+
+    def log_five():
+        state.service().log_arrivals(5)
+        return refresh()
+
+    log_btn.click(log_five, None, [header, dishes, arrivals, alerts], show_progress="hidden")
+
+    def open_tray(request: gr.Request):
+        from buffetiq import qr
+
+        url = qr.url_from_request(request).replace(qr.GUEST_PATH, "/runner")
+        img = qr.qr_image(url, box=8)
+        import base64, io
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        src = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+        html = (f'<h2 class="k-sheet-title">Check a tray with a phone</h2>'
+                f'<p class="k-sheet-text">Scan with the runner\'s phone, photograph the tray, and this board updates '
+                f'within 5 seconds.</p><img class="k-sheet-qr" src="{src}" alt="QR code for the runner page">'
+                f'<p class="k-sheet-text">{esc(url)}</p>')
+        return gr.update(visible=True), html
+
+    tray_btn.click(open_tray, None, [tray_panel, tray_html])
+    tray_close.click(lambda: gr.update(visible=False), None, tray_panel)
+
+    override_btn.click(lambda: gr.update(visible=True), None, override_panel)
+    o_cancel.click(lambda: gr.update(visible=False), None, override_panel)
+
+    def apply_override(name, action_label, reason):
+        dish_id = next(d["id"] for d in state.load_config()["dishes"] if d["name"] == name)
+        action = dict(OVERRIDE_ACTIONS)[action_label]
+        state.service().override(dish_id, action, reason)
+        return (gr.update(visible=False), *refresh())
+
+    o_apply.click(apply_override, [o_dish, o_action, o_reason], [override_panel, header, dishes, arrivals, alerts])
+
     return {
-        "timer": timer,
-        "header": header, "dishes": dishes, "arrivals": arrivals, "alerts": alerts, "voice": voice,
+        "timer": timer, "header": header, "dishes": dishes, "arrivals": arrivals, "alerts": alerts, "voice": voice,
         "log": log_btn, "tray": tray_btn, "ask": ask_btn, "override": override_btn,
     }

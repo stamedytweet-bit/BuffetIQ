@@ -52,10 +52,15 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--port", type=int, default=int(os.environ.get("BUFFETIQ_PORT", 7860)))
     parser.add_argument("--host", default=os.environ.get("BUFFETIQ_HOST", "127.0.0.1"),
                         help="use 0.0.0.0 so phones on the same Wi-Fi can open the pages")
+    parser.add_argument("--at", metavar="HH:MM",
+                        help="replay the demo morning up to this time first, such as 08:40 (simulated guests and trays)")
     args = parser.parse_args(argv)
 
     print("Preparing the forecast for the service...")
     state.service()   # train the live forecast once, before the first page opens
+    if args.at:
+        state.service().replay_to(args.at)
+        print(f"Replayed the demo morning to {args.at} with simulated guests and tray checks.")
     demo = build_app()
     demo.launch(
         share=args.share or in_colab(),

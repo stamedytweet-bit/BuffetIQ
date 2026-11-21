@@ -176,6 +176,9 @@ class Service:
         self.trays: dict[str, dict] = {}         # latest tray level per dish id
         self.log_path = Path(log_path) if log_path else SERVICE_LOG_PATH
         self._load_plans()
+        # expected amount per diner for each dish, from the night-before dish model
+        self.rates = {d["id"]: float(self.model.dish_rate(self.row, d["id"])[0]) for d in self.config["dishes"]}
+        self.engine = self._new_engine()
 
     # ---- persistence (local file only) ----
     def _load_plans(self) -> None:
@@ -261,6 +264,62 @@ class Service:
         attending = [p for p in self.plans.values() if p.attending]
         return {"halal": sum(p.halal for p in attending), "vegetarian": sum(p.vegetarian for p in attending)}
 
+    # ---- the kitchen engine (Phase 5) ----
+    def _new_engine(self):
+        from buffetiq.nowcast import Engine
+
+        slots = self.expected_slots()
+        return Engine(dishes=self.config["dishes"], rules=self.config["rules"], n0=self.expected_diners(),
+                      shares=list(slots / slots.sum()), rates=self.rates)
+
+    def kitchen(self):
+        """The engine brought up to the service clock. Before service it follows guest bookings."""
+        with LOCK:
+            e = self.engine
+            if not e.started:
+                slots = self.expected_slots()
+                e.n0 = self.expected_diners()
+                e.shares = list(slots / slots.sum())
+            e.step(self.clock_minutes())
+            return e
+
+    def log_arrivals(self, count: int) -> None:
+        with LOCK:
+            self.kitchen().log_arrivals(count, self.clock_minutes())
+            self.log_event("arrivals", amount=count, source="host")
+
+    def override(self, dish_id: str, action: str, reason: str) -> None:
+        """A chef's override, logged with its reason. "discard" logs the pan as waste."""
+        with LOCK:
+            e = self.kitchen()
+            stock = e.stock.get(dish_id, 0.0)
+            e.override(dish_id, action, reason, self.clock_minutes())
+            self.log_event("override", dish=dish_id, note=f"{action}: {reason}", source="chef")
+            if action == "discard":
+                self.log_event("discard", dish=dish_id, amount=round(stock, 3),
+                               unit=self.dish(dish_id)["unit"], note=reason, source="chef")
+            e.step(self.clock_minutes())
+
+    def replay_to(self, hhmm_text: str, seed: int | None = None) -> None:
+        """Replay this morning from 06:30 to `hhmm_text` with simulated guests and camera checks,
+        so the board shows a running service (used by --at and the showcase controls)."""
+        import random as _random
+
+        from buffetiq import data_gen, simulate
+        from buffetiq.nowcast import SERVICE_START
+
+        with LOCK:
+            self.engine = self._new_engine()
+            r = self.row.iloc[0]
+            demand = {d["id"]: float(r[data_gen.dish_columns(d)["demand"]]) for d in self.config["dishes"]}
+            world = simulate.World(self.config["dishes"], demand, r[data_gen.ARRIVAL_COLUMNS].to_numpy(float),
+                                   self.config["replay"]["step_minutes"], self.config["rules"]["cook_to_order_waste"])
+            until = minutes(hhmm_text)
+            rng = _random.Random(self.config["simulation"]["seed"] if seed is None else seed)
+            simulate.play(self.engine, world, SERVICE_START, until, self.config, rng)
+            self.clock = datetime.strptime(f"{self.service_date} {hhmm_text}", "%Y-%m-%d %H:%M")
+            self.engine.step(until)
+
     # ---- tray levels (Phase 4) and the action log ----
     def dish(self, dish_id: str) -> dict:
         return next(d for d in self.config["dishes"] if d["id"] == dish_id)
@@ -282,6 +341,7 @@ class Service:
         with LOCK:
             if not leftover:
                 self.trays[dish_id] = entry
+                self.kitchen().tray_check(dish_id, est["amount"], level, self.clock_minutes())
             self.log_event("leftover" if leftover else "tray_check", dish=dish_id, level=level,
                            amount=round(est["amount"], 3), unit=est["unit"],
                            confidence=None if confidence is None else round(confidence, 3), source=source)
@@ -360,6 +420,8 @@ class Service:
     def set_clock(self, when: datetime) -> None:
         with LOCK:
             self.clock = when
+            if hasattr(self, "engine"):
+                self.kitchen()
 
     def breakfast_heading(self) -> str:
         """'Breakfast tomorrow' the day before, 'Breakfast this morning' on the day."""

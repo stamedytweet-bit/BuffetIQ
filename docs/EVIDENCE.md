@@ -115,3 +115,70 @@ Before the photos exist, the pipeline was checked end to end with a throwaway mo
 One weakness showed up: a plain grey image, which is not a tray at all, was classified as Empty with 85% confidence. A confidence threshold only catches photos the model finds ambiguous, not photos of something else entirely, so runners still need to look at the result. We will check whether the model trained on real photos behaves the same way.
 
 The 16 tests in `tests/test_camera.py` check the amount formula (pan capacity times 0, 0.15, 0.5 or 0.9), the wording against the design, that results below 60% confidence are not sent, that a missing model falls back to the manual buttons, that sure, manual and leftover results reach the board or the history correctly, that the log holds no guest data, that corrections are saved in the right folder, that the split keeps every level in each part with no overlap, and that the photo check flags shortfalls and copies.
+
+## Phase 5: nowcast, refill engine and kitchen board
+
+This section tests BuffetIQ's central claim: that guiding the kitchen during service, rather than only planning the night before, cuts leftover food without leaving trays empty. Every result is simulated on fictional data, from `python -m buffetiq.simulate` (run from `src`), with the raw output in `docs/phase5_results.json`.
+
+### How the replay works
+
+Each of the 65 test mornings (21 September to 24 November 2026) is replayed in 5-minute steps from 06:30 to 10:30, with guests arriving as they did in the synthetic data and eating each dish in proportion to their arrivals, up to that day's true demand. Every policy opens with one full pan of each dish. Food left on the buffet, held in reserve or still cooking at 10:30 counts as surplus, and a stock-out minute is a minute in which a dish's tray was empty while guests wanted it.
+
+1. **Baseline chef rule.** The chef cooks the day's planned amount from the data (the same-weekday four-week average plus 15%) through the morning, following the usual arrival curve for that day type, and cooks one more batch whenever a tray is empty with nothing cooking.
+2. **Forecast only.** The same, but the planned amount is the night-before forecast plus the 10% buffer, spread along the forecast arrival curve.
+3. **Full BuffetIQ.** The nowcast and refill engine from `src/buffetiq/nowcast.py`, the same code that drives the live kitchen board. It sees only the arrivals the host logs and a camera reading of each tray every 15 minutes, given as Empty, Low, Half or Full and right 85% of the time (otherwise one level off), until the group's photos give a measured accuracy. Its calls are assumed to be followed, and hot dishes switch to cook-to-order when fewer than 12 guests per 15 minutes are expected for the rest of service.
+
+### Results
+
+| Policy | Surplus at close (kg a day) | Change | Cost of surplus (S$ a day) | Change | Stock-out minutes (a day, all dishes) | Change |
+| --- | --- | --- | --- | --- | --- | --- |
+| Baseline chef rule | 21.9 | | 119.6 | | 12.9 | |
+| Forecast only | 17.0 | -22% | 95.5 | -20% | 8.9 | -4.0 |
+| **Full BuffetIQ** | **17.6** | **-20%** | **93.6** | **-22%** | **5.7** | **-7.2** |
+| BuffetIQ without cook-to-order | 18.3 | -17% | 96.4 | -19% | 10.1 | -2.8 |
+
+![Surplus and stock-out minutes by policy](charts/phase5_policies.png)
+
+Full BuffetIQ cuts surplus by 4.3 kg a day (20%) and the food cost of that surplus by S$26 a day (22%, about S$9,500 a year for this fictional hotel) compared with the baseline chef rule, and at the same time cuts the minutes a dish stands empty by 56%, from 12.9 to 5.7 a day. It therefore meets the bar set for this phase: less surplus without more stock-out minutes.
+
+Three findings are less flattering and are reported as they came out:
+
+1. **Forecast only leaves slightly less food than full BuffetIQ** (17.0 kg against 17.6 kg a day), because BuffetIQ's calls cook to cover expected demand until a batch is ready plus 45 minutes, keeping a reserve. Forecast only pays for its lower surplus with 56% more empty minutes (8.9 against 5.7). The live engine trades about 0.6 kg a day of food for about 3 fewer empty minutes.
+2. **Eggs and croissants do not improve on stock-outs.** BuffetIQ leaves as many eggs as the baseline (3.8 kg a day) and its croissant stock-out minutes are slightly higher (0.3 against 0.1 a day). BuffetIQ also has more days with a brief empty tray for several dishes (for example 12 against 5 days for chicken sausages), although the minutes on those days are much shorter.
+3. **The cook-to-order switch never triggered in the first replay because of a bug.** Expected arrivals in later slots were divided by the share of the morning left after each slot instead of after the current time, so the last 15 minutes looked as busy as 234 guests. The bug was fixed (a regression test now guards it) and the results above are from the corrected replay. With the switch working, it saves 0.7 kg a day and 4.4 stock-out minutes, so most of the gain comes from forecasting and refills.
+
+| Dish | Surplus, baseline (kg) | Surplus, BuffetIQ (kg) | Stock-out min, baseline | Stock-out min, BuffetIQ | Cost, baseline (S$) | Cost, BuffetIQ (S$) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Scrambled eggs | 3.77 | 3.78 | 1.1 | 0.3 | 18.87 | 18.90 |
+| Chicken sausages | 2.69 | 2.14 | 1.0 | 0.5 | 20.21 | 16.07 |
+| Hash browns | 1.89 | 1.33 | 2.5 | 1.2 | 7.55 | 5.32 |
+| Pancakes | 1.23 | 0.66 | 1.5 | 0.8 | 5.52 | 2.95 |
+| Mee goreng | 2.75 | 2.12 | 1.5 | 0.7 | 9.63 | 7.42 |
+| Nasi lemak rice | 2.99 | 2.64 | 4.0 | 1.2 | 7.47 | 6.61 |
+| Croissants | 2.60 | 1.75 | 0.1 | 0.3 | 31.22 | 20.99 |
+| Cut fruit | 3.99 | 3.21 | 1.3 | 0.7 | 19.14 | 15.39 |
+
+In the last hour, BuffetIQ flagged an average of 11.2 kg a day as likely surplus for a Treatsure offer. These flags are not subtracted from the surplus above, because the replay cannot know how much would actually sell.
+
+### Sensitivity test: guests who accept a quieter half hour
+
+This is a sensitivity test, not a prediction. It moves a share of the guests in each Busy half hour of the forecast to the nearest Quiet one and replays full BuffetIQ.
+
+| Share of guests who accept | Surplus (kg a day) | Stock-out minutes (a day) | Cost (S$ a day) |
+| --- | --- | --- | --- |
+| 0% | 17.6 | 5.7 | 93.6 |
+| 10% | 16.2 | 4.5 | 86.3 |
+| 20% | 15.6 | 7.3 | 83.3 |
+| 30% | 15.9 | 16.4 | 84.4 |
+
+Up to about 10%, a flatter rush helps on both counts. Beyond that, the moved guests turn the quiet half hours into new peaks, and stock-out minutes rise sharply, because in this test the forecast curve does not learn where the guests went. In the live app, guests who choose a time on the guest page are placed in their half hour, so the real effect should sit between these figures, but this replay cannot show that.
+
+### Changes worth trying
+
+The 45-minute cover window, the 10% buffer and the cook-to-order threshold of 12 guests per 15 minutes were set before any results were seen and have not been tuned. A shorter cover window late in the morning, or a half batch for the last cook of the day, would probably close the gap with forecast only on surplus, but any such change should be chosen on training days and tested once on these 65 days, not tuned against them.
+
+### The live kitchen board
+
+The kitchen board now runs entirely on the engine, apart from the last voice answer (Phase 6). Started with `python app.py --at 08:40`, it replays the demo morning to 08:40 with simulated guests and camera checks. It then shows 223 diners so far, "Expected today 310, was 300", Moderate for the next 15 minutes, arrivals 5% ahead of forecast, chicken sausages Empty with "Cook 5 kg · Now · tray empty since 08:35", the other dishes on Hold with their reserves, pan timers, and the stop-out and cook-to-order alerts. "Log arrivals +5" raised the expected total from 310 to 315 at the next refresh, "Override a call" changed scrambled eggs to "Let it run down" with the chef's reason shown on the card, and "Check a tray" shows a QR code for the runner page.
+
+The tests in `tests/test_nowcast.py` cover zero arrivals, the nowcast formula, refill rounding, the lead-time cut-off, the pan timer thresholds (3 hours 30 minutes and 4 hours), the slot arrivals bug, cook-to-order timing, calls being followed only once, stop-out alerts, overrides and discards, Treatsure flags only in the last hour, the camera error model, conservation of food in the replay, and the live board after a replay.

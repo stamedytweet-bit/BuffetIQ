@@ -13,8 +13,9 @@ The point of difference is timing. Tools such as Winnow Foresight plan quantitie
 | 2 | Demand forecast for the night before | Done |
 | 3 | Guest flow with live check-ins and the guest QR code | Done |
 | 4 | Camera tray check (waiting for the group's photos to train the real model) | Built |
-| 5 | Nowcast, refill engine and live kitchen board | Next |
-| 6 to 8 | Voice, report, showcase | Planned |
+| 5 | Nowcast, refill engine, live kitchen board and the 65-day replay | Done |
+| 6 | Ask BuffetIQ voice assistant | Next |
+| 7 to 8 | Report, retraining and showcase | Planned |
 
 ## Pages
 
@@ -57,6 +58,12 @@ The app needs Python 3.11 or newer.
    ```
 
 5. Open http://127.0.0.1:7860 for the kitchen board, and add `/runner`, `/guest`, `/report` or `/about` for the other pages. Press F11 in the browser to put the board full screen on the TV.
+
+To see the board in the middle of a service, start it replayed to a time of the demo morning (simulated guests and tray checks):
+
+```bash
+python app.py --at 08:40
+```
 
 To open the runner and guest pages on phones connected to the same Wi-Fi, start the app with `--host 0.0.0.0`, then open `http://<laptop IP address>:7860/runner` on the phone:
 
@@ -159,3 +166,13 @@ It trains on the first 300 days, tests on the last 65, prints the errors against
    This saves `models/tray_cls.pt` and writes the test accuracy and confusion matrix into `docs/`. Restart the app to use it.
 
 Until then, `python -m buffetiq.camera standin` trains a stand-in model on computer-drawn trays so the runner page can be tried; the page labels its results as coming from a test model.
+
+## Replay the 65 test days
+
+From the `src` folder:
+
+```bash
+python -m buffetiq.simulate
+```
+
+It replays every test morning under the baseline chef rule, forecast only and full BuffetIQ, prints surplus, cost and stock-out minutes, and redraws `docs/charts/phase5_policies.png`.

@@ -335,6 +335,32 @@ KITCHEN_BOARD_CSS = """
 .k-voice .q { font-size: 18px; color: var(--bq-text-2); }
 .k-voice .a { font-size: 22px; font-weight: 700; line-height: 1.3; }
 
+/* touch-backup sheets over the board (override chooser, runner QR code) */
+.k-sheet { position: absolute !important; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 820px !important;
+  max-height: 900px; z-index: 50; background: var(--bq-surface) !important; border: 2px solid var(--bq-border-strong) !important;
+  border-radius: 22px !important; padding: 32px !important; gap: 20px !important; box-shadow: 0 0 0 4000px rgba(5, 8, 9, 0.72) !important; }
+.k-sheet-title { margin: 0; font-size: 34px; font-weight: 800; color: var(--bq-text); }
+.k-sheet-text { margin: 0; font-size: 20px; line-height: 1.4; color: var(--bq-text-2); }
+.k-sheet-qr { width: 280px; height: 280px; border-radius: 14px; background: #FFFFFF; padding: 8px; }
+.k-sheet .k-field label > span, .k-sheet .k-field [data-testid="block-info"] { font-size: 20px !important; font-weight: 700 !important;
+  color: var(--bq-text-2) !important; }
+.k-sheet .k-field input, .k-sheet .k-field .wrap-inner, .k-sheet .k-field .secondary-wrap { font-size: 22px !important; min-height: 56px;
+  color: var(--bq-text) !important; background: var(--bq-raised) !important; }
+.k-sheet .k-field .wrap { gap: 10px !important; }
+.k-sheet .k-choice label { min-height: 56px; font-size: 20px !important; background: var(--bq-raised) !important;
+  border: 2px solid var(--bq-border-strong) !important; color: var(--bq-text) !important; border-radius: 14px !important; padding: 0 16px !important; }
+.k-sheet .k-choice label { position: relative; }
+.k-sheet .k-choice label input { position: absolute; inset: 0; width: 100% !important; height: 100% !important; margin: 0 !important;
+  opacity: 0; cursor: pointer; }
+.k-sheet .k-choice label span { margin: 0 !important; color: inherit !important; }
+.k-sheet .k-choice label:has(input:focus-visible) { outline: 3px solid var(--bq-brand); outline-offset: 2px; }
+.k-sheet .k-choice label.selected, .k-sheet .k-choice label:has(input:checked) { border-color: var(--bq-act) !important; }
+.k-sheet-buttons { display: grid !important; grid-template-columns: 1fr 1fr; gap: 16px !important; }
+.bq-kitchen .bq-btn.k-sheet-primary, .bq-kitchen .bq-btn.k-sheet-secondary { min-height: 72px; border-radius: 16px !important;
+  font-size: 24px !important; font-weight: 800 !important; }
+.bq-kitchen .bq-btn.k-sheet-primary { background: var(--bq-act) !important; color: var(--bq-act-ink) !important; border: none !important; }
+.bq-kitchen .bq-btn.k-sheet-secondary { background: var(--bq-raised) !important; color: var(--bq-text) !important;
+  border: 2px solid var(--bq-border-strong) !important; }
 #bq-strip .bq-btn { height: 96px !important; min-height: 96px; border-radius: 18px !important; border: 2px solid var(--bq-border-strong) !important;
   background: var(--bq-raised) !important; color: var(--bq-text) !important; font-size: 26px !important; font-weight: 700 !important;
   gap: 14px; --bq-ico: 30px; padding: 0 16px !important; }
