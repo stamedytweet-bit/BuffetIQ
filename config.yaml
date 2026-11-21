@@ -1,0 +1,287 @@
+# BuffetIQ configuration. Every value here is fictional and chosen for the prototype.
+# Phase 1 documents the reasoning for each number in docs/ASSUMPTIONS.md.
+
+hotel:
+  name: "Selat House"            # fictional; searched in November 2026 and no hotel of this name was found
+  restaurant: "The Daybreak Room"
+  level: "Level 2"
+  rooms: 300
+  city: "Singapore"
+
+service:
+  start: "06:30"
+  end: "10:30"
+  slot_minutes: 15               # sixteen 15-minute slots
+  guest_slot_minutes: 30         # crowd view on the guest page uses half hours
+  refresh_seconds: 5             # gr.Timer interval for live pages
+
+rules:
+  safety_buffer: 0.10            # b in the refill formula
+  pan_warn_minutes: 210          # footer turns saffron at 3 hours 30 minutes
+  pan_limit_minutes: 240         # Singapore Food Agency 4-hour rule: swap now
+  cook_to_order_threshold: 12    # guests per 15 minutes; the chef can change this
+  treatsure_window_minutes: 60   # last hour of service
+  treatsure_min_surplus_kg: 1.0
+  low_confidence: 0.6            # camera results below this are not sent to the board
+  fill_fraction:                 # amount = pan capacity x fraction
+    empty: 0.0
+    low: 0.15
+    half: 0.5
+    full: 0.9
+
+# Dishes stay in this order on the kitchen board, so cooks build muscle memory.
+# unit: kg or pieces. piece_kg converts pieces to kilograms for the waste report.
+# lead_minutes: from "cook now" to the batch being ready on the line.
+# batch: the amount one cook produces; refill calls are rounded up to it.
+# pan_capacity: what one display pan holds (kg or pieces).
+# last_cook: the latest time a fresh batch may be ready; later calls become "Let it run down".
+# cost_per_kg: food cost in Singapore dollars.
+dishes:
+  - id: scrambled_eggs
+    name: "Scrambled eggs"
+    station: "Hot station 1"
+    unit: kg
+    lead_minutes: 8
+    batch: 1.0
+    pan_capacity: 2.5
+    last_cook: "10:15"
+    cost_per_kg: 5.00
+    halal: true
+    vegetarian: true
+    hot: true
+    synonyms: ["egg", "eggs", "scrambled", "scrambled egg", "scrambled eggs"]
+
+  - id: chicken_sausages
+    name: "Chicken sausages"
+    station: "Hot station 1"
+    unit: kg
+    lead_minutes: 15
+    batch: 1.25
+    pan_capacity: 2.5
+    last_cook: "10:00"
+    cost_per_kg: 7.50
+    halal: true
+    vegetarian: false
+    hot: true
+    synonyms: ["sausage", "sausages", "chicken sausage", "chicken sausages", "hotdog", "hot dog"]
+
+  - id: hash_browns
+    name: "Hash browns"
+    station: "Hot station 1"
+    unit: kg
+    lead_minutes: 12
+    batch: 1.0
+    pan_capacity: 2.0
+    last_cook: "10:05"
+    cost_per_kg: 4.00
+    halal: true
+    vegetarian: true
+    hot: true
+    synonyms: ["hash brown", "hash browns", "hashbrown", "hashbrowns", "potato", "potatoes"]
+
+  - id: pancakes
+    name: "Pancakes"
+    station: "Live station"
+    unit: kg
+    lead_minutes: 6
+    batch: 0.5
+    pan_capacity: 1.5
+    last_cook: "10:15"
+    cost_per_kg: 4.50
+    halal: true
+    vegetarian: true
+    hot: true
+    synonyms: ["pancake", "pancakes", "hotcake", "hotcakes", "flapjack"]
+
+  - id: mee_goreng
+    name: "Mee goreng"
+    station: "Hot station 2"
+    unit: kg
+    lead_minutes: 15
+    batch: 1.5
+    pan_capacity: 3.0
+    last_cook: "10:00"
+    cost_per_kg: 3.50
+    halal: true
+    vegetarian: false
+    hot: true
+    synonyms: ["mee", "mee goreng", "noodle", "noodles", "fried noodles"]
+
+  - id: nasi_lemak_rice
+    name: "Nasi lemak rice"
+    station: "Hot station 2"
+    unit: kg
+    lead_minutes: 25
+    batch: 1.5
+    pan_capacity: 3.0
+    last_cook: "09:55"
+    cost_per_kg: 2.50
+    halal: true
+    vegetarian: true
+    hot: true
+    synonyms: ["rice", "nasi", "nasi lemak", "coconut rice", "nasi lemak rice"]
+
+  - id: croissants
+    name: "Croissants"
+    station: "Bakery"
+    unit: pieces
+    piece_kg: 0.06
+    lead_minutes: 20
+    batch: 24
+    pan_capacity: 40
+    last_cook: "09:50"
+    cost_per_kg: 12.00
+    halal: false
+    vegetarian: true
+    hot: false
+    synonyms: ["croissant", "croissants", "pastry", "pastries", "bread"]
+
+  - id: cut_fruit
+    name: "Cut fruit"
+    station: "Cold station"
+    unit: kg
+    lead_minutes: 10
+    batch: 2.5
+    pan_capacity: 5.0
+    last_cook: "10:10"
+    cost_per_kg: 4.80
+    halal: true
+    vegetarian: true
+    hot: false
+    chilled: true
+    synonyms: ["fruit", "fruits", "cut fruit", "melon", "watermelon", "papaya"]
+
+# ---------------------------------------------------------------------------
+# Phase 1 synthetic history. Every value and its source is explained in
+# docs/ASSUMPTIONS.md. The data was frozen before Phase 2; do not change these
+# numbers to improve model results.
+# ---------------------------------------------------------------------------
+simulation:
+  seed: 20261124
+  start: "2025-11-25"
+  end: "2026-11-24"                 # Tuesday 24 November, the demo morning
+  burn_in_days: 28                   # earlier days used only to seed the chef rule
+
+  # Singapore Tourism Board, average hotel occupancy rate by month (%),
+  # SingStat table via data.gov.sg (d_8e62605f0c1c948702b6ea0fe45242d3).
+  # October and November 2026 were not yet published, so the 2025 values are reused.
+  monthly_occupancy:
+    "2025-10": 84.8
+    "2025-11": 85.0
+    "2025-12": 76.5
+    "2026-01": 81.7
+    "2026-02": 87.7
+    "2026-03": 80.1
+    "2026-04": 78.1
+    "2026-05": 74.9
+    "2026-06": 75.9
+    "2026-07": 91.3
+    "2026-08": 91.2
+    "2026-09": 82.3
+    "2026-10": 84.8
+    "2026-11": 85.0
+
+  # Night-before occupancy shift by breakfast weekday (percentage points), city hotel
+  weekday_occupancy_shift: {Mon: -5, Tue: 2, Wed: 2, Thu: 2, Fri: 2, Sat: -1, Sun: 1}
+  occupancy_noise_pp: 2.5            # AR(1) day-to-day noise
+  occupancy_noise_persistence: 0.6
+
+  # Hotel Booking Demand dataset (Antonio, de Almeida and Nunes, 2019), city hotel:
+  # 78.5% of bookings were bed and breakfast.
+  breakfast_inclusive_share: 0.78
+  breakfast_inclusive_sd: 0.04
+
+  business_share: {weekday: 0.55, monday: 0.45, weekend: 0.20, public_holiday: 0.15}
+  business_share_school_holiday_factor: 0.85
+  business_share_sd: 0.06
+
+  adults_per_room: {business: 1.10, leisure: 1.90}
+  children_per_leisure_room: {weekday: 0.08, weekend: 0.15, school_holiday: 0.30, school_holiday_weekend: 0.35}
+
+  show_rate: {business: 0.88, leisure: 0.82, group: 0.97}
+  non_inclusive_buy_rate: 0.10       # guests without breakfast who pay for it
+
+  group_probability: {weekday: 0.08, weekend: 0.15, school_holiday_extra: 0.05}
+  group_size: [16, 40]               # guests; two guests per room
+
+  checkin_response_rate: [0.0, 0.40] # uniform per day, so models never depend on it
+  checkin_no_show_share: 0.05
+
+  surprise_probability: 0.0667       # about one day in fifteen
+  surprise_weights: {tour_group_early: 0.35, rain: 0.30, early_event: 0.20, quiet_morning: 0.15}
+
+  # Arrival time components (minutes after midnight, standard deviation in minutes)
+  arrival_components:
+    business: {mean: 450, sd: 30}            # 07:30
+    leisure_weekday: {mean: 515, sd: 45}     # 08:35
+    leisure_weekend: {mean: 540, sd: 40}     # 09:00
+
+  child_portion: 0.6                 # a child eats 60% of an adult portion overall
+  consumption_noise_sd: 0.07         # day-to-day taste variation per dish (lognormal)
+
+  # Chef rule for "prepared": same-weekday average consumed over the last 4 weeks
+  # plus 15%, rounded up to whole batches.
+  chef_buffer: 0.15
+  chef_history_weeks: 4
+
+  # Per adult diner, anchored on the day-end report design (109.9 kg eaten by 293 guests).
+  # Croissants are pieces per diner. Multipliers adjust business guests and children.
+  dish_rates:
+    scrambled_eggs:   {per_diner: 0.068, business: 1.10, child: 0.80}
+    chicken_sausages: {per_diner: 0.048, business: 1.00, child: 1.20}
+    hash_browns:      {per_diner: 0.035, business: 0.95, child: 1.30}
+    pancakes:         {per_diner: 0.024, business: 0.60, child: 2.50}
+    mee_goreng:       {per_diner: 0.051, business: 0.95, child: 0.60}
+    nasi_lemak_rice:  {per_diner: 0.059, business: 1.00, child: 0.60}
+    croissants:       {per_diner: 0.40,  business: 1.10, child: 0.90}
+    cut_fruit:        {per_diner: 0.066, business: 1.05, child: 0.90}
+
+calendar:
+  # Ministry of Manpower gazetted public holidays (observed dates) in the simulated year
+  public_holidays:
+    "2025-12-25": "Christmas Day"
+    "2026-01-01": "New Year's Day"
+    "2026-02-17": "Chinese New Year"
+    "2026-02-18": "Chinese New Year"
+    "2026-03-21": "Hari Raya Puasa"
+    "2026-04-03": "Good Friday"
+    "2026-05-01": "Labour Day"
+    "2026-05-27": "Hari Raya Haji"
+    "2026-06-01": "Vesak Day (observed)"
+    "2026-08-10": "National Day (observed)"
+    "2026-11-09": "Deepavali (observed)"
+  # Ministry of Education vacations and school holidays (inclusive ranges)
+  school_holidays:
+    - ["2025-11-22", "2025-12-31"]
+    - ["2026-03-14", "2026-03-22"]
+    - ["2026-05-30", "2026-06-28"]
+    - ["2026-07-06", "2026-07-06"]
+    - ["2026-09-04", "2026-09-13"]
+    - ["2026-10-02", "2026-10-02"]
+    - ["2026-11-21", "2026-12-31"]
+
+# ---------------------------------------------------------------------------
+# Phase 2 forecast settings and the recipe card for the shopping list.
+# Recipe quantities are raw ingredients per kg of finished dish (per piece for
+# croissants). They are our own kitchen estimates, not supplier specifications.
+# ---------------------------------------------------------------------------
+forecast:
+  train_days: 300                  # first 300 days train, last 65 test (by date)
+  baseline_weeks: 4                # same weekday over the previous four weeks
+  shopping_quantile: 0.80          # buy for a morning busier than 4 in 5 forecasts
+  cv_splits: 5                     # time-ordered cross-validation inside the training days
+  rf_grid:
+    max_depth: [null, 8, 12]
+    min_samples_leaf: [1, 3, 5]
+  rf_trees: 300
+  curve_tolerance: 0.05            # use the simpler average profile if within 5% of the model's error
+
+recipes:
+  scrambled_eggs:   {eggs_pcs: 18, milk_l: 0.10, butter_kg: 0.03}
+  chicken_sausages: {chicken_sausages_kg: 1.10}
+  hash_browns:      {frozen_hash_browns_kg: 1.05, cooking_oil_l: 0.05}
+  pancakes:         {flour_kg: 0.35, milk_l: 0.40, eggs_pcs: 3, sugar_kg: 0.05, butter_kg: 0.03}
+  mee_goreng:       {yellow_noodles_kg: 0.60, mixed_vegetables_kg: 0.20, tofu_kg: 0.10, sauce_mix_l: 0.08}
+  nasi_lemak_rice:  {rice_kg: 0.40, coconut_milk_l: 0.25, pandan_leaves_pcs: 2}
+  croissants:       {frozen_croissant_dough_pcs: 1.0}
+  cut_fruit:        {whole_fruit_kg: 1.60}       # about 60% usable after peeling and cutting
