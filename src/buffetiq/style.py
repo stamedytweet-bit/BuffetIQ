@@ -60,6 +60,7 @@ GUEST = {
     "chart-today": "#0F6E6E",
     "chart-usual": "#D9D3C7",
     "chart-earlier": "#9FC9C3",
+    "error": "#9B2C1F",          # form error text (not in the design tokens; 7:1 on the page)
 }
 
 FONT_STACK = "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
@@ -206,7 +207,7 @@ html, body { margin: 0; }
   max-width: none !important; font-weight: inherit; }
 /* Gradio paints every element inside gr.HTML with the body colour; let ours inherit instead. */
 .bq-page :where(.prose *) { color: inherit; }
-.bq-page .prose :where(h1,h2,h3,p,ul,ol,li) { margin: 0; color: inherit; font-family: inherit; line-height: inherit; }
+.bq-page .prose :where(h1,h2,h3,p,ul,ol,li) { margin: 0; font-family: inherit; }
 .bq-page .row, .bq-page .column { gap: 0; flex-wrap: nowrap; min-width: 0 !important; }
 .bq-page .hide-container { padding: 0 !important; }
 .bq-page .status-tracker, .bq-page [data-testid="status-tracker"] { display: none !important; }
@@ -519,6 +520,7 @@ PHONE_CSS = """
   border: 2px solid var(--bq-teal) !important; font-size: 17px !important; font-weight: 700 !important; width: 100%; }
 .bq-guest .bq-btn.g-back { min-height: 44px; background: transparent !important; border: none !important; padding: 0 !important;
   color: var(--bq-teal) !important; font-size: 15px !important; font-weight: 600 !important; gap: 6px; --bq-ico: 20px; justify-content: flex-start; }
+.g-error { margin: 0; font-size: 14px; line-height: 1.4; font-weight: 600; color: var(--bq-error); }
 .g-privacy { margin: 0; font-size: 13px; line-height: 1.5; color: var(--bq-muted); text-align: center; }
 
 /* time slots: a real radio group; bar and crowd word come from CSS variables per row */
@@ -626,6 +628,10 @@ REPORT_CSS = """
 .ab-link .n { font-size: 16px; font-weight: 700; color: var(--bq-teal); }
 .ab-link .p { font-size: 13px; color: var(--bq-muted); }
 .ab-link .d { font-size: 14px; line-height: 1.45; color: var(--bq-muted); }
+.ab-qr { gap: 14px !important; }
+.ab-qr-link { margin: 0; font-size: 15px; color: var(--bq-text); word-break: break-all; }
+.ab-qr-image { max-width: 320px; background: #FFFFFF !important; border: 1px solid var(--bq-border) !important; border-radius: 14px !important; }
+.bq-guest code { font-size: 14px; background: var(--bq-divider); padding: 1px 6px; border-radius: 6px; }
 .bq-guest a { color: var(--bq-teal); } .bq-guest a:hover { color: var(--bq-teal-dark); }
 """
 

@@ -89,3 +89,15 @@ For the demo morning, Tuesday 24 November 2026, the forecast is 306 diners (291 
 ### Verdict
 
 The forecast beats the baseline on the test days for diners, arrivals per slot and all eight dishes. Its accuracy is flattered by synthetic data generated from the same guest counts it uses, so Phase 5 will test what matters more, whether it reduces leftovers and stock-outs when the morning is replayed slot by slot.
+
+## Phase 3: guest flow and live check-ins
+
+This section shows that what a guest tells us on their phone reaches the kitchen board quickly and changes the forecast by a justified amount. The guest page has the three designed steps (breakfast plan, choose a time, confirmed), plus a thank-you screen for guests who reply "Not this time". Every result is simulated on fictional data.
+
+An automated browser test (Playwright, with a 390 x 844 phone screen and the board at 1920 x 1080) booked two guests for room 1410, chose 08:00, accepted the "Switch to 09:30" suggestion and confirmed. The board's forecast outlines changed 2.9 seconds after the tap, within the 5-second refresh. A second phone then replied "Not this time" for two guests, and "Expected today" fell from 299 to 298 at the next refresh.
+
+On the demo morning (Tuesday 24 November 2026) the forecast is 300 diners before any live check-ins. The crowd view marks 07:00 to 08:30 as Busy, 09:00 as Moderate, and 06:30, 09:30 and 10:00 as Quiet, so choosing 08:00 suggests 09:30. The design screen shows 09:00 as Busy; in the simulated data the Tuesday rush ends earlier, and we have not changed the data to match the screen.
+
+A confirmation feeds the Random Forest through its check-in count, so it moves "Expected today" only as much as the evidence supports. A guest who confirms was already likely to eat breakfast (66% of in-house guests do on the demo morning), so one party of two usually changes the forecast by less than one diner. The visible change is in the arrival curve, where confirmed guests are placed in their chosen half hour. Twenty confirmed parties of two raise the forecast by much less than 40, which the tests check, because adding them on top would double count guests the forecast already expected. Each declined guest lowers the forecast by 0.66, the chance they would have come.
+
+The 20 tests in `tests/test_guest_flow.py` check the Quiet, Moderate and Busy thresholds, that the crowd view adds two 15-minute slots per half hour, that slot forecasts add up to the expected total, that confirmed guests land in their half hour, that declines lower the forecast, that "Change my plans" replaces the room's earlier plan, that meal counts are capped at the party size, that room numbers must have 3 to 5 digits, that plans survive a restart and are deleted after checkout, that the file is ignored by git, that half hours which have ended cannot be chosen on the morning itself, and that the QR link works on the local network and through a share link. All 126 tests in the project pass.

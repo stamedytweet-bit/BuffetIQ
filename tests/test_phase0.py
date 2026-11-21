@@ -119,8 +119,9 @@ def all_rendered_html():
         runner.render_result(sample.TRAY_RESULT),
         runner.render_board_updated(sample.TRAY_RESULT["board_call"]),
         runner.render_ask_head("08:40", "basic"),
-        guest.render_intro("Wednesday 25 November", "06:30 to 10:30"),
-        guest.render_confirmed("Wednesday 25 November", "09:30", 2, "1204"),
+        guest.render_intro(),
+        guest.render_confirmed("09:30", 2, "1204"),
+        guest.render_declined(),
         report.render_body(sample.REPORT),
         about.render_about({"kitchen": "/", "runner": "/runner", "guest": "/guest", "report": "/report", "about": "/about"}),
     ]
@@ -169,8 +170,10 @@ def test_nearest_quiet_slot_and_confirm_label():
     slots = sample.GUEST["slots"]
     assert guest.nearest_quiet(slots, "09:00") == "09:30"
     assert guest.nearest_quiet(slots, "07:30") == "06:30"
+    assert guest.nearest_quiet(slots, "08:00") == "09:30"   # a tie goes to the later half hour
     assert guest.confirm_label("09:00", 2) == "Confirm 09:00 for 2 guests"
     assert guest.confirm_label("09:30", 1) == "Confirm 09:30 for 1 guest"
+    assert guest.confirm_label(None, 2) == "Choose a time to confirm"
 
 
 def test_icon_buttons_have_accessible_names():

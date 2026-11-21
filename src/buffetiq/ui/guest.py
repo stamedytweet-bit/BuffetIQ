@@ -1,9 +1,12 @@
 """Guest flow, page "/guest" (screens 05 to 07), opened from the QR code.
 
 Light mode, no navbar, so guests never see kitchen pages. Three steps are three
-gr.Columns whose visibility is switched. Phase 0 shows the forecast crowd view
-from sample data and moves between the steps; Phase 3 saves check-ins to shared
-state and feeds them into the forecast.
+gr.Columns whose visibility is switched. The crowd view comes from the live
+forecast in state.py, and confirming saves the plan to shared state, so the
+kitchen board's forecast changes within one refresh (5 seconds).
+
+Dietary needs are stored as counts only, and the room number stays on this
+laptop (see state.py).
 """
 
 from __future__ import annotations
@@ -12,7 +15,6 @@ import gradio as gr
 
 from buffetiq import state
 from buffetiq.style import GUEST, check_copy, esc, icon
-from buffetiq.ui import sample
 
 CROWD = {
     # word: (bar colour, word colour)
@@ -21,6 +23,7 @@ CROWD = {
     "Busy": (GUEST["crowd-busy"], GUEST["teal-dark"]),
 }
 MAX_PARTY = 8
+ROOM_ERROR = "Enter your room number, such as 1204, so we can plan for you."
 
 
 def render_head(step: str | None) -> str:
@@ -29,17 +32,31 @@ def render_head(step: str | None) -> str:
     return check_copy(f'<header class="g-head"><span class="g-hotel">{esc(h["name"])}</span>{pill}</header>')
 
 
-def render_intro(date: str, hours: str) -> str:
+def render_intro() -> str:
+    s = state.service()
     h = state.hotel()
+    hours = f"{s.config['service']['start']} to {s.config['service']['end']}"
     return check_copy(f"""
 <div class="g-title">
-  <h1>Breakfast tomorrow</h1>
-  <p>{esc(date)} · {esc(hours)} at {esc(h['restaurant'])}. Tell us your plans and we will prepare just the right amount, fresh.</p>
+  <h1>{esc(s.breakfast_heading())}</h1>
+  <p>{esc(state.long_date(s.service_date))} · {esc(hours)} at {esc(h['restaurant'])}. Tell us your plans and we will prepare just the right amount, fresh.</p>
 </div>""")
+
+
+def render_times_title() -> str:
+    s = state.service()
+    return check_copy(
+        '<div class="g-title" style="gap:4px"><h1 class="t30">When would you like to come?</h1>'
+        f'<p class="small">How busy each half hour usually is, based on {esc(s.bookings_phrase())}.</p></div>'
+    )
 
 
 def render_count(n: int) -> str:
     return f'<span class="count" aria-live="polite">{n}</span>'
+
+
+def render_error(text: str) -> str:
+    return f'<p class="g-error" role="alert">{esc(text)}</p>' if text else ""
 
 
 def render_slot_style(slots: list[dict]) -> str:
@@ -57,8 +74,17 @@ def render_slot_style(slots: list[dict]) -> str:
     return "<style>" + "".join(rules) + "</style>"
 
 
+def available_slots() -> list[dict]:
+    return [s for s in state.service().crowd_view() if s["available"]]
+
+
+def slot_choices(slots: list[dict]) -> list[tuple[str, str]]:
+    # the label carries the word too, so screen readers hear "09:00, Busy"
+    return [(s["time"], s["time"]) for s in slots]
+
+
 def nearest_quiet(slots: list[dict], chosen: str) -> str | None:
-    """The Quiet half hour closest to the chosen one (earlier wins a tie)."""
+    """The Quiet half hour closest to the chosen one; a later one wins a tie."""
     times = [s["time"] for s in slots]
     if chosen not in times:
         return None
@@ -66,8 +92,12 @@ def nearest_quiet(slots: list[dict], chosen: str) -> str | None:
     quiet = [j for j, s in enumerate(slots) if s["word"] == "Quiet"]
     if not quiet:
         return None
-    best = min(quiet, key=lambda j: (abs(j - i), j))
+    best = min(quiet, key=lambda j: (abs(j - i), -j))
     return times[best]
+
+
+def word_for(slots: list[dict], time: str | None) -> str | None:
+    return next((s["word"] for s in slots if s["time"] == time), None)
 
 
 def render_tip(slot: str) -> str:
@@ -77,26 +107,38 @@ def render_tip(slot: str) -> str:
     )
 
 
-def confirm_label(slot: str, party: int) -> str:
+def confirm_label(slot: str | None, party: int) -> str:
+    if not slot:
+        return "Choose a time to confirm"
     return f"Confirm {slot} for {party} guest{'s' if party != 1 else ''}"
 
 
-def render_confirmed(date: str, slot: str, party: int, room: str) -> str:
+def render_confirmed(slot: str, party: int, room: str) -> str:
+    s = state.service()
     h = state.hotel()
     guests = f"{party} guest{'s' if party != 1 else ''}"
-    room_part = f" · Room {esc(room)}" if room else ""
     teal = GUEST["teal"]
+    when = "tomorrow" if s.breakfast_heading() == "Breakfast tomorrow" else "this morning"
     return check_copy(f"""
 <div class="g-done">
   <span class="circle">{icon('tick', 34, 2.6)}</span>
   <h1>You're all set</h1>
-  <p>We look forward to seeing you tomorrow.</p>
+  <p>We look forward to seeing you {when}.</p>
 </div>
 <section class="g-details" aria-label="Your breakfast" style="margin-top:18px">
-  <div class="item">{icon('calendar', 22, 2, teal)}<div class="txt"><span class="k">When</span><span class="v">{esc(date)}, {esc(slot)}</span></div></div>
-  <div class="item">{icon('users', 22, 2, teal)}<div class="txt"><span class="k">Guests</span><span class="v">{guests}{room_part}</span></div></div>
+  <div class="item">{icon('calendar', 22, 2, teal)}<div class="txt"><span class="k">When</span><span class="v">{esc(state.long_date(s.service_date))}, {esc(slot)}</span></div></div>
+  <div class="item">{icon('users', 22, 2, teal)}<div class="txt"><span class="k">Guests</span><span class="v">{guests} · Room {esc(room)}</span></div></div>
   <div class="item">{icon('pin', 22, 2, teal)}<div class="txt"><span class="k">Where</span><span class="v">{esc(h['restaurant'])}, {esc(h['level'])}</span></div></div>
 </section>""")
+
+
+def render_declined() -> str:
+    return check_copy(f"""
+<div class="g-done">
+  <span class="circle">{icon('tick', 34, 2.6)}</span>
+  <h1>Thank you for letting us know</h1>
+  <p>We hope to see you at breakfast another morning.</p>
+</div>""")
 
 
 TIP_SMALL_PLATE = check_copy("""
@@ -104,6 +146,8 @@ TIP_SMALL_PLATE = check_copy("""
   <div class="txt"><span class="t">A small plate, as often as you like</span>
   <span class="b">The buffet is topped up with fresh batches all morning, so start small and come back for more.</span></div>
 </section>""")
+
+QUIET_LINE = '<p class="g-quiet">Planning ahead helps our kitchen cook fresh and waste less food.</p>'
 
 
 def _stepper(label: str, prefix: str, value: int, diet: bool, plus_on: bool = False):
@@ -116,30 +160,32 @@ def _stepper(label: str, prefix: str, value: int, diet: bool, plus_on: bool = Fa
 
 
 def build_page() -> dict:
-    g = sample.GUEST
-    slots = g["slots"]
     gr.Navbar(visible=False)
-    party = gr.State(g["party"])
-    halal = gr.State(g["halal"])
-    veg = gr.State(g["vegetarian"])
+    party = gr.State(2)
+    halal = gr.State(0)
+    veg = gr.State(0)
+    crowd = gr.State([])           # the crowd view the guest saw when choosing a time
 
     with gr.Column(elem_classes=["bq-page", "bq-guest", "bq-phone"], elem_id="g-root"):
         # ---- 05 Breakfast plan ----
         with gr.Column(elem_classes=["bq-view", "bq-gap-18"]) as step1:
             gr.HTML(render_head("Step 1 of 2"))
-            gr.HTML(render_intro(g["date"], g["hours"]))
+            gr.HTML(render_intro)          # a function, so each visit shows the current date and wording
             with gr.Column(elem_classes=["g-card"]):
                 with gr.Column():
                     gr.HTML('<span class="g-q" aria-hidden="true">Will you join us?</span>')
-                    attending = gr.Radio(["Yes", "Not this time"], value=g["attending"], label="Will you join us?",
+                    attending = gr.Radio(["Yes", "Not this time"], value="Yes", label="Will you join us?",
                                          show_label=False, container=False, interactive=True, elem_classes=["g-toggle"])
-                room = gr.Textbox(label="Room number", placeholder=g["room_placeholder"], lines=1, max_lines=1,
-                                  container=True, show_label=True, elem_id="g-room", elem_classes=["g-room"])
-                p_minus, p_count, p_plus = _stepper("How many guests?", "g-party", g["party"], diet=False, plus_on=True)
-                with gr.Column(elem_classes=["g-diet"]):
-                    gr.HTML('<span class="g-q">Dietary needs <span class="opt">(optional)</span></span>')
-                    h_minus, h_count, h_plus = _stepper("Halal meals", "g-halal", g["halal"], diet=True)
-                    v_minus, v_count, v_plus = _stepper("Vegetarian meals", "g-veg", g["vegetarian"], diet=True)
+                with gr.Column(elem_classes=["bq-gap-8"]):
+                    room = gr.Textbox(label="Room number", placeholder="1204", lines=1, max_lines=1,
+                                      container=True, show_label=True, elem_id="g-room", elem_classes=["g-room"])
+                    room_error = gr.HTML("")
+                with gr.Column(elem_classes=["bq-gap-18"]) as party_box:
+                    p_minus, p_count, p_plus = _stepper("How many guests?", "g-party", 2, diet=False, plus_on=True)
+                    with gr.Column(elem_classes=["g-diet"]):
+                        gr.HTML('<span class="g-q">Dietary needs <span class="opt">(optional)</span></span>')
+                        h_minus, h_count, h_plus = _stepper("Halal meals", "g-halal", 0, diet=True)
+                        v_minus, v_count, v_plus = _stepper("Vegetarian meals", "g-veg", 0, diet=True)
             gr.HTML("", elem_classes=["bq-spacer"])
             choose_btn = gr.Button("Choose a time", elem_classes=["bq-btn", "g-primary"])
             gr.HTML('<p class="g-privacy">We use your room number only to plan how much food to prepare, '
@@ -150,38 +196,34 @@ def build_page() -> dict:
             with gr.Row(elem_classes=["bq-between", "g-head"]):
                 back_btn = gr.Button("Back", elem_classes=["bq-btn", "g-back", "bq-ico-chevron-left"])
                 gr.HTML('<span class="g-step">Step 2 of 2</span>')
-            # the slot styles travel with the title so they add no extra gap
-            gr.HTML('<div class="g-title" style="gap:4px"><h1 class="t30">When would you like to come?</h1>'
-                    "<p class=\"small\">How busy each half hour usually is, based on tomorrow's bookings.</p></div>"
-                    + render_slot_style(slots))
-            slot = gr.Radio([s["time"] for s in slots], value=g["selected_slot"], label="Breakfast time",
-                            show_label=False, container=False, interactive=True, elem_id="g-slots",
-                            elem_classes=["g-slots"])
-            first_tip = nearest_quiet(slots, g["selected_slot"])
-            with gr.Column(elem_classes=["g-tip"], visible=first_tip is not None) as tip_box:
-                tip_text = gr.HTML(render_tip(first_tip or ""))
-                switch_btn = gr.Button(f"Switch to {first_tip}", elem_classes=["bq-btn", "g-tip-btn"])
+            times_title = gr.HTML(render_times_title())
+            slot = gr.Radio([], value=None, label="Breakfast time", show_label=False, container=False,
+                            interactive=True, elem_id="g-slots", elem_classes=["g-slots"])
+            with gr.Column(elem_classes=["g-tip"], visible=False) as tip_box:
+                tip_text = gr.HTML(render_tip(""))
+                switch_btn = gr.Button("Switch", elem_classes=["bq-btn", "g-tip-btn"])
             gr.HTML("", elem_classes=["bq-spacer"])
-            confirm_btn = gr.Button(confirm_label(g["selected_slot"], g["party"]), elem_classes=["bq-btn", "g-primary"])
+            confirm_btn = gr.Button(confirm_label(None, 2), interactive=False, elem_classes=["bq-btn", "g-primary"])
 
-        # ---- 07 Confirmed ----
+        # ---- 07 Confirmed (or thank you, for "Not this time") ----
         with gr.Column(elem_classes=["bq-view", "bq-gap-18"], visible=False) as step3:
             gr.HTML(render_head(None))
-            confirmed = gr.HTML(render_confirmed(g["date"], g["confirmed_slot"], g["party"], g["confirmed_room"]))
-            gr.HTML(TIP_SMALL_PLATE)
-            gr.HTML('<p class="g-quiet">Planning ahead helps our kitchen cook fresh and waste less food.</p>')
+            confirmed = gr.HTML("")
+            with gr.Column(elem_classes=["bq-gap-18"]) as confirmed_extra:
+                gr.HTML(TIP_SMALL_PLATE)
+                gr.HTML(QUIET_LINE)
             gr.HTML("", elem_classes=["bq-spacer"])
             change_btn = gr.Button("Change my plans", elem_classes=["bq-btn", "g-secondary"])
 
         gr.HTML('<p class="bq-note">Prototype · Fictional data</p>')
 
-    # ---- Phase 0 wiring: steppers and moving between steps (no saving yet) ----
+    # ---- steppers: party 1 to 8, meal counts capped at the party size ----
     def bump(n, delta, lo, hi):
         return max(lo, min(hi, n + delta))
 
     def set_party(p, h, v, delta):
         p = bump(p, delta, 1, MAX_PARTY)
-        h, v = min(h, p), min(v, p)   # meal counts are capped at the party size
+        h, v = min(h, p), min(v, p)
         return p, h, v, render_count(p), render_count(h), render_count(v)
 
     party_out = [party, halal, veg, p_count, h_count, v_count]
@@ -191,26 +233,55 @@ def build_page() -> dict:
         minus.click(lambda n, p: (bump(n, -1, 0, p), render_count(bump(n, -1, 0, p))), [st, party], [st, cnt])
         plus.click(lambda n, p: (bump(n, +1, 0, p), render_count(bump(n, +1, 0, p))), [st, party], [st, cnt])
 
-    def on_slot(s, p):
-        word = next(x["word"] for x in slots if x["time"] == s)
-        tip = nearest_quiet(slots, s) if word == "Busy" else None
-        return (gr.update(visible=tip is not None), render_tip(tip or ""),
-                gr.update(value=f"Switch to {tip}"), gr.update(value=confirm_label(s, p)))
+    # "Not this time" hides the party questions and turns the button into a reply
+    def on_attending(choice):
+        yes = choice == "Yes"
+        return gr.update(visible=yes), gr.update(value="Choose a time" if yes else "Send my reply")
 
-    slot.change(on_slot, [slot, party], [tip_box, tip_text, switch_btn, confirm_btn])
-    switch_btn.click(lambda s: nearest_quiet(slots, s), slot, slot)
+    attending.change(on_attending, attending, [party_box, choose_btn])
 
-    def go_times(p, s):
-        return gr.update(visible=False), gr.update(visible=True), gr.update(value=confirm_label(s, p))
+    # ---- step 1 to step 2 (or straight to the thank-you screen) ----
+    def go_next(choice, r, p, h, v):
+        if not state.valid_room(r):
+            return (gr.update(), gr.update(), gr.update(), render_error(ROOM_ERROR), gr.update(), gr.update(),
+                    gr.update(), gr.update(), gr.update(), gr.update(), gr.update())
+        if choice != "Yes":
+            state.service().save_plan(state.GuestPlan(service_date="", room=r, attending=False, party=p))
+            return (gr.update(visible=False), gr.update(visible=False), gr.update(visible=True), "",
+                    render_declined(), gr.update(visible=False), gr.update(), gr.update(), gr.update(),
+                    gr.update(), gr.update())
+        slots = available_slots()
+        return (gr.update(visible=False), gr.update(visible=True), gr.update(visible=False), "",
+                gr.update(), gr.update(), slots,
+                gr.update(choices=slot_choices(slots), value=None),
+                render_times_title() + render_slot_style(slots),
+                gr.update(visible=False), gr.update(value=confirm_label(None, p), interactive=False))
 
-    choose_btn.click(go_times, [party, slot], [step1, step2, confirm_btn])
+    choose_btn.click(go_next, [attending, room, party, halal, veg],
+                     [step1, step2, step3, room_error, confirmed, confirmed_extra, crowd, slot, times_title,
+                      tip_box, confirm_btn])
     back_btn.click(lambda: (gr.update(visible=True), gr.update(visible=False)), None, [step1, step2])
 
-    def do_confirm(s, p, r):
-        return (gr.update(visible=False), gr.update(visible=True),
-                render_confirmed(g["date"], s, p, (r or "").strip()))
+    # ---- choosing a time: a Busy half hour suggests the nearest Quiet one ----
+    def on_slot(s, p, slots):
+        if not s:
+            return gr.update(visible=False), gr.update(), gr.update(), gr.update(value=confirm_label(None, p), interactive=False)
+        tip = nearest_quiet(slots, s) if word_for(slots, s) == "Busy" else None
+        return (gr.update(visible=tip is not None), render_tip(tip or ""),
+                gr.update(value=f"Switch to {tip}" if tip else "Switch"),
+                gr.update(value=confirm_label(s, p), interactive=True))
 
-    confirm_btn.click(do_confirm, [slot, party, room], [step2, step3, confirmed])
+    slot.change(on_slot, [slot, party, crowd], [tip_box, tip_text, switch_btn, confirm_btn])
+    switch_btn.click(lambda s, slots: nearest_quiet(slots, s) or s, [slot, crowd], slot)
+
+    # ---- confirm: save to shared state, then show the confirmation ----
+    def do_confirm(s, r, p, h, v):
+        plan = state.service().save_plan(state.GuestPlan(service_date="", room=r, attending=True, party=p,
+                                                         halal=h, vegetarian=v, slot=s))
+        return (gr.update(visible=False), gr.update(visible=True),
+                render_confirmed(plan.slot, plan.party, plan.room), gr.update(visible=True))
+
+    confirm_btn.click(do_confirm, [slot, room, party, halal, veg], [step2, step3, confirmed, confirmed_extra])
     change_btn.click(lambda: (gr.update(visible=True), gr.update(visible=False)), None, [step1, step3])
 
     return {"attending": attending, "room": room, "slot": slot, "confirm": confirm_btn}

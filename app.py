@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
 
 import gradio as gr  # noqa: E402
 
-from buffetiq import style  # noqa: E402
+from buffetiq import state, style  # noqa: E402
 from buffetiq.ui import about, guest, kitchen, report, runner  # noqa: E402
 
 # Page paths. The navbar is hidden on every page; the About page links them all.
@@ -54,6 +54,8 @@ def main(argv: list[str] | None = None) -> None:
                         help="use 0.0.0.0 so phones on the same Wi-Fi can open the pages")
     args = parser.parse_args(argv)
 
+    print("Preparing the forecast for the service...")
+    state.service()   # train the live forecast once, before the first page opens
     demo = build_app()
     demo.launch(
         share=args.share or in_colab(),

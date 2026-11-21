@@ -11,8 +11,9 @@ The point of difference is timing. Tools such as Winnow Foresight plan quantitie
 | 0 | Repository, style tokens, static screens from the approved designs | Done |
 | 1 | Synthetic data for a fictional 300-room Singapore hotel (frozen) | Done |
 | 2 | Demand forecast for the night before | Done |
-| 3 | Guest flow with live check-ins | Next |
-| 4 to 8 | Camera, nowcast and board, voice, report, showcase | Planned |
+| 3 | Guest flow with live check-ins and the guest QR code | Done |
+| 4 | Camera tray check | Next |
+| 5 to 8 | Nowcast and board, voice, report, showcase | Planned |
 
 ## Pages
 
@@ -63,6 +64,20 @@ python app.py --host 0.0.0.0
 ```
 
 The Gemini key is not needed until Phase 6. When it is, copy `.env.example` to `.env` and fill in `GEMINI_API_KEY` and `GEMINI_MODEL` (copy the current free-tier Flash or Flash-Lite model ID from Google AI Studio). Git ignores `.env`, so the key never reaches GitHub.
+
+## Try the guest page on a phone
+
+1. Connect the phone to the same Wi-Fi as the laptop.
+2. Start the app so that other devices can reach it:
+
+   ```bash
+   python app.py --host 0.0.0.0
+   ```
+
+3. On the laptop, open http://127.0.0.1:7860/about and click "Show the guest QR code". It shows the laptop's network address, such as `http://192.168.1.28:7860/guest`. If macOS asks whether to allow incoming connections, click Allow.
+4. Scan the code with the phone's camera. The page opens without the kitchen pages, and a booking appears on the kitchen board within 5 seconds.
+
+"Download sleeve insert (PNG)" saves an 85 x 55 mm card to print for the mock key-card sleeve. Some school or office Wi-Fi networks block phones from reaching laptops; a phone hotspot or the Colab share link avoids that.
 
 ## Run it in Google Colab
 

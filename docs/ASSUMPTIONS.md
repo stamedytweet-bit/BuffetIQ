@@ -69,3 +69,13 @@ The forecast settings live in the `forecast` section of `config.yaml`. The model
 ## Recipe card
 
 The shopping list turns finished amounts into raw ingredients using the `recipes` section of `config.yaml`. The quantities are our own kitchen estimates, not supplier specifications: for example 18 eggs, 0.1 litres of milk and 30 g of butter per kilogram of scrambled eggs, 0.4 kg of raw rice and 0.25 litres of coconut milk per kilogram of nasi lemak rice, 1.1 kg of raw sausages per kilogram cooked (about 10% cooking loss) and 1.6 kg of whole fruit per kilogram of cut fruit (about 60% usable after peeling). A hotel would replace these with its own standard recipes.
+
+## Guest flow and check-ins (Phase 3)
+
+The guest page books the same breakfast that the kitchen board shows, so that a booking in the showcase demo changes the board at once. Its heading reads "Breakfast tomorrow" when opened before the service day and "Breakfast this morning" on the day; on the morning itself, half hours that have already ended are not offered. Until the presenter controls arrive in Phase 8, the service clock stands at 06:15 on Tuesday 24 November 2026.
+
+The live forecast for the service is trained only on days before it, so it never sees the morning it predicts. Confirmed guests are added to the check-in count the hotel already had for that morning and the Random Forest is rerun. Each guest who replies "Not this time" lowers the forecast by the share of in-house guests expected to eat breakfast (forecast diners divided by guests in house, 66% on the demo morning). Confirmed guests are placed in their chosen half hour, split evenly between its two 15-minute slots, and everyone else follows the forecast arrival curve. A half hour is Quiet below 40% of the busiest half hour, Moderate from 40% to 75%, and Busy above 75%. When a guest picks a Busy half hour, the nearest Quiet one is suggested, and a later one wins a tie, because earlier times may already have passed or suit fewer guests.
+
+Room numbers must have 3 to 5 digits. They are kept so that "Change my plans" replaces a room's earlier plan, are stored only in `data/guest_checkins.csv` on the laptop (ignored by git), and are deleted when the service date moves on, which stands in for checkout. Dietary needs are kept as halal and vegetarian meal counts, capped at the party size, never as names.
+
+The key-card sleeve insert is 85 x 55 mm, the size of a hotel key card, printed at 300 dots per inch.

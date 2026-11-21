@@ -10,8 +10,12 @@ from __future__ import annotations
 
 import gradio as gr
 
+from buffetiq import state
 from buffetiq.style import check_copy, esc, icon
 from buffetiq.ui import sample
+
+REFRESH_SECONDS = state.load_config()["service"]["refresh_seconds"]
+BAR_AREA_PX = 130
 
 LEVEL_STYLE = {
     # level word: (colour class, icon name)
@@ -27,6 +31,7 @@ ALERT_NAME = {"stop": "Stop-out or safety alert", "info": "Information", "sugges
 
 def render_header(h: dict) -> str:
     busy = h["next15_word"] == "Busy"
+    was = f' <span class="was">was {h["expected_was"]}</span>' if h.get("expected_was") is not None else ""
     html = f"""
 <header class="k-header">
   <div class="k-brand">
@@ -39,7 +44,7 @@ def render_header(h: dict) -> str:
   <div class="k-pills">
     <div class="k-pill narrow"><span class="label">Diners so far</span><span class="value">{h['diners_so_far']}</span></div>
     <div class="k-pill"><span class="label">Expected today</span>
-      <span class="value">{h['expected']} <span class="was">was {h['expected_was']}</span></span></div>
+      <span class="value">{h['expected']}{was}</span></div>
     <div class="k-pill{' busy' if busy else ''}"><span class="label">Next 15 minutes</span>
       <span class="value">{esc(h['next15_word'])} · {h['next15_count']}</span></div>
   </div>
@@ -115,16 +120,59 @@ def render_voice(v: dict) -> str:
     return check_copy(html)
 
 
+# ---------------------------------------------------------------------------
+# Live view models (Phase 3: header and arrivals; dish cards follow in Phase 5)
+# ---------------------------------------------------------------------------
+
+def live_header() -> dict:
+    s = state.service()
+    cfg = s.config["service"]
+    expected = int(round(s.expected_diners()))
+    was = int(round(s.n0))
+    word, count = s.next_15()
+    return {
+        "date_line": f"Breakfast service · {state.long_date(s.service_date)} · {cfg['start']} to {cfg['end']} · Fictional data",
+        "clock": s.clock.strftime("%H:%M"),
+        "diners_so_far": 0,                      # host arrivals are logged from Phase 5
+        "expected": expected,
+        "expected_was": was if was != expected else None,
+        "next15_word": word,
+        "next15_count": count,
+    }
+
+
+def live_arrivals() -> dict:
+    s = state.service()
+    cfg = s.config["service"]
+    forecast_slots = s.expected_slots()
+    top = max(forecast_slots.max(), 1)
+    current = s.current_slot_index()
+    return {
+        "finding": "Service starts at " + cfg["start"] if current is None and s.clock_minutes() < state.minutes(cfg["start"])
+                   else "No arrivals logged yet",
+        "start": cfg["start"],
+        "now_label": f"{s.clock.strftime('%H:%M')} now" if current is not None else "",
+        "end": cfg["end"],
+        "forecast_px": [max(2, round(BAR_AREA_PX * v / top)) for v in forecast_slots],
+        "actual_px": [None] * len(forecast_slots),
+        "current_index": current if current is not None else -1,
+    }
+
+
+def refresh():
+    return render_header(live_header()), render_arrivals(live_arrivals())
+
+
 def build_page() -> dict:
     """Build the kitchen board inside the current Blocks/route context."""
     gr.Navbar(visible=False)
     with gr.Column(elem_classes=["bq-page", "bq-kitchen", "bq-board-viewport"]):
         with gr.Column(elem_id="bq-board"):
-            header = gr.HTML(render_header(sample.KITCHEN_HEADER), elem_id="bq-header")
+            header = gr.HTML(lambda: render_header(live_header()), elem_id="bq-header")
             with gr.Row(elem_id="bq-main"):
                 dishes = gr.HTML(render_dishes(sample.KITCHEN_DISHES), elem_id="bq-dishes")
                 with gr.Column(elem_id="bq-rail"):
-                    arrivals = gr.HTML(render_arrivals(sample.KITCHEN_ARRIVALS), elem_id="bq-arrivals")
+                    arrivals = gr.HTML(lambda: render_arrivals(live_arrivals()), elem_id="bq-arrivals")
                     alerts = gr.HTML(render_alerts(sample.KITCHEN_ALERTS), elem_id="bq-alerts")
                     voice = gr.HTML(render_voice(sample.KITCHEN_VOICE), elem_id="bq-voice")
             with gr.Row(elem_id="bq-strip"):
@@ -132,7 +180,10 @@ def build_page() -> dict:
                 tray_btn = gr.Button("Check a tray", elem_id="k-tray", elem_classes=["bq-btn", "bq-ico-camera"])
                 ask_btn = gr.Button("Hold to ask BuffetIQ", elem_id="k-ask", elem_classes=["bq-btn", "bq-primary", "bq-ico-mic"])
                 override_btn = gr.Button("Override a call", elem_id="k-override", elem_classes=["bq-btn", "bq-ico-pencil"])
+    timer = gr.Timer(REFRESH_SECONDS)
+    timer.tick(refresh, None, [header, arrivals], show_progress="hidden", queue=False)
     return {
+        "timer": timer,
         "header": header, "dishes": dishes, "arrivals": arrivals, "alerts": alerts, "voice": voice,
         "log": log_btn, "tray": tray_btn, "ask": ask_btn, "override": override_btn,
     }

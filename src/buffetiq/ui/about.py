@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import gradio as gr
 
+from buffetiq import qr
 from buffetiq.style import check_copy, esc
 
 PAGE_INFO = [
@@ -48,6 +49,20 @@ def render_about(pages: dict) -> str:
     <h2>Pages</h2>
     <div class="ab-links">{links}</div>
   </section>
+</div>"""
+    return check_copy(html)
+
+
+QR_INTRO = check_copy("""
+<div style="display:flex;flex-direction:column;gap:12px">
+  <h2 style="margin:0;font-size:20px;font-weight:800">Guest page QR code</h2>
+  <p class="muted" style="margin:0;font-size:15px;line-height:1.55;color:var(--bq-muted)">Show the code on this laptop, or
+  download the key-card sleeve insert (85 x 55 mm) and print it. Phones can open the link only if they are on the same
+  Wi-Fi and the app was started with <code>--host 0.0.0.0</code>, or through the Colab share link.</p>
+</div>""")
+
+ABOUT_END = check_copy("""
+<div class="rp-body">
   <section class="ab-section">
     <h2>Presenter controls</h2>
     <p class="muted">Load showcase morning, reset, jump to a time and the clock speed will appear here when the showcase
@@ -55,8 +70,14 @@ def render_about(pages: dict) -> str:
   </section>
   <p class="rp-foot">All hotel names, guests, dishes and numbers in this prototype are fictional. Every result is
   simulated on fictional data.</p>
-</div>"""
-    return check_copy(html)
+</div>""")
+
+
+def make_qr(request: gr.Request):
+    url = qr.url_from_request(request)
+    path = qr.sleeve(url)
+    link = f'<p class="ab-qr-link">Guest page: <a href="{esc(url)}" target="_blank">{esc(url)}</a></p>'
+    return qr.qr_image(url), link, gr.update(value=str(path), visible=True)
 
 
 def build_page(pages: dict) -> dict:
@@ -64,4 +85,15 @@ def build_page(pages: dict) -> dict:
     with gr.Column(elem_classes=["bq-page", "bq-guest", "bq-wide"]):
         with gr.Column(elem_classes=["bq-wide-inner"]):
             body = gr.HTML(render_about(pages))
-    return {"body": body}
+            with gr.Column(elem_classes=["ab-section", "ab-qr"]):
+                gr.HTML(QR_INTRO)
+                with gr.Row(elem_classes=["rp-actions"]):
+                    show_btn = gr.Button("Show the guest QR code", elem_classes=["bq-btn", "rp-primary"])
+                    sleeve_btn = gr.DownloadButton("Download sleeve insert (PNG)", visible=False,
+                                                   elem_classes=["bq-btn", "rp-secondary", "bq-ico-download"])
+                link = gr.HTML("")
+                code = gr.Image(show_label=False, interactive=False, height=320, width=320,
+                                elem_classes=["ab-qr-image"], buttons=[])
+            gr.HTML(ABOUT_END)
+    show_btn.click(make_qr, None, [code, link, sleeve_btn])
+    return {"body": body, "qr": code}
