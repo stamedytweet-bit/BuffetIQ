@@ -101,6 +101,9 @@ def render_arrivals(a: dict) -> str:
 
 
 def render_alerts(alerts: list[dict]) -> str:
+    if not alerts:
+        return check_copy('<div class="k-panel k-alerts"><h2>Alerts</h2>'
+                          '<p class="k-empty">No alerts yet. Guest bookings and kitchen calls appear here.</p></div>')
     items = []
     for al in alerts[:3]:
         items.append(
@@ -159,8 +162,12 @@ def live_arrivals() -> dict:
     }
 
 
+def live_alerts() -> list[dict]:
+    return state.service().latest_alerts(3)
+
+
 def refresh():
-    return render_header(live_header()), render_arrivals(live_arrivals())
+    return render_header(live_header()), render_arrivals(live_arrivals()), render_alerts(live_alerts())
 
 
 def build_page() -> dict:
@@ -173,7 +180,7 @@ def build_page() -> dict:
                 dishes = gr.HTML(render_dishes(sample.KITCHEN_DISHES), elem_id="bq-dishes")
                 with gr.Column(elem_id="bq-rail"):
                     arrivals = gr.HTML(lambda: render_arrivals(live_arrivals()), elem_id="bq-arrivals")
-                    alerts = gr.HTML(render_alerts(sample.KITCHEN_ALERTS), elem_id="bq-alerts")
+                    alerts = gr.HTML(lambda: render_alerts(live_alerts()), elem_id="bq-alerts")
                     voice = gr.HTML(render_voice(sample.KITCHEN_VOICE), elem_id="bq-voice")
             with gr.Row(elem_id="bq-strip"):
                 log_btn = gr.Button("Log arrivals +5", elem_id="k-log", elem_classes=["bq-btn", "bq-ico-user-plus"])
@@ -181,7 +188,7 @@ def build_page() -> dict:
                 ask_btn = gr.Button("Hold to ask BuffetIQ", elem_id="k-ask", elem_classes=["bq-btn", "bq-primary", "bq-ico-mic"])
                 override_btn = gr.Button("Override a call", elem_id="k-override", elem_classes=["bq-btn", "bq-ico-pencil"])
     timer = gr.Timer(REFRESH_SECONDS)
-    timer.tick(refresh, None, [header, arrivals], show_progress="hidden", queue=False)
+    timer.tick(refresh, None, [header, arrivals, alerts], show_progress="hidden", queue=False)
     return {
         "timer": timer,
         "header": header, "dishes": dishes, "arrivals": arrivals, "alerts": alerts, "voice": voice,

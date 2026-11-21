@@ -145,3 +145,30 @@ def test_qr_sleeve_is_key_card_size(tmp_path):
     path = qr.sleeve("http://192.168.1.20:7860/guest", tmp_path / "sleeve.png")
     w, h = Image.open(path).size
     assert (w, h) == (1004, 650)     # 85 x 55 mm at 300 dpi
+
+
+def test_bookings_raise_alerts_without_room_numbers(svc):
+    svc.save_plan(plan(room="1204", party=2, slot="09:30"))
+    first = svc.latest_alerts()[0]
+    assert first["kind"] == "info" and first["title"] == "2 guests booked for 09:30"
+    assert f"Expected today is now {round(svc.expected_diners())}" in first["line"]
+    svc.save_plan(plan(room="1204", party=3, slot="08:00"))
+    assert svc.latest_alerts()[0]["title"] == "Booking changed to 08:00 for 3 guests"
+    svc.save_plan(plan(room="1305", attending=False, party=1, slot=None))
+    assert svc.latest_alerts()[0]["title"] == "1 guest not coming"
+    for a in svc.alerts:
+        assert "1204" not in a.title + a.line and "1305" not in a.title + a.line
+
+
+def test_board_shows_three_newest_alerts(svc):
+    for k in range(5):
+        svc.save_plan(plan(room=str(2000 + k), party=1, slot="07:00"))
+    shown = svc.latest_alerts()
+    assert len(shown) == 3
+    assert shown[0]["title"] == "1 guest booked for 07:00"
+
+
+def test_empty_alerts_panel_says_so():
+    from buffetiq.ui import kitchen
+
+    assert "No alerts yet" in kitchen.render_alerts([])

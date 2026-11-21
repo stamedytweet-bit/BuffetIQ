@@ -329,6 +329,7 @@ KITCHEN_BOARD_CSS = """
 .k-alert .txt { display: flex; flex-direction: column; gap: 2px; }
 .k-alert .title { font-size: 18px; font-weight: 700; line-height: 1.25; }
 .k-alert .line { font-size: 16px; line-height: 1.4; color: var(--bq-text-2); }
+.k-empty { margin: 0; font-size: 16px; line-height: 1.4; color: var(--bq-text-3); }
 .k-voice { gap: 10px; }
 .k-voice .head { display: flex; align-items: center; gap: 10px; font-size: 16px; color: var(--bq-text-3); }
 .k-voice .q { font-size: 18px; color: var(--bq-text-2); }

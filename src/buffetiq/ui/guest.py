@@ -235,7 +235,7 @@ def build_page() -> dict:
 
     # "Not this time" hides the party questions and turns the button into a reply
     def on_attending(choice):
-        yes = choice == "Yes"
+        yes = choice != "Not this time"
         return gr.update(visible=yes), gr.update(value="Choose a time" if yes else "Send my reply")
 
     attending.change(on_attending, attending, [party_box, choose_btn])
@@ -245,7 +245,7 @@ def build_page() -> dict:
         if not state.valid_room(r):
             return (gr.update(), gr.update(), gr.update(), render_error(ROOM_ERROR), gr.update(), gr.update(),
                     gr.update(), gr.update(), gr.update(), gr.update(), gr.update())
-        if choice != "Yes":
+        if choice == "Not this time":   # only an explicit "Not this time" counts as a decline
             state.service().save_plan(state.GuestPlan(service_date="", room=r, attending=False, party=p))
             return (gr.update(visible=False), gr.update(visible=False), gr.update(visible=True), "",
                     render_declined(), gr.update(visible=False), gr.update(), gr.update(), gr.update(),

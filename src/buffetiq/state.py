@@ -133,6 +133,18 @@ def clean_plan(plan: GuestPlan) -> GuestPlan:
 # The service
 # ---------------------------------------------------------------------------
 
+@dataclass
+class Alert:
+    kind: str            # "stop" (coral !), "info" (teal i) or "suggest" (saffron ›)
+    title: str
+    line: str
+    at: str              # service clock time, "06:15"
+
+
+def guests(n: int) -> str:
+    return f"{n} guest{'s' if n != 1 else ''}"
+
+
 class Service:
     """One breakfast morning: its forecast, its clock and what guests have told us."""
 
@@ -157,6 +169,7 @@ class Service:
         self.profile = self.model.predict_curve(self.row)[0]
         self.p_dine = min(1.0, self.n0 / max(in_house, 1))   # chance an in-house guest eats breakfast
         self.plans: dict[str, GuestPlan] = {}
+        self.alerts: list[Alert] = []            # newest first; the board shows three
         self._load_plans()
 
     # ---- persistence (local file only) ----
@@ -195,9 +208,37 @@ class Service:
         plan.service_date = self.service_date
         plan = clean_plan(plan)
         with LOCK:
+            previous = self.plans.get(plan.room)
             self.plans[plan.room] = plan          # "Change my plans" replaces the room's earlier plan
             self._save()
+            self._booking_alert(plan, previous)
         return plan
+
+    def _booking_alert(self, plan: GuestPlan, previous: GuestPlan | None) -> None:
+        """Tell the kitchen about a booking. Room numbers never appear in alerts."""
+        at = self.clock.strftime("%H:%M")
+        expected = int(round(self.expected_diners()))
+        if not plan.attending:
+            title = f"{guests(plan.party)} not coming"
+            line = f"Told us at {at}. Expected today is now {expected}."
+        elif previous is not None and previous.attending:
+            title = f"Booking changed to {plan.slot} for {guests(plan.party)}"
+            line = f"Changed at {at}. Expected today is now {expected}."
+        else:
+            title = f"{guests(plan.party)} booked for {plan.slot}"
+            line = f"Booked at {at}. Expected today is now {expected}."
+        self.add_alert("info", title, line)
+
+    def add_alert(self, kind: str, title: str, line: str) -> Alert:
+        with LOCK:
+            alert = Alert(kind, title, line, self.clock.strftime("%H:%M"))
+            self.alerts.insert(0, alert)
+            del self.alerts[50:]
+            return alert
+
+    def latest_alerts(self, n: int = 3) -> list[dict]:
+        with LOCK:
+            return [asdict(a) for a in self.alerts[:n]]
 
     def clear_plans(self) -> None:
         with LOCK:
