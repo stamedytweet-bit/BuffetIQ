@@ -67,10 +67,11 @@ def test_numbers_must_come_from_function_results():
 
 
 def test_invented_gemini_numbers_fall_back_to_the_board(monkeypatch):
+    board = assistant.get_refill_plan("sausages")
     monkeypatch.setattr(assistant, "gemini_answer",
-                        lambda q: ("Cook 9 kg of chicken sausages now.", [("get_refill_plan", {"board_call": "Cook 5 kg"})]))
+                        lambda q: ("Cook 9 kg of chicken sausages now.", [("get_refill_plan", board)]))
     a = assistant.ask("How much sausage should I cook?", use_gemini=True)
-    assert a.mode == "basic" and "Cook 5 kg" in a.text
+    assert a.mode == "basic" and board["board_call"] in a.text
 
 
 def test_matching_gemini_answer_is_used(monkeypatch):

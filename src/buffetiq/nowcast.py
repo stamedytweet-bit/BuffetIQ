@@ -238,11 +238,20 @@ class Engine:
         self.log.append((now, "arrivals", "", count, ""))
 
     def tray_check(self, dish_id: str, amount: float, level: str, now: float) -> None:
-        """A camera or manual reading replaces the estimate. A Full reading cannot see food above the pan."""
+        """A camera or manual reading updates the pan on the buffet only.
+
+        The camera cannot see food held hot in the kitchen, so the reserve BuffetIQ
+        believes it has (anything above one pan) is kept and added to the reading.
+        A Full reading also cannot tell how full above the pan's top it is.
+        """
         dish = self._dish(dish_id)
-        est = amount
+        cap = float(dish["pan_capacity"])
+        reserve = max(self.stock.get(dish_id, 0.0) - cap, 0.0)
+        # An Empty pan means any reserve has run out or not been brought out, so the dish needs food now.
+        # The camera is at most one level off, so a full pan is never read as Empty.
+        est = 0.0 if level == "empty" else amount + reserve
         if level == "full":
-            est = max(self.stock.get(dish_id, 0.0), amount)
+            est = max(self.stock.get(dish_id, 0.0), est)
         self.stock[dish_id] = est
         if est <= 0:
             self.empty_since.setdefault(dish_id, now)

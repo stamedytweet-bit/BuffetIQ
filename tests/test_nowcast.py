@@ -236,6 +236,6 @@ def test_log_arrivals_and_override_are_logged(live):
     live.log_arrivals(5)
     assert live.kitchen().arrived() == pytest.approx(before + 5)
     live.override("croissants", "run_down", "Quality problem")
-    rows = list(csv.DictReader(open(live.log_path)))
+    rows = [r for r in csv.DictReader(open(live.log_path)) if r["action"] in ("arrivals", "override")]
     assert [r["action"] for r in rows] == ["arrivals", "override"]
     assert rows[1]["note"] == "run_down: Quality problem"

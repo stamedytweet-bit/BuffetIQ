@@ -134,31 +134,40 @@ Each of the 65 test mornings (21 September to 24 November 2026) is replayed in 5
 | --- | --- | --- | --- | --- | --- | --- |
 | Baseline chef rule | 21.9 | | 119.6 | | 12.9 | |
 | Forecast only | 17.0 | -22% | 95.5 | -20% | 8.9 | -4.0 |
-| **Full BuffetIQ** | **17.6** | **-20%** | **93.6** | **-22%** | **5.7** | **-7.2** |
-| BuffetIQ without cook-to-order | 18.3 | -17% | 96.4 | -19% | 10.1 | -2.8 |
+| **Full BuffetIQ** | **11.0** | **-50%** | **59.9** | **-50%** | **6.9** | **-6.0** |
+| BuffetIQ without cook-to-order | 11.8 | -46% | 63.6 | -47% | 14.3 | +1.4 |
 
 ![Surplus and stock-out minutes by policy](charts/phase5_policies.png)
 
-Full BuffetIQ cuts surplus by 4.3 kg a day (20%) and the food cost of that surplus by S$26 a day (22%, about S$9,500 a year for this fictional hotel) compared with the baseline chef rule, and at the same time cuts the minutes a dish stands empty by 56%, from 12.9 to 5.7 a day. It therefore meets the bar set for this phase: less surplus without more stock-out minutes.
+Full BuffetIQ halves the surplus at close compared with the baseline chef rule, from 21.9 kg to 11.0 kg a day, and halves its food cost, from S$119.6 to S$59.9 a day (about S$21,800 a year for this fictional hotel), while cutting the minutes a dish stands empty from 12.9 to 6.9 a day. It therefore meets the bar set for this phase: less surplus without more stock-out minutes. It also beats forecast only on both measures.
 
-Three findings are less flattering and are reported as they came out:
+### Corrections made after the first replay
 
-1. **Forecast only leaves slightly less food than full BuffetIQ** (17.0 kg against 17.6 kg a day), because BuffetIQ's calls cook to cover expected demand until a batch is ready plus 45 minutes, keeping a reserve. Forecast only pays for its lower surplus with 56% more empty minutes (8.9 against 5.7). The live engine trades about 0.6 kg a day of food for about 3 fewer empty minutes.
-2. **Eggs and croissants do not improve on stock-outs.** BuffetIQ leaves as many eggs as the baseline (3.8 kg a day) and its croissant stock-out minutes are slightly higher (0.3 against 0.1 a day). BuffetIQ also has more days with a brief empty tray for several dishes (for example 12 against 5 days for chicken sausages), although the minutes on those days are much shorter.
-3. **The cook-to-order switch never triggered in the first replay because of a bug.** Expected arrivals in later slots were divided by the share of the morning left after each slot instead of after the current time, so the last 15 minutes looked as busy as 234 guests. The bug was fixed (a regression test now guards it) and the results above are from the corrected replay. With the switch working, it saves 0.7 kg a day and 4.4 stock-out minutes, so most of the gain comes from forecasting and refills.
+Two bugs in the engine were found and fixed after the first test results had been seen, so these figures should be read with that in mind. Neither fix changed the data, the forecast or any setting; both made the engine behave as described.
+
+1. **Late slots looked busy, so cook-to-order never started.** Expected arrivals in each later slot were divided by the share of the morning left after that slot instead of after the current time, so the last 15 minutes looked like 234 guests. Found in Phase 5; a regression test now guards it.
+2. **A camera reading wiped out food held in reserve.** The camera sees only the pan on the buffet, but a reading replaced BuffetIQ's whole stock estimate, so when it misread a full pan as half (as it does 15% of the time in the replay), BuffetIQ forgot the food held hot in the kitchen and called for more. Found in Phase 7, when the demo morning's report showed 16.5 kg of mee goreng cooked for 12.4 kg of demand. A reading now updates only the pan, keeps the reserve, and an Empty reading is trusted fully.
+
+Before these fixes, the same replay gave full BuffetIQ 17.6 kg of surplus (-20%) and 5.7 stock-out minutes. The correction mostly removed over-cooking, at the cost of about one more empty minute a day.
+
+### Findings that are less flattering
+
+1. **Without cook-to-order, stock-outs rise slightly** (14.3 minutes against 12.9 for the baseline), so the switch matters for keeping trays filled late in the morning, when BuffetIQ now cooks less.
+2. **Brief empty trays happen on more days.** BuffetIQ has more days with any empty minute for several dishes (for example 18 against 9 days for hash browns), though the minutes are fewer in total; with a 15-minute check interval, a dish with a 12-minute cooking time can run out between checks. Croissants are also empty slightly longer (0.4 against 0.1 minutes a day).
+3. **Not every morning improves.** On the demo morning, Tuesday 24 November, BuffetIQ leaves 17.9 kg against 14.6 kg under the chef rule (see Phase 7), because that morning's guests ate less mee goreng per head than forecast while the chef's same-weekday plan happened to be close.
 
 | Dish | Surplus, baseline (kg) | Surplus, BuffetIQ (kg) | Stock-out min, baseline | Stock-out min, BuffetIQ | Cost, baseline (S$) | Cost, BuffetIQ (S$) |
 | --- | --- | --- | --- | --- | --- | --- |
-| Scrambled eggs | 3.77 | 3.78 | 1.1 | 0.3 | 18.87 | 18.90 |
-| Chicken sausages | 2.69 | 2.14 | 1.0 | 0.5 | 20.21 | 16.07 |
-| Hash browns | 1.89 | 1.33 | 2.5 | 1.2 | 7.55 | 5.32 |
-| Pancakes | 1.23 | 0.66 | 1.5 | 0.8 | 5.52 | 2.95 |
-| Mee goreng | 2.75 | 2.12 | 1.5 | 0.7 | 9.63 | 7.42 |
-| Nasi lemak rice | 2.99 | 2.64 | 4.0 | 1.2 | 7.47 | 6.61 |
-| Croissants | 2.60 | 1.75 | 0.1 | 0.3 | 31.22 | 20.99 |
-| Cut fruit | 3.99 | 3.21 | 1.3 | 0.7 | 19.14 | 15.39 |
+| Scrambled eggs | 3.77 | 1.63 | 1.1 | 0.3 | 18.87 | 8.13 |
+| Chicken sausages | 2.69 | 1.37 | 1.0 | 0.7 | 20.21 | 10.27 |
+| Hash browns | 1.89 | 0.80 | 2.5 | 1.3 | 7.55 | 3.21 |
+| Pancakes | 1.23 | 0.45 | 1.5 | 1.1 | 5.52 | 2.02 |
+| Mee goreng | 2.75 | 1.28 | 1.5 | 1.2 | 9.63 | 4.47 |
+| Nasi lemak rice | 2.99 | 1.71 | 4.0 | 1.2 | 7.47 | 4.27 |
+| Croissants | 2.60 | 1.33 | 0.1 | 0.4 | 31.22 | 15.98 |
+| Cut fruit | 3.99 | 2.40 | 1.3 | 0.7 | 19.14 | 11.51 |
 
-In the last hour, BuffetIQ flagged an average of 11.2 kg a day as likely surplus for a Treatsure offer. These flags are not subtracted from the surplus above, because the replay cannot know how much would actually sell.
+In the last hour, BuffetIQ flagged an average of 9.6 kg a day as likely surplus for a Treatsure offer. These flags are not subtracted from the surplus above, because the replay cannot know how much would actually sell.
 
 ### Sensitivity test: guests who accept a quieter half hour
 
@@ -166,20 +175,20 @@ This is a sensitivity test, not a prediction. It moves a share of the guests in 
 
 | Share of guests who accept | Surplus (kg a day) | Stock-out minutes (a day) | Cost (S$ a day) |
 | --- | --- | --- | --- |
-| 0% | 17.6 | 5.7 | 93.6 |
-| 10% | 16.2 | 4.5 | 86.3 |
-| 20% | 15.6 | 7.3 | 83.3 |
-| 30% | 15.9 | 16.4 | 84.4 |
+| 0% | 11.0 | 6.9 | 59.9 |
+| 10% | 8.9 | 6.2 | 48.1 |
+| 20% | 7.4 | 9.5 | 41.6 |
+| 30% | 7.0 | 17.8 | 38.8 |
 
-Up to about 10%, a flatter rush helps on both counts. Beyond that, the moved guests turn the quiet half hours into new peaks, and stock-out minutes rise sharply, because in this test the forecast curve does not learn where the guests went. In the live app, guests who choose a time on the guest page are placed in their half hour, so the real effect should sit between these figures, but this replay cannot show that.
+Up to about 10%, a flatter rush helps on both counts. Beyond that, the moved guests turn the quiet half hours into new peaks and stock-out minutes rise sharply, because in this test the forecast curve does not learn where the guests went. In the live app, guests who choose a time on the guest page are placed in their half hour, so the real effect should sit between these figures, but this replay cannot show that.
 
 ### Changes worth trying
 
-The 45-minute cover window, the 10% buffer and the cook-to-order threshold of 12 guests per 15 minutes were set before any results were seen and have not been tuned. A shorter cover window late in the morning, or a half batch for the last cook of the day, would probably close the gap with forecast only on surplus, but any such change should be chosen on training days and tested once on these 65 days, not tuned against them.
+The 45-minute cover window, the 10% buffer, the 15-minute check interval and the cook-to-order threshold of 12 guests per 15 minutes were set before any results were seen and have not been tuned. Checking fast-cooking dishes more often, or cooking a little earlier when the pan reads Half, would probably reduce the brief empty trays, but any such change should be chosen on training days and tested once on these 65 days, not tuned against them.
 
 ### The live kitchen board
 
-The kitchen board now runs entirely on the engine, apart from the last voice answer (Phase 6). Started with `python app.py --at 08:40`, it replays the demo morning to 08:40 with simulated guests and camera checks. It then shows 223 diners so far, "Expected today 310, was 300", Moderate for the next 15 minutes, arrivals 5% ahead of forecast, chicken sausages Empty with "Cook 5 kg · Now · tray empty since 08:35", the other dishes on Hold with their reserves, pan timers, and the stop-out and cook-to-order alerts. "Log arrivals +5" raised the expected total from 310 to 315 at the next refresh, "Override a call" changed scrambled eggs to "Let it run down" with the chef's reason shown on the card, and "Check a tray" shows a QR code for the runner page.
+The kitchen board now runs entirely on the engine, apart from the last voice answer (Phase 6). Started with `python app.py --at 08:40`, it replays the demo morning to 08:40 with simulated guests and camera checks. It then shows 223 diners so far, "Expected today 310, was 300", Moderate for the next 15 minutes, arrivals 5% ahead of forecast, chicken sausages Empty with "Cook 3.75 kg · Now · ready in 5 min" (it read "Cook 5 kg" before the reserve fix), the other dishes on Hold with their reserves, pan timers, and the stop-out and cook-to-order alerts. "Log arrivals +5" raised the expected total from 310 to 315 at the next refresh, "Override a call" changed scrambled eggs to "Let it run down" with the chef's reason shown on the card, and "Check a tray" shows a QR code for the runner page.
 
 The tests in `tests/test_nowcast.py` cover zero arrivals, the nowcast formula, refill rounding, the lead-time cut-off, the pan timer thresholds (3 hours 30 minutes and 4 hours), the slot arrivals bug, cook-to-order timing, calls being followed only once, stop-out alerts, overrides and discards, Treatsure flags only in the last hour, the camera error model, conservation of food in the replay, and the live board after a replay.
 
@@ -187,19 +196,59 @@ The tests in `tests/test_nowcast.py` cover zero arrivals, the nowcast formula, r
 
 This section shows whether chefs get the same numbers by asking aloud as by reading the board. Ask BuffetIQ turns speech into text with faster-whisper ("small", running on the laptop), answers from five functions that read the kitchen engine (`get_refill_plan`, `get_stock`, `get_forecast`, `get_timer` and `get_alerts`), and speaks the answer with gTTS while showing the text. With a Gemini key, Gemini chooses the functions and words the answer; every number in its answer is then checked against the function results, and if one does not match, the rule-based answer from the same results is used instead. Without a key, with the free tier rate limited, or offline, a rule-based intent parser answers the same five question types and the status pill reads "Basic answers". Every result is simulated on fictional data, from `python -m buffetiq.assistant_eval` (run from `src`), with every question and answer in `docs/phase6_results.json`.
 
-Twenty kitchen questions were asked on the demo morning replayed to 08:40, covering what to cook for each of the eight dishes, what is running low, tray levels, guests expected and so far, the next 15 minutes, pan timers, last cook and bake times, alerts, and one question the board cannot answer (the weather). Each expected answer is read from the board at that moment, such as "Cook 5 kg" and "sausage" for "Do we need more sausages?", and an answer matches when it contains every expected fact.
+Twenty kitchen questions were asked on the demo morning replayed to 08:40, covering what to cook for each of the eight dishes, what is running low, tray levels, guests expected and so far, the next 15 minutes, pan timers, last cook and bake times, alerts, and one question the board cannot answer (the weather). Each expected answer is read from the board at that moment, such as "Cook 3.75 kg" and "sausage" for "Do we need more sausages?", and an answer matches when it contains every expected fact. The run was repeated after the Phase 7 engine fix changed the board, with the same result.
 
 | Run | Answers matching the board | Median response time |
 | --- | --- | --- |
 | Typed, basic answers (no Gemini) | 20 of 20 | under 0.01 seconds |
-| Spoken by a computer voice (gTTS), then faster-whisper and basic answers | 20 of 20 | 0.81 seconds |
+| Spoken by a computer voice (gTTS), then faster-whisper and basic answers | 20 of 20 | 0.88 seconds |
 | Typed and spoken with Gemini | **not yet run: waiting for a Gemini API key** | |
 | Spoken in a real voice (5 recordings) | **not yet run: waiting for recordings** | |
 
 The basic answers, which also serve as the fallback, meet the target of at least 18 matching answers with the key removed. faster-whisper heard 19 of the 20 computer-voiced questions word for word, writing "Any pans near four hours." for "Any pans near 4 hours?", which still answered correctly. The test is easier than real service in two ways, so the figures above are an upper bound: at 08:40 seven of the eight dishes are on Hold, so most refill answers are the same word, and the computer voice is clearer than a chef talking over a busy kitchen. A real-voice run in noise is the more honest test of the microphone.
 
-In an automated browser test, holding the phone's microphone button for 3 seconds with a recorded question ("How much sausage should I cook?") returned "Cook 5 kg of chicken sausages now. The tray has been empty since 08:35." 1.5 seconds after release, matching the board, and the spoken answer played and could be replayed. The same question from the kitchen board's "Hold to ask BuffetIQ" button updated the "Last voice answer" panel and was spoken through the laptop.
+In an automated browser test (before the Phase 7 engine fix), holding the phone's microphone button for 3 seconds with a recorded question ("How much sausage should I cook?") returned "Cook 5 kg of chicken sausages now. The tray has been empty since 08:35." 1.5 seconds after release, matching the board at the time, and the spoken answer played and could be replayed. The same question from the kitchen board's "Hold to ask BuffetIQ" button updated the "Last voice answer" panel and was spoken through the laptop.
 
 Browsers allow the microphone only on secure links. The laptop's own board (opened as `127.0.0.1`) and the Colab share link (`https`) can record, but a phone opening the app as `http://192.168.x.x` cannot; there, the button explains this and offers typing, which is the "no microphone" fallback.
 
 The tests in `tests/test_assistant.py` cover dish synonyms in kitchen language, removing room numbers before anything leaves the laptop, the intent parser, answers that repeat the board's call, the reply when the board cannot answer, rejecting a Gemini answer whose numbers do not match the board, falling back and pausing Gemini after an error such as a rate limit, the "Basic answers" pill without a key, text-only answers without internet, microphone problems offering typing, and logging without guest data.
+
+## Phase 7: day-end report, history and retraining
+
+This section shows what the F&B manager sees after service and whether the forecast learns from each day. Every result is simulated on fictional data.
+
+### The day-end report for the demo morning
+
+The report finishes the morning to 10:30 on a copy of the kitchen, so the live board is not changed, and compares it with the same morning (the same 291 guests and the same demand) replayed under the usual chef rule. Any dish the runner records with "Record leftovers" uses that figure instead, and discarded pans count as waste.
+
+| Figure | Today, with BuffetIQ | A usual day (chef rule) |
+| --- | --- | --- |
+| Food left over | 17.9 kg | 14.6 kg |
+| Cost of food wasted | S$85 | S$86 |
+| Minutes a dish was empty | 22 | 9 |
+| Guests served | 291 (forecast 300) | 291 |
+
+On this particular morning BuffetIQ does worse than the chef rule on leftovers (22% more) and empty minutes, and about the same on cost. Most of the extra leftovers are mee goreng (5.6 kg against 2.6 kg): the forecast expected 0.047 kg per guest, but this morning's guests ate 0.043 kg each, while the chef's same-weekday average happened to be close. Most of the empty minutes are hash browns, empty from 09:02 to 09:15 because a 12-minute cook started at a 09:00 check. Across all 65 test days BuffetIQ halves leftovers (Phase 5), so this morning is an unlucky one rather than the rule, and we have not changed anything to make it look better. If the group wants a demo morning that shows the typical result, it should be chosen by a rule fixed in advance (for example, the median day of the 65), not by trying mornings until BuffetIQ wins.
+
+"What happened today" lists up to four events from the engine and the log. On the demo morning they were: hash browns ran out for 13 minutes (empty from 09:02 to 09:15; the kitchen cooked 2 kg), 12.4 kg offered on Treatsure (croissants, nasi lemak rice and 5 more, flagged from 09:30), and cook-to-order from 09:20.
+
+### Forecast keeps improving
+
+The design shows forecast error falling week by week. Measured honestly, it did not: training on 4, 5, 6 and 7 weeks of history and testing each on the following week gave errors of 7.2%, 4.5%, 9.1% and 6.5%, because each week is different (some contain holidays). Testing every version on the same 65 test days separates learning from how hard a week happens to be, and shows the forecast clearly improving as history grows, so the chart uses this measure, labelled by months of use:
+
+| History used | Average error in guests per day (same 65 test days) |
+| --- | --- |
+| 1 month (4 weeks) | 7.3% |
+| 2 months (8 weeks) | 5.3% |
+| 3 months (12 weeks) | 4.2% |
+| 10 months (42 weeks) | 3.3% |
+
+### Retraining and the NEA file
+
+"Retrain tonight" saves today's service as a history row (its prepared, eaten and left amounts replace the synthetic row for that date), retrains the forecast on all 365 days, saves it, and compares tomorrow's forecast with last night's model, which did not know about today. For Wednesday 25 November it gave 289 guests, 0.3 fewer than before retraining, in 2.3 seconds. One extra day among 365 moves the forecast by less than one guest, as expected; the learning table above shows the effect of weeks and months of days.
+
+"Export NEA waste file (CSV)" downloads 2,920 rows, one per day and dish for all 365 days, with food waste in kilograms and a source column marking each day as simulated history or a logged service. NEA's reporting template asks for food waste by period, so this file is a starting point to adapt, not the template itself.
+
+Every action is appended to `data/service_log.csv`: arrivals, tray checks, cook calls followed, batches out, cook-to-order, overrides, discards, leftovers, voice questions (with room numbers removed) and retraining.
+
+The 8 tests in `tests/test_reports.py` check that the report balances (prepared equals eaten plus left for every dish) and leaves the live board alone, that recorded leftovers and discards are used, the report's wording, that the learning curve falls with more history, that a logged day replaces its synthetic row, that the NEA file has every day and dish, that retraining changes tomorrow's forecast and saves the model, and that the engine's cook calls reach the log.

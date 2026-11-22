@@ -107,6 +107,7 @@ class DayResult:
     unmet: dict = field(default_factory=dict)
     to_order: dict = field(default_factory=dict)
     treatsure_kg: float = 0.0
+    empty_spells: list = field(default_factory=list)   # [dish id, start minute, end minute]
 
 
 class World:
@@ -160,7 +161,17 @@ class World:
             self.r.served[did] += got
             if short > 1e-9:
                 self.r.unmet[did] += short
-                self.r.empty_minutes[did] += self.step * short / want
+                gone = self.step * short / want
+                self.r.empty_minutes[did] += gone
+                self._spell(did, t + self.step - gone, t + self.step)
+
+    def _spell(self, dish_id: str, start: float, end: float) -> None:
+        """Join empty minutes that touch into one spell, so the report can say "08:36 to 08:42"."""
+        for sp in reversed(self.r.empty_spells):
+            if sp[0] == dish_id and sp[2] >= start - self.step - 1e-6:
+                sp[2] = end
+                return
+        self.r.empty_spells.append([dish_id, start, end])
 
     def close(self) -> DayResult:
         for d in self.dishes:

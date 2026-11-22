@@ -157,7 +157,7 @@ def fmt_amount(value: float, capacity: float, unit: str) -> str:
     """'0.4 of 2.5 kg' or '18 of 40 pieces', as on the dish cards."""
     if unit == "pieces":
         return f"{int(round(value))} of {int(round(capacity))} pieces"
-    shown = "0" if value == 0 else fmt_kg(value)
+    shown = "0" if round(value, 1) == 0 else fmt_kg(value)
     return f"{shown} of {fmt_kg(capacity)} kg"
 
 
@@ -674,6 +674,8 @@ REPORT_CSS = """
 .rp-learn-bars b { font-size: 13px; font-weight: 700; }
 .rp-learn-bars i { width: 100%; border-radius: 6px 6px 0 0; display: block; }
 .rp-learn-axis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; font-size: 13px; color: var(--bq-muted); text-align: center; }
+.rp-status { margin: 0; font-size: 15px; font-weight: 600; color: var(--bq-teal); background: var(--bq-teal-tint);
+  border-radius: 12px; padding: 12px 16px; }
 .rp-foot { margin: 0; font-size: 13px; line-height: 1.5; color: var(--bq-muted); }
 
 .ab-section { background: var(--bq-surface); border: 1px solid var(--bq-border); border-radius: 18px; padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; }

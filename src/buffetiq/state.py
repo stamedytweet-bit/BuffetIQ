@@ -175,6 +175,9 @@ class Service:
         self.alerts: list[Alert] = []            # newest first; the board shows three
         self.trays: dict[str, dict] = {}         # latest tray level per dish id
         self.last_answer: dict | None = None     # the last Ask BuffetIQ answer, shown on the board
+        self.world = None                        # simulated kitchen after replay_to (demo only)
+        self.world_rng = None
+        self._logged_engine = 0                  # engine log entries already written to the service log
         self.log_path = Path(log_path) if log_path else SERVICE_LOG_PATH
         self._load_plans()
         # expected amount per diner for each dish, from the night-before dish model
@@ -282,7 +285,19 @@ class Service:
                 e.n0 = self.expected_diners()
                 e.shares = list(slots / slots.sum())
             e.step(self.clock_minutes())
+            self._flush_engine_log(e)
             return e
+
+    def _flush_engine_log(self, e) -> None:
+        """Write the engine's own actions (cook calls followed, batches out, cook-to-order) to the service log."""
+        from buffetiq.nowcast import hhmm as _hhmm
+
+        for minute, action, dish, amount, note in e.log[self._logged_engine:]:
+            if action in ("cook", "batch_out", "cook_to_order"):
+                unit = self.dish(dish)["unit"] if dish else ""
+                self.log_event(action, dish=dish, amount=round(float(amount), 3) if dish else "", unit=unit,
+                               source=note or "engine", note=f"at {_hhmm(minute)}")
+        self._logged_engine = len(e.log)
 
     def log_arrivals(self, count: int) -> None:
         with LOCK:
@@ -311,6 +326,7 @@ class Service:
 
         with LOCK:
             self.engine = self._new_engine()
+            self._logged_engine = 0
             r = self.row.iloc[0]
             demand = {d["id"]: float(r[data_gen.dish_columns(d)["demand"]]) for d in self.config["dishes"]}
             world = simulate.World(self.config["dishes"], demand, r[data_gen.ARRIVAL_COLUMNS].to_numpy(float),
@@ -318,6 +334,7 @@ class Service:
             until = minutes(hhmm_text)
             rng = _random.Random(self.config["simulation"]["seed"] if seed is None else seed)
             simulate.play(self.engine, world, SERVICE_START, until, self.config, rng)
+            self.world, self.world_rng = world, rng      # the simulated kitchen, kept so the day can be finished
             self.clock = datetime.strptime(f"{self.service_date} {hhmm_text}", "%Y-%m-%d %H:%M")
             self.engine.step(until)
 

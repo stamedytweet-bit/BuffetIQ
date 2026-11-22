@@ -295,18 +295,19 @@ class Forecaster:
 MODEL_PATH = ROOT / "models" / "forecast.joblib"
 
 
-def save(model: Forecaster, path: Path = MODEL_PATH) -> Path:
+def save(model: Forecaster, path: Path | None = None) -> Path:
     import joblib
 
+    path = path or MODEL_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(model, path)
     return path
 
 
-def load(path: Path = MODEL_PATH) -> Forecaster:
+def load(path: Path | None = None) -> Forecaster:
     import joblib
 
-    return joblib.load(path)
+    return joblib.load(path or MODEL_PATH)
 
 
 def train_on_all(config: dict | None = None) -> Forecaster:

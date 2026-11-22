@@ -1,19 +1,18 @@
 """Day-end report, page "/report" (screen 08). Light, fluid laptop layout.
 
-Phase 0 renders the sample day from the design. Phase 7 builds the same view
-model from data/service_log.csv and wires "Retrain tonight".
+The report is built by reports.py from today's service: the morning finished to
+10:30, compared with the same morning under the usual chef rule. "Export NEA
+waste file (CSV)" downloads every logged day's waste by dish in kilograms, and
+"Retrain tonight" adds today to the history and retrains the forecast.
 """
 
 from __future__ import annotations
 
-import csv
-import tempfile
-from pathlib import Path
-
 import gradio as gr
 
+from buffetiq import state
 from buffetiq.style import GUEST, check_copy, esc
-from buffetiq.ui import sample
+from buffetiq.ui import sample  # noqa: F401  (kept for the Phase 0 tests)
 
 
 def render_title(date_line: str) -> str:
@@ -79,7 +78,7 @@ def render_events(events: list[dict]) -> str:
     return f'<section class="rp-panel" aria-label="What happened today"><h2>What happened today</h2><div class="rp-events">{items}</div></section>'
 
 
-def render_learning(weeks: list[tuple[str, float]]) -> str:
+def render_learning(weeks: list[tuple[str, float]], unit: str = "week of use") -> str:
     """Bar per week; the latest week (the one the title is about) is the accent."""
     top = max(v for _, v in weeks) or 1
     bars, axis = [], []
@@ -89,11 +88,12 @@ def render_learning(weeks: list[tuple[str, float]]) -> str:
         bars.append(f'<div><b>{v:.1f}%</b><i style="height:{h}px;background:{colour}"></i></div>')
         axis.append(f"<span>{esc(label)}</span>")
     first, last = weeks[0], weeks[-1]
-    desc = f"Forecast error falls from {first[1]:.1f}% in {first[0].lower()} to {last[1]:.1f}% in {last[0].lower()}"
+    verb = "falls" if last[1] < first[1] else "moves"
+    desc = f"Forecast error {verb} from {first[1]:.1f}% at {first[0].lower()} to {last[1]:.1f}% at {last[0].lower()}"
     return f"""
 <section class="rp-panel rp-learn" aria-label="Forecast learning">
   <div style="display:flex;flex-direction:column;gap:4px"><h2>Forecast keeps improving</h2>
-    <span class="sub">Average error in guests per day, by week of use</span></div>
+    <span class="sub">Average error in guests per day, by {esc(unit)}</span></div>
   <div class="rp-learn-bars" role="img" aria-label="{esc(desc)}">{''.join(bars)}</div>
   <div class="rp-learn-axis">{''.join(axis)}</div>
 </section>"""
@@ -105,34 +105,96 @@ def render_body(r: dict) -> str:
   {render_figures(r['figures'])}
   <div class="rp-split">
     {render_leftovers(r['leftovers'], r['usual_total'])}
-    <div class="rp-right">{render_events(r['events'])}{render_learning(r['learning'])}</div>
+    <div class="rp-right">{render_events(r['events'])}{render_learning(r['learning'], r.get('learning_unit', 'week of use'))}</div>
   </div>
   <p class="rp-foot">{esc(r['footnote'])}</p>
 </div>"""
     return check_copy(html)
 
 
-def sample_waste_csv() -> str:
-    """Write the sample day's waste by dish (kg) for the export button. Fictional data."""
-    path = Path(tempfile.gettempdir()) / "buffetiq_nea_waste_sample.csv"
-    with open(path, "w", newline="", encoding="utf-8") as fh:
-        w = csv.writer(fh)
-        w.writerow(["date", "dish", "food_waste_kg", "note"])
-        for name, _prep, _eaten, left, _usual in sample.REPORT["leftovers"]:
-            w.writerow(["2026-11-24", name, f"{left:.1f}", "Simulated on fictional data"])
-    return str(path)
+def _pct_change(today: float, usual: float) -> tuple[str, bool]:
+    if usual <= 0:
+        return "", False
+    change = today / usual - 1
+    if abs(change) < 0.005:
+        return "The same as a usual day", False
+    word = "less" if change < 0 else "more"
+    return f"{abs(change):.0%} {word} than a usual day", change < 0
+
+
+def date_line() -> str:
+    svc = state.service()
+    cfg = svc.config["service"]
+    return f"{state.long_date(svc.service_date)} · Breakfast {cfg['start']} to {cfg['end']} · Simulated on fictional data"
+
+
+def report_view() -> dict:
+    """The live day-end report in the shape render_body() draws (screen 08)."""
+    from buffetiq import nowcast, reports
+
+    svc = state.service()
+    r = reports.build(svc)
+    cfg = svc.config["service"]
+    left_text, left_good = _pct_change(r["left_total"], r["usual_total"])
+    cost_good = r["cost"] < r["usual_cost"]
+    spell = r["spell"]
+    spell_text = (f" · {spell[0].lower()}, {nowcast.hhmm(spell[1])} to {nowcast.hhmm(spell[2])}" if spell else "")
+    revised = f" · revised to {r['revised'][0]} at {r['revised'][1]}" if r["revised"] else ""
+    figures = [
+        {"label": "Food left over", "value": f"{r['left_total']:.1f} kg",
+         "compare": f"{left_text} ({r['usual_total']:.1f} kg)", "good": left_good},
+        {"label": "Cost of food wasted", "value": f"S${r['cost']:.0f}",
+         "compare": f"Usual day S${r['usual_cost']:.0f}", "good": cost_good},
+        {"label": "Minutes a dish was empty", "value": f"{r['empty_minutes']:.0f} min",
+         "compare": f"Usual day {r['usual_empty_minutes']:.0f} min{spell_text}",
+         "good": r["empty_minutes"] < r["usual_empty_minutes"]},
+        {"label": "Guests served", "value": f"{r['diners']}", "compare": f"Forecast {r['forecast']}{revised}", "good": False},
+    ]
+    return {
+        "date_line": date_line(),
+        "figures": figures,
+        "leftovers": [(x["name"], x["prepared"], x["eaten"], x["left"], x["usual_left"]) for x in r["rows"]],
+        "usual_total": r["usual_total"],
+        "events": r["events"] or [{"title": "A quiet morning", "line": "No stock-outs, overrides or Treatsure offers."}],
+        "learning": r["learning"],
+        "learning_unit": "months of use, on the same 65 test days",
+        "footnote": ("Simulated on fictional data for the prototype. A usual day is this same morning replayed under "
+                     "the usual chef rule. The NEA file lists each day's food waste by dish in kilograms, ready to "
+                     "adapt to NEA's reporting template."),
+    }
+
+
+def render_retrain(status: dict | None) -> str:
+    if not status:
+        return ""
+    change = status["after"] - status["before"]
+    if abs(change) < 0.05:
+        moved = "the same as before retraining"
+    else:
+        moved = f"{abs(change):.1f} {'more' if change > 0 else 'fewer'} than before retraining"
+    return check_copy(
+        f'<p class="rp-status" role="status">Retrained on {status["days"]} days, including today. '
+        f'Forecast for {esc(state.long_date(status["tomorrow"]))}: {status["after"]:.0f} guests, {moved}.</p>')
 
 
 def build_page() -> dict:
-    r = sample.REPORT
+    from buffetiq import reports
+
     gr.Navbar(visible=False)
     with gr.Column(elem_classes=["bq-page", "bq-guest", "bq-wide"]):
         with gr.Column(elem_classes=["bq-wide-inner"]):
             with gr.Row(elem_classes=["rp-header"]):
-                gr.HTML(render_title(r["date_line"]))
+                title = gr.HTML(lambda: render_title(date_line()))
                 with gr.Row(elem_classes=["rp-actions"]):
-                    export_btn = gr.DownloadButton("Export NEA waste file (CSV)", value=sample_waste_csv(),
+                    export_btn = gr.DownloadButton("Export NEA waste file (CSV)", value=lambda: reports.nea_csv(),
                                                    elem_classes=["bq-btn", "rp-secondary", "bq-ico-download"])
                     retrain_btn = gr.Button("Retrain tonight", elem_classes=["bq-btn", "rp-primary", "bq-ico-refresh"])
-            body = gr.HTML(render_body(r))
-    return {"export": export_btn, "retrain": retrain_btn, "body": body}
+            status = gr.HTML("")
+            body = gr.HTML(lambda: render_body(report_view()))
+
+    def do_retrain():
+        st = reports.retrain()
+        return render_retrain(st), render_body(report_view())
+
+    retrain_btn.click(do_retrain, None, [status, body])
+    return {"export": export_btn, "retrain": retrain_btn, "body": body, "status": status}

@@ -18,10 +18,10 @@
         "n": 2,
         "question": "Do we need more sausages?",
         "expected": [
-          "cook 5 kg",
+          "cook 3.75 kg",
           "sausage"
         ],
-        "answer": "Cook 5 kg of chicken sausages now. The tray has been empty since 08:35.",
+        "answer": "Cook 3.75 kg of chicken sausages now. Ready in 5 minutes.",
         "mode": "basic",
         "match": true,
         "seconds": 0.0
@@ -213,9 +213,9 @@
         "n": 19,
         "question": "Any alerts?",
         "expected": [
-          "chicken sausages"
+          "switch to cook-to-order from about 09:30"
         ],
-        "answer": "Chicken sausages ran out at 08:35. Cook 5 kg now.",
+        "answer": "Switch to cook-to-order from about 09:30. Under 12 guests per 15 minutes expected, so use smaller pans.",
         "mode": "basic",
         "match": true,
         "seconds": 0.0
@@ -244,22 +244,22 @@
         "answer": "Hold the scrambled eggs. Next check 08:55.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.89,
-        "speech_to_text_seconds": 0.89
+        "seconds": 1.03,
+        "speech_to_text_seconds": 1.03
       },
       {
         "n": 2,
         "question": "Do we need more sausages?",
         "heard": "Do we need more sausages?",
         "expected": [
-          "cook 5 kg",
+          "cook 3.75 kg",
           "sausage"
         ],
-        "answer": "Cook 5 kg of chicken sausages now. The tray has been empty since 08:35.",
+        "answer": "Cook 3.75 kg of chicken sausages now. Ready in 5 minutes.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.79,
-        "speech_to_text_seconds": 0.79
+        "seconds": 0.81,
+        "speech_to_text_seconds": 0.81
       },
       {
         "n": 3,
@@ -272,8 +272,8 @@
         "answer": "Hold the hash browns. Next check 08:55.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.8,
-        "speech_to_text_seconds": 0.8
+        "seconds": 0.83,
+        "speech_to_text_seconds": 0.83
       },
       {
         "n": 4,
@@ -286,8 +286,8 @@
         "answer": "Hold the pancakes. Next check 08:55.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.79,
-        "speech_to_text_seconds": 0.79
+        "seconds": 0.85,
+        "speech_to_text_seconds": 0.85
       },
       {
         "n": 5,
@@ -300,8 +300,8 @@
         "answer": "Hold the mee goreng. Next check 08:55.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.81,
-        "speech_to_text_seconds": 0.81
+        "seconds": 0.99,
+        "speech_to_text_seconds": 0.99
       },
       {
         "n": 6,
@@ -314,8 +314,8 @@
         "answer": "Hold the nasi lemak rice. Next check 08:55.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.81,
-        "speech_to_text_seconds": 0.81
+        "seconds": 1.05,
+        "speech_to_text_seconds": 1.05
       },
       {
         "n": 7,
@@ -328,8 +328,8 @@
         "answer": "Hold the croissants. Next check 08:55.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.81,
-        "speech_to_text_seconds": 0.81
+        "seconds": 1.02,
+        "speech_to_text_seconds": 1.02
       },
       {
         "n": 8,
@@ -342,8 +342,8 @@
         "answer": "Hold the cut fruit. Next check 08:55.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.79,
-        "speech_to_text_seconds": 0.79
+        "seconds": 0.99,
+        "speech_to_text_seconds": 0.99
       },
       {
         "n": 9,
@@ -355,8 +355,8 @@
         "answer": "Chicken sausages is empty. Check the board for what to cook.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.79,
-        "speech_to_text_seconds": 0.79
+        "seconds": 0.83,
+        "speech_to_text_seconds": 0.83
       },
       {
         "n": 10,
@@ -369,8 +369,8 @@
         "answer": "Scrambled eggs is full, with 2.5 kg on the tray. 2.3 kg more in reserve.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.81,
-        "speech_to_text_seconds": 0.81
+        "seconds": 0.87,
+        "speech_to_text_seconds": 0.87
       },
       {
         "n": 11,
@@ -382,8 +382,8 @@
         "answer": "Cut fruit is full, with 5.0 kg on the tray. 1.6 kg more in reserve.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.79,
-        "speech_to_text_seconds": 0.78
+        "seconds": 0.87,
+        "speech_to_text_seconds": 0.87
       },
       {
         "n": 12,
@@ -395,8 +395,8 @@
         "answer": "310 guests expected today, 223 so far. The next 15 minutes look moderate, about 25 guests.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.82,
-        "speech_to_text_seconds": 0.8
+        "seconds": 0.93,
+        "speech_to_text_seconds": 0.91
       },
       {
         "n": 13,
@@ -408,8 +408,8 @@
         "answer": "310 guests expected today, 223 so far. The next 15 minutes look moderate, about 25 guests.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.84,
-        "speech_to_text_seconds": 0.82
+        "seconds": 0.87,
+        "speech_to_text_seconds": 0.85
       },
       {
         "n": 14,
@@ -421,8 +421,8 @@
         "answer": "310 guests expected today, 223 so far. The next 15 minutes look moderate, about 25 guests.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.83,
-        "speech_to_text_seconds": 0.82
+        "seconds": 0.94,
+        "speech_to_text_seconds": 0.92
       },
       {
         "n": 15,
@@ -434,8 +434,8 @@
         "answer": "No pans are near 4 hours. The next swap is chicken sausages at 12:00.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.79,
-        "speech_to_text_seconds": 0.79
+        "seconds": 0.86,
+        "speech_to_text_seconds": 0.86
       },
       {
         "n": 16,
@@ -447,8 +447,8 @@
         "answer": "The chicken sausages pan went out at 08:00. Swap it by 12:00.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.81,
-        "speech_to_text_seconds": 0.81
+        "seconds": 0.86,
+        "speech_to_text_seconds": 0.86
       },
       {
         "n": 17,
@@ -460,8 +460,8 @@
         "answer": "The last bake for croissants is 09:50. The board says Hold now.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.8,
-        "speech_to_text_seconds": 0.8
+        "seconds": 0.88,
+        "speech_to_text_seconds": 0.88
       },
       {
         "n": 18,
@@ -473,21 +473,21 @@
         "answer": "The last cook for nasi lemak rice is 09:55. The board says Hold now.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.82,
-        "speech_to_text_seconds": 0.82
+        "seconds": 0.9,
+        "speech_to_text_seconds": 0.9
       },
       {
         "n": 19,
         "question": "Any alerts?",
         "heard": "Any alerts?",
         "expected": [
-          "chicken sausages"
+          "switch to cook-to-order from about 09:30"
         ],
-        "answer": "Chicken sausages ran out at 08:35. Cook 5 kg now.",
+        "answer": "Switch to cook-to-order from about 09:30. Under 12 guests per 15 minutes expected, so use smaller pans.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.76,
-        "speech_to_text_seconds": 0.76
+        "seconds": 0.81,
+        "speech_to_text_seconds": 0.81
       },
       {
         "n": 20,
@@ -499,8 +499,8 @@
         "answer": "I don't have that. Please check the board.",
         "mode": "none",
         "match": true,
-        "seconds": 0.79,
-        "speech_to_text_seconds": 0.79
+        "seconds": 0.89,
+        "speech_to_text_seconds": 0.89
       }
     ]
   },
@@ -514,8 +514,8 @@
     "spoken_gtts": {
       "questions": 20,
       "matched": 20,
-      "median_seconds": 0.81,
-      "max_seconds": 0.89
+      "median_seconds": 0.88,
+      "max_seconds": 1.05
     }
   }
 }

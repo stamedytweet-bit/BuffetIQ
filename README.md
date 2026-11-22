@@ -12,11 +12,11 @@ The point of difference is timing. Tools such as Winnow Foresight plan quantitie
 | 1 | Synthetic data for a fictional 300-room Singapore hotel (frozen) | Done |
 | 2 | Demand forecast for the night before | Done |
 | 3 | Guest flow with live check-ins and the guest QR code | Done |
-| 4 | Camera tray check (waiting for the group's photos to train the real model) | Built |
+| 4 | Camera tray check (waiting for AI-generated training images) | Built |
 | 5 | Nowcast, refill engine, live kitchen board and the 65-day replay | Done |
 | 6 | Ask BuffetIQ voice assistant (Gemini run waiting for a key) | Built |
-| 7 | Day-end report, history and retraining | Next |
-| 8 | Colab and showcase mode | Planned |
+| 7 | Day-end report, history and retraining | Done |
+| 8 | Colab and showcase mode | Next |
 
 ## Pages
 
