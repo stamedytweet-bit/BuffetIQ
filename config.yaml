@@ -299,3 +299,35 @@ replay:
   step_minutes: 5                # the morning is replayed in 5-minute steps
   camera_accuracy: 0.85          # share of tray readings that are right; the rest are one level off
   acceptance_levels: [0.0, 0.10, 0.20, 0.30]   # share of guests in Busy half hours who accept a quieter one
+
+# ---------------------------------------------------------------------------
+# Ask BuffetIQ facts (added after Phase 7). Allergens follow the Codex groups that
+# Singapore requires on labels; the recipes are fictional, so these lists are our
+# own and must be replaced by the hotel's recipe labels.
+# ---------------------------------------------------------------------------
+allergens:
+  scrambled_eggs: [eggs, milk]
+  chicken_sausages: [gluten, soy]
+  hash_browns: []
+  pancakes: [gluten, eggs, milk]
+  mee_goreng: [gluten, soy, eggs]
+  nasi_lemak_rice: []              # coconut milk and pandan only
+  croissants: [gluten, milk, eggs]
+  cut_fruit: []
+
+allergen_words:                     # kitchen words that point to each allergen group
+  gluten: [gluten, wheat, flour, cereal]
+  eggs: [egg, eggs]
+  milk: [milk, dairy, lactose, butter]
+  soy: [soy, soya, soybean, soybeans]
+  peanuts: [peanut, peanuts]
+  tree nuts: [nut, nuts, almond, almonds, cashew, cashews]
+  crustacea: [shellfish, prawn, prawns, shrimp, crab, crustacea]
+  fish: [fish, anchovy, anchovies, ikan bilis]
+  sulphites: [sulphite, sulphites, sulfite, sulfites]
+
+food_safety:                        # Singapore Food Agency guidance
+  hot_hold_min_c: 60
+  cold_hold_max_c: 5
+  danger_zone_hours: 4
+  reuse_policy: "Food that has been out on the buffet is thrown away at close, not reheated or reused."

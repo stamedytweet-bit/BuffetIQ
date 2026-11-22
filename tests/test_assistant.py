@@ -123,6 +123,62 @@ def test_answers_are_logged_without_guest_data(svc):
     assert "voice_question" in text and "1204" not in text
 
 
-def test_declarations_cover_the_five_functions():
+def test_declarations_cover_every_function():
+    # the brief's five, plus the five topics added after Phase 7
     assert {d["name"] for d in assistant.DECLARATIONS} == set(assistant.FUNCTIONS) == {
-        "get_refill_plan", "get_stock", "get_forecast", "get_timer", "get_alerts"}
+        "get_refill_plan", "get_stock", "get_forecast", "get_timer", "get_alerts",
+        "get_dietary", "get_allergens", "get_food_safety", "get_call_reason", "get_waste"}
+
+
+# ---- topics added after Phase 7 ----
+
+@pytest.mark.parametrize("q,intent", [
+    ("Is the hash brown halal?", "dietary"), ("How many vegetarian meals today?", "dietary"),
+    ("Does the mee goreng have peanuts?", "allergen"), ("Which dishes have gluten?", "allergen"),
+    ("What temperature should the eggs be held at?", "safety"), ("Can I reheat the rice?", "safety"),
+    ("Why cook more sausages?", "why"), ("How much have we thrown away?", "waste"),
+    ("How much rice will be left at close?", "waste"), ("How much egg is left on the tray?", "stock"),
+    ("How much egg should I cook?", "refill"),
+])
+def test_new_intents(q, intent):
+    assert assistant.classify(q)[0] == intent
+
+
+def test_dietary_answers_follow_the_config():
+    assert assistant.ask("Are the croissants halal?", use_gemini=False).main == "Croissants are vegetarian but not halal."
+    assert assistant.ask("Is the mee goreng halal?", use_gemini=False).main == "Mee goreng is halal but not vegetarian."
+
+
+def test_dietary_counts_are_counts_only(svc):
+    svc.save_plan(state.GuestPlan(service_date="", room="1204", attending=True, party=3, halal=2, vegetarian=1, slot="09:30"))
+    r = assistant.get_dietary("all")
+    assert (r["halal_meals_booked"], r["vegetarian_meals_booked"]) == (2, 1)
+    assert "1204" not in str(r)
+    svc.clear_plans()
+
+
+def test_allergen_answers():
+    a = assistant.ask("Does the mee goreng have peanuts?", use_gemini=False)
+    assert a.main == "No, mee goreng has no peanuts." and "gluten, soy and egg" in a.more
+    a = assistant.ask("Which dishes have gluten?", use_gemini=False)
+    for name in ("chicken sausages", "pancakes", "mee goreng", "croissants"):
+        assert name in a.main.lower()
+    assert "hash browns" not in a.main.lower()
+
+
+def test_food_safety_uses_sfa_numbers():
+    a = assistant.ask("What temperature should the eggs be held at?", use_gemini=False)
+    assert "60°C" in a.main and "5°C" in a.main and "4 hours" in a.more
+    assert assistant.ask("What temperature for the cut fruit?", use_gemini=False).main.startswith("Keep cut fruit at 5°C")
+
+
+def test_why_answer_repeats_the_board_call():
+    board = assistant.get_refill_plan("sausages")["board_call"]
+    a = assistant.ask("Why cook more sausages?", use_gemini=False)
+    assert board in a.text or board == "Hold"
+
+
+def test_waste_answer(svc):
+    a = assistant.ask("How much have we thrown away so far?", use_gemini=False)
+    assert a.main == "Nothing has been thrown away so far today." or "thrown away" in a.main
+    assert assistant.numbers_match(a.text, [("get_waste", assistant.get_waste("all"))], "q")

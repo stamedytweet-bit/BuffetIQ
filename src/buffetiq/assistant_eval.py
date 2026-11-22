@@ -91,6 +91,23 @@ QUESTIONS = [
 ]
 
 
+# Topics added after Phase 7, scored separately so the brief's 20 questions stay unchanged
+EXTRA_QUESTIONS = [
+    ("Is the hash brown halal?", lambda: ["halal", "vegetarian"]),
+    ("Are the croissants halal?", lambda: ["not halal"]),
+    ("What can vegetarians eat today?", lambda: ["scrambled eggs", "cut fruit"]),
+    ("Does the mee goreng have peanuts?", lambda: ["no", "peanuts"]),
+    ("Which dishes have gluten?", lambda: ["pancakes", "croissants", "gluten"]),
+    ("What temperature should the eggs be held at?", lambda: ["60"]),
+    ("Can I reheat the leftover rice?", lambda: ["no"]),
+    ("Why cook more sausages?", lambda: [assistant.get_call_reason("sausages")["board_call"].lower()]),
+    ("How much have we thrown away so far?",
+     lambda: [str(assistant.get_waste()["thrown_away_kg"])] if assistant.get_waste()["thrown_away_kg"] else ["nothing"]),
+    ("How much rice will be left at close?",
+     lambda: [str(assistant.get_waste("rice")["dishes"][0]["likely_left_at_close_kg"])]),
+]
+
+
 def normalise(text: str) -> str:
     t = text.lower().replace("’", "'")
     t = re.sub(r"(\d)\s*kilograms?\b", r"\1 kg", t)
@@ -110,9 +127,9 @@ def setup() -> None:
     s.replay_to("08:40")
 
 
-def run_typed(use_gemini: bool) -> list[dict]:
+def run_typed(use_gemini: bool, questions=None) -> list[dict]:
     rows = []
-    for i, (q, expect) in enumerate(QUESTIONS, start=1):
+    for i, (q, expect) in enumerate(questions or QUESTIONS, start=1):
         exp = expect()
         t = time.time()
         a = assistant.ask(q, use_gemini=use_gemini)
@@ -166,8 +183,10 @@ def evaluate() -> dict:
     gemini = assistant.gemini_ready()
     results = {"model": os.environ.get("GEMINI_MODEL") if gemini else None, "runs": {}}
     results["runs"]["typed_basic"] = run_typed(False)
+    results["runs"]["extra_topics_basic"] = run_typed(False, EXTRA_QUESTIONS)
     if gemini:
         results["runs"]["typed_gemini"] = run_typed(True)
+        results["runs"]["extra_topics_gemini"] = run_typed(True, EXTRA_QUESTIONS)
     make_spoken()
     results["runs"]["spoken_gtts"] = run_audio(SPOKEN_DIR, gemini)
     if OWN_VOICE_DIR.exists() and any(OWN_VOICE_DIR.iterdir()):

@@ -104,7 +104,7 @@
         "expected": [
           "chicken sausages"
         ],
-        "answer": "Chicken sausages is empty. Check the board for what to cook.",
+        "answer": "Chicken sausages are empty. Check the board for what to cook.",
         "mode": "basic",
         "match": true,
         "seconds": 0.0
@@ -116,7 +116,7 @@
           "full",
           "egg"
         ],
-        "answer": "Scrambled eggs is full, with 2.5 kg on the tray. 2.3 kg more in reserve.",
+        "answer": "Scrambled eggs are full, with 2.5 kg on the tray. 2.3 kg more in reserve.",
         "mode": "basic",
         "match": true,
         "seconds": 0.0
@@ -232,6 +232,123 @@
         "seconds": 0.0
       }
     ],
+    "extra_topics_basic": [
+      {
+        "n": 1,
+        "question": "Is the hash brown halal?",
+        "expected": [
+          "halal",
+          "vegetarian"
+        ],
+        "answer": "Hash browns are halal and vegetarian.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 2,
+        "question": "Are the croissants halal?",
+        "expected": [
+          "not halal"
+        ],
+        "answer": "Croissants are vegetarian but not halal.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 3,
+        "question": "What can vegetarians eat today?",
+        "expected": [
+          "scrambled eggs",
+          "cut fruit"
+        ],
+        "answer": "Vegetarian dishes today: scrambled eggs, hash browns, pancakes, nasi lemak rice, croissants and cut fruit.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 4,
+        "question": "Does the mee goreng have peanuts?",
+        "expected": [
+          "no",
+          "peanuts"
+        ],
+        "answer": "No, mee goreng has no peanuts. Its recipe card lists gluten, soy and egg.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 5,
+        "question": "Which dishes have gluten?",
+        "expected": [
+          "pancakes",
+          "croissants",
+          "gluten"
+        ],
+        "answer": "Chicken sausages, pancakes, mee goreng and croissants contain gluten. Check the label before serving a guest with an allergy.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 6,
+        "question": "What temperature should the eggs be held at?",
+        "expected": [
+          "60"
+        ],
+        "answer": "Keep hot food at 60\u00b0C or above and cold food at 5\u00b0C or below. Food between them for over 4 hours must be thrown away.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 7,
+        "question": "Can I reheat the leftover rice?",
+        "expected": [
+          "no"
+        ],
+        "answer": "No. Food that has been out on the buffet is thrown away at close, not reheated or reused.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 8,
+        "question": "Why cook more sausages?",
+        "expected": [
+          "cook 3.75 kg"
+        ],
+        "answer": "The board says Cook 3.75 kg because about 72 guests are expected in the next 60 minutes. They need about 3.7 kg, and the tray is empty.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 9,
+        "question": "How much have we thrown away so far?",
+        "expected": [
+          "nothing"
+        ],
+        "answer": "Nothing has been thrown away so far today. About 4.8 kg is likely to be left at close.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 10,
+        "question": "How much rice will be left at close?",
+        "expected": [
+          "1.6"
+        ],
+        "answer": "About 1.6 kg of nasi lemak rice is likely to be left at close. None has been thrown away so far today.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      }
+    ],
     "spoken_gtts": [
       {
         "n": 1,
@@ -244,8 +361,8 @@
         "answer": "Hold the scrambled eggs. Next check 08:55.",
         "mode": "basic",
         "match": true,
-        "seconds": 1.03,
-        "speech_to_text_seconds": 1.03
+        "seconds": 0.9,
+        "speech_to_text_seconds": 0.9
       },
       {
         "n": 2,
@@ -258,8 +375,8 @@
         "answer": "Cook 3.75 kg of chicken sausages now. Ready in 5 minutes.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.81,
-        "speech_to_text_seconds": 0.81
+        "seconds": 0.79,
+        "speech_to_text_seconds": 0.79
       },
       {
         "n": 3,
@@ -272,8 +389,8 @@
         "answer": "Hold the hash browns. Next check 08:55.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.83,
-        "speech_to_text_seconds": 0.83
+        "seconds": 0.82,
+        "speech_to_text_seconds": 0.82
       },
       {
         "n": 4,
@@ -286,8 +403,8 @@
         "answer": "Hold the pancakes. Next check 08:55.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.85,
-        "speech_to_text_seconds": 0.85
+        "seconds": 0.84,
+        "speech_to_text_seconds": 0.84
       },
       {
         "n": 5,
@@ -300,8 +417,8 @@
         "answer": "Hold the mee goreng. Next check 08:55.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.99,
-        "speech_to_text_seconds": 0.99
+        "seconds": 0.83,
+        "speech_to_text_seconds": 0.83
       },
       {
         "n": 6,
@@ -314,8 +431,8 @@
         "answer": "Hold the nasi lemak rice. Next check 08:55.",
         "mode": "basic",
         "match": true,
-        "seconds": 1.05,
-        "speech_to_text_seconds": 1.05
+        "seconds": 0.82,
+        "speech_to_text_seconds": 0.82
       },
       {
         "n": 7,
@@ -328,8 +445,8 @@
         "answer": "Hold the croissants. Next check 08:55.",
         "mode": "basic",
         "match": true,
-        "seconds": 1.02,
-        "speech_to_text_seconds": 1.02
+        "seconds": 0.83,
+        "speech_to_text_seconds": 0.83
       },
       {
         "n": 8,
@@ -342,8 +459,8 @@
         "answer": "Hold the cut fruit. Next check 08:55.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.99,
-        "speech_to_text_seconds": 0.99
+        "seconds": 0.81,
+        "speech_to_text_seconds": 0.81
       },
       {
         "n": 9,
@@ -352,11 +469,11 @@
         "expected": [
           "chicken sausages"
         ],
-        "answer": "Chicken sausages is empty. Check the board for what to cook.",
+        "answer": "Chicken sausages are empty. Check the board for what to cook.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.83,
-        "speech_to_text_seconds": 0.83
+        "seconds": 0.8,
+        "speech_to_text_seconds": 0.8
       },
       {
         "n": 10,
@@ -366,11 +483,11 @@
           "full",
           "egg"
         ],
-        "answer": "Scrambled eggs is full, with 2.5 kg on the tray. 2.3 kg more in reserve.",
+        "answer": "Scrambled eggs are full, with 2.5 kg on the tray. 2.3 kg more in reserve.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.87,
-        "speech_to_text_seconds": 0.87
+        "seconds": 0.83,
+        "speech_to_text_seconds": 0.83
       },
       {
         "n": 11,
@@ -382,8 +499,8 @@
         "answer": "Cut fruit is full, with 5.0 kg on the tray. 1.6 kg more in reserve.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.87,
-        "speech_to_text_seconds": 0.87
+        "seconds": 0.84,
+        "speech_to_text_seconds": 0.84
       },
       {
         "n": 12,
@@ -395,8 +512,8 @@
         "answer": "310 guests expected today, 223 so far. The next 15 minutes look moderate, about 25 guests.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.93,
-        "speech_to_text_seconds": 0.91
+        "seconds": 0.85,
+        "speech_to_text_seconds": 0.83
       },
       {
         "n": 13,
@@ -408,8 +525,8 @@
         "answer": "310 guests expected today, 223 so far. The next 15 minutes look moderate, about 25 guests.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.87,
-        "speech_to_text_seconds": 0.85
+        "seconds": 0.86,
+        "speech_to_text_seconds": 0.84
       },
       {
         "n": 14,
@@ -421,8 +538,8 @@
         "answer": "310 guests expected today, 223 so far. The next 15 minutes look moderate, about 25 guests.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.94,
-        "speech_to_text_seconds": 0.92
+        "seconds": 0.86,
+        "speech_to_text_seconds": 0.85
       },
       {
         "n": 15,
@@ -434,8 +551,8 @@
         "answer": "No pans are near 4 hours. The next swap is chicken sausages at 12:00.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.86,
-        "speech_to_text_seconds": 0.86
+        "seconds": 0.82,
+        "speech_to_text_seconds": 0.82
       },
       {
         "n": 16,
@@ -447,8 +564,8 @@
         "answer": "The chicken sausages pan went out at 08:00. Swap it by 12:00.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.86,
-        "speech_to_text_seconds": 0.86
+        "seconds": 0.84,
+        "speech_to_text_seconds": 0.84
       },
       {
         "n": 17,
@@ -460,8 +577,8 @@
         "answer": "The last bake for croissants is 09:50. The board says Hold now.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.88,
-        "speech_to_text_seconds": 0.88
+        "seconds": 0.84,
+        "speech_to_text_seconds": 0.84
       },
       {
         "n": 18,
@@ -473,8 +590,8 @@
         "answer": "The last cook for nasi lemak rice is 09:55. The board says Hold now.",
         "mode": "basic",
         "match": true,
-        "seconds": 0.9,
-        "speech_to_text_seconds": 0.9
+        "seconds": 0.87,
+        "speech_to_text_seconds": 0.87
       },
       {
         "n": 19,
@@ -499,8 +616,8 @@
         "answer": "I don't have that. Please check the board.",
         "mode": "none",
         "match": true,
-        "seconds": 0.89,
-        "speech_to_text_seconds": 0.89
+        "seconds": 0.84,
+        "speech_to_text_seconds": 0.84
       }
     ]
   },
@@ -511,11 +628,17 @@
       "median_seconds": 0.0,
       "max_seconds": 0.01
     },
+    "extra_topics_basic": {
+      "questions": 10,
+      "matched": 10,
+      "median_seconds": 0.0,
+      "max_seconds": 0.0
+    },
     "spoken_gtts": {
       "questions": 20,
       "matched": 20,
-      "median_seconds": 0.88,
-      "max_seconds": 1.05
+      "median_seconds": 0.83,
+      "max_seconds": 0.9
     }
   }
 }

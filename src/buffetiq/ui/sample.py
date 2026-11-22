@@ -95,7 +95,8 @@ ASK = {
     "asked_at": "08:40",
     "answer_main": "Cook 4 kg of scrambled eggs now.",
     "answer_more": "Ready in 8 minutes. Two more batches are likely before 09:30.",
-    "try_asking": ["What is running low?", "Any pans near 4 hours?", "When do I stop croissants?"],
+    "try_asking": ["What is running low?", "Any pans near 4 hours?", "When do I stop croissants?",
+                   "Which dishes have gluten?", "How much have we thrown away?"],
 }
 
 TRAY_CHECK = {

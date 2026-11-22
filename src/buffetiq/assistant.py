@@ -172,8 +172,91 @@ def get_alerts() -> dict:
     return {"alerts": [{"title": a["title"], "detail": a["line"]} for a in kitchen.live_alerts()]}
 
 
+
+def get_dietary(dish: str = "all") -> dict:
+    """Halal and vegetarian status of each dish, and today's dietary counts from the guest page (counts only)."""
+    s = _svc()
+    dishes = state.load_config()["dishes"]
+    chosen = [find_dish(dish)] if dish and dish != "all" and find_dish(dish) else dishes
+    counts = s.dietary_counts()
+    return {"dishes": [{"dish": d["name"], "halal": bool(d["halal"]), "vegetarian": bool(d["vegetarian"])} for d in chosen],
+            "halal_meals_booked": counts["halal"], "vegetarian_meals_booked": counts["vegetarian"],
+            "guests_booked": s.confirmed_guests()}
+
+
+def get_allergens(dish: str = "all") -> dict:
+    """Allergens in each dish from the recipe card (Codex groups; fictional recipes in this prototype)."""
+    cfg = state.load_config()
+    chosen = [find_dish(dish)] if dish and dish != "all" and find_dish(dish) else cfg["dishes"]
+    return {"dishes": [{"dish": d["name"], "allergens": list(cfg["allergens"].get(d["id"], []))} for d in chosen],
+            "source": "recipe card; check the hotel's labels before serving guests with allergies"}
+
+
+def get_food_safety(topic: str = "holding") -> dict:
+    """Singapore Food Agency holding rules and this kitchen's reuse policy."""
+    fs = state.load_config()["food_safety"]
+    return {"hot_food_at_or_above_c": fs["hot_hold_min_c"], "cold_food_at_or_below_c": fs["cold_hold_max_c"],
+            "danger_zone_limit_hours": fs["danger_zone_hours"], "reuse_policy": fs["reuse_policy"],
+            "chilled_dishes": [d["name"] for d in state.load_config()["dishes"] if d.get("chilled")], "topic": topic}
+
+
+def get_call_reason(dish: str) -> dict:
+    """Why the board makes its call for one dish: stock, cooking, expected guests and the need behind it."""
+    d = find_dish(dish)
+    if d is None:
+        return {"error": f"unknown dish: {dish}"}
+    s = _svc()
+    e = s.kitchen()
+    r = s.config["rules"]
+    now = s.clock_minutes()
+    cap = float(d["pan_capacity"])
+    stock = e.stock.get(d["id"], cap)
+    lead = float(d["lead_minutes"])
+    n = e.n() if e.started else s.expected_diners()
+    window = int(lead + r["cover_minutes"])
+    guests_window = nowcast.remaining_between(n, e.arrived(), e.shares, now, now + window) if e.started else 0.0
+    rate = s.rates[d["id"]]
+    plan = get_refill_plan(d["name"])
+    return {"dish": d["name"], "board_call": plan["board_call"], "action": plan["action"],
+            "on_tray": _amount(d, min(stock, cap)), "in_reserve": _amount(d, max(stock - cap, 0.0)),
+            "cooking_now": plan["cooking_now"], "unit": _unit(d),
+            "guests_expected_next_minutes": int(round(guests_window)), "minutes_ahead": window,
+            "amount_needed_next_minutes": _amount(d, (1 + r["safety_buffer"]) * rate * guests_window),
+            "guests_still_to_come_today": int(round(max(n - e.arrived(), 0.0))),
+            "last_cook_time": d["last_cook"], "cook_to_order_threshold": r["cook_to_order_threshold"],
+            "board_line": plan["board_line"]}
+
+
+def get_waste(dish: str = "all") -> dict:
+    """Food thrown away so far today (logged discards) and food likely to be left at close."""
+    s = _svc()
+    e = s.kitchen()
+    cfg = s.config
+    dishes = cfg["dishes"]
+    chosen = [find_dish(dish)] if dish and dish != "all" and find_dish(dish) else dishes
+    discarded = {}
+    if s.log_path.exists():
+        import csv as _csv
+
+        for row in _csv.DictReader(open(s.log_path, encoding="utf-8")):
+            if row["service_date"] == s.service_date and row["action"] == "discard" and row["amount"]:
+                discarded[row["dish"]] = discarded.get(row["dish"], 0.0) + float(row["amount"])
+    out = []
+    for d in chosen:
+        f = float(d.get("piece_kg", 1.0)) if d["unit"] == "pieces" else 1.0
+        thrown = discarded.get(d["id"], 0.0) * f
+        likely = e.surplus(d, s.clock_minutes()) if e.started else 0.0
+        out.append({"dish": d["name"], "thrown_away_kg": round(thrown, 1), "thrown_away_cost": round(thrown * d["cost_per_kg"], 1),
+                    "likely_left_at_close_kg": round(likely, 1)})
+    return {"dishes": out, "thrown_away_kg": round(sum(x["thrown_away_kg"] for x in out), 1),
+            "thrown_away_cost": round(sum(x["thrown_away_cost"] for x in out), 1),
+            "likely_left_at_close_kg": round(sum(x["likely_left_at_close_kg"] for x in out), 1)}
+
+
 FUNCTIONS = {"get_refill_plan": get_refill_plan, "get_stock": get_stock, "get_forecast": get_forecast,
-             "get_timer": get_timer, "get_alerts": get_alerts}
+             "get_timer": get_timer, "get_alerts": get_alerts, "get_dietary": get_dietary,
+             "get_allergens": get_allergens, "get_food_safety": get_food_safety, "get_call_reason": get_call_reason,
+             "get_waste": get_waste}
 
 DECLARATIONS = [
     {"name": "get_refill_plan", "description": "The kitchen board's current call for one dish: what to cook and how much, "
@@ -190,6 +273,21 @@ DECLARATIONS = [
      "parameters_json_schema": {"type": "object", "properties": {"dish": {"type": "string"}}, "required": ["dish"]}},
     {"name": "get_alerts", "description": "The kitchen board's newest alerts.",
      "parameters_json_schema": {"type": "object", "properties": {}}},
+    {"name": "get_dietary", "description": "Halal and vegetarian status of one dish or 'all', and today's halal and "
+     "vegetarian meal counts booked on the guest page.",
+     "parameters_json_schema": {"type": "object", "properties": {"dish": {"type": "string"}}, "required": ["dish"]}},
+    {"name": "get_allergens", "description": "Allergens in one dish or 'all' dishes, from the recipe card.",
+     "parameters_json_schema": {"type": "object", "properties": {"dish": {"type": "string"}}, "required": ["dish"]}},
+    {"name": "get_food_safety", "description": "Hot and cold holding temperatures, the 4-hour rule and the kitchen's "
+     "rule on reheating or reusing buffet food.",
+     "parameters_json_schema": {"type": "object", "properties": {"topic": {"type": "string",
+                                "enum": ["holding", "reheating", "four_hours"]}}, "required": ["topic"]}},
+    {"name": "get_call_reason", "description": "Why the board makes its current call for one dish: food on the tray "
+     "and in reserve, guests expected soon and the amount they need.",
+     "parameters_json_schema": {"type": "object", "properties": {"dish": {"type": "string"}}, "required": ["dish"]}},
+    {"name": "get_waste", "description": "Food thrown away so far today and food likely to be left at close, for one "
+     "dish or 'all'.",
+     "parameters_json_schema": {"type": "object", "properties": {"dish": {"type": "string"}}, "required": ["dish"]}},
 ]
 
 SYSTEM = (
@@ -242,9 +340,38 @@ def _plural(name: str) -> str:
 
 # ---- rule-based intent parser (the fallback) ----
 
+def allergen_in(question: str) -> str | None:
+    q = " " + re.sub(r"[^a-z ]", " ", question.lower()) + " "
+    for group, words in state.load_config()["allergen_words"].items():
+        if any(f" {w} " in q for w in words):
+            return group
+    return None
+
+
+def _without_allergen_words(question: str) -> str:
+    q = " " + question.lower() + " "
+    for words in state.load_config()["allergen_words"].values():
+        for w in words:
+            q = re.sub(rf"\b{re.escape(w)}\b", " ", q)
+    return q
+
+
 def classify(question: str) -> tuple[str, dict | None]:
     q = question.lower()
     dish = find_dish(q)
+    if re.search(r"\bwhy\b", q) and dish:
+        return "why", dish
+    if re.search(r"\b(allerg\w*|contains?|free from|safe for)\b", q) or (
+            allergen_in(q) and re.search(r"\b(have|has|any|which|got|with)\b", q)
+            and not re.search(r"\b(cook|make|bake|left|need)\b", q)):
+        return "allergen", find_dish(_without_allergen_words(q))
+    if re.search(r"\b(halal|vegetarian|vegetarians|veggie|vegan|muslim|pork|dietary|diet)\b", q):
+        return "dietary", dish
+    if re.search(r"\b(temperature|degrees|reheat|reheated|reuse|reused|danger zone|how long can|safe to|food safety)\b", q):
+        return "safety", dish
+    if re.search(r"\b(waste|wasted|thrown|throw away|threw|surplus)\b", q) or (
+            re.search(r"\bleft\b", q) and re.search(r"\b(close|end of service|end)\b", q)):
+        return "waste", dish
     if re.search(r"\b(alert|alerts|problem|problems|anything wrong|what'?s happening|warning)\b", q):
         return "alerts", dish
     if re.search(r"\b(pan|pans|timer|four hours|4 hours|swap|discard)\b", q):
@@ -266,6 +393,8 @@ def rule_answer(question: str) -> tuple[str, str, list]:
     """(main, more, function calls used) from the five functions, without Gemini."""
     intent, dish = classify(question)
     calls = []
+    if intent in ("why", "allergen", "dietary", "safety", "waste"):
+        return _extra_answer(intent, dish, question, calls)
     if intent in ("refill", "stop"):
         r = get_refill_plan(dish["name"]); calls.append(("get_refill_plan", r))
         name = dish["name"].lower()
@@ -287,12 +416,12 @@ def rule_answer(question: str) -> tuple[str, str, list]:
         r = get_stock(dish["name"] if dish else "all"); calls.append(("get_stock", r))
         if dish:
             t = r["trays"][0]
-            return (f"{t['dish']} is {t['level'].lower()}, with {t['on_tray']} {t['unit']} on the tray.",
+            return (f"{t['dish']} {_is(t['dish'])} {t['level'].lower()}, with {t['on_tray']} {t['unit']} on the tray.",
                     f"{t['in_reserve']} {t['unit']} more in reserve." if t["in_reserve"] else "", calls)
         low = [t for t in r["trays"] if t["level"] in ("Empty", "Low")]
         if not low:
             return "Nothing is running low.", "Every tray is half full or more.", calls
-        parts = [f"{t['dish'].lower()} {'is empty' if t['level'] == 'Empty' else 'is low'}" for t in low]
+        parts = [f"{t['dish'].lower()} {_is(t['dish'])} {'empty' if t['level'] == 'Empty' else 'low'}" for t in low]
         sentence = ", ".join(parts[:-1]) + (" and " if len(parts) > 1 else "") + parts[-1]
         return sentence[0].upper() + sentence[1:] + ".", "Check the board for what to cook.", calls
     if intent == "forecast":
@@ -320,6 +449,118 @@ def rule_answer(question: str) -> tuple[str, str, list]:
         a = r["alerts"][0]
         return a["title"] + ".", a["detail"], calls
     return NO_ANSWER, "", calls
+
+
+NICE = {"gluten": "gluten", "eggs": "egg", "milk": "milk", "soy": "soy", "peanuts": "peanuts",
+        "tree nuts": "tree nuts", "crustacea": "shellfish", "fish": "fish", "sulphites": "sulphites"}
+
+
+def _extra_answer(intent: str, dish: dict | None, question: str, calls: list) -> tuple[str, str, list]:
+    """Answers for the topics added after Phase 7: why, allergens, dietary, food safety and waste."""
+    q = question.lower()
+    if intent == "why":
+        r = get_call_reason(dish["name"]); calls.append(("get_call_reason", r))
+        name = dish["name"].lower()
+        if r["action"] == "cook":
+            return (f"The board says {r['board_call']} because about {r['guests_expected_next_minutes']} guests are "
+                    f"expected in the next {r['minutes_ahead']} minutes.",
+                    f"They need about {r['amount_needed_next_minutes']} {r['unit']}, and "
+                    + ("the tray is empty." if not r["on_tray"] else f"{r['on_tray']} {r['unit']} is out now."),
+                    calls)
+        if r["action"] == "run_down":
+            return (f"A new batch of {name} would not be ready before the last cook time of {r['last_cook_time']}.",
+                    "So the board lets it run down.", calls)
+        if r["action"] == "cook_to_order":
+            return (f"Fewer than {r['cook_to_order_threshold']} guests per 15 minutes are expected for the rest of service.",
+                    "So hot dishes are cooked in small portions as guests ask.", calls)
+        stock = r["on_tray"] + r["in_reserve"]
+        return (f"There is about {round(stock, 1)} {r['unit']} of {name} out or in reserve.",
+                f"About {r['guests_expected_next_minutes']} guests are expected in the next {r['minutes_ahead']} minutes, "
+                f"so the board says Hold.", calls)
+    if intent == "allergen":
+        r = get_allergens(dish["name"] if dish else "all"); calls.append(("get_allergens", r))
+        group = allergen_in(q)
+        if dish:
+            al = r["dishes"][0]["allergens"]
+            listed = _join_words([NICE[a] for a in al]) if al else "none of the main allergens"
+            if group:
+                has = group in al
+                verb = _contains(dish["name"]) if has else ("have no" if _is(dish["name"]) == "are" else "has no")
+                return (f"{'Yes' if has else 'No'}, {dish['name'].lower()} {verb} {NICE[group]}.",
+                        f"{'Their' if _is(dish['name']) == 'are' else 'Its'} recipe card lists {listed}.", calls)
+            return (f"{dish['name']} {_contains(dish['name'])} {listed}.",
+                    "Check the label before serving a guest with an allergy.", calls)
+        if group:
+            names = [x["dish"].lower() for x in r["dishes"] if group in x["allergens"]]
+            if not names:
+                return f"No dish on today's buffet lists {NICE[group]}.", "Check the label before serving a guest with an allergy.", calls
+            return f"{_join_words(names).capitalize()} contain {NICE[group]}.", "Check the label before serving a guest with an allergy.", calls
+        free = [x["dish"].lower() for x in r["dishes"] if not x["allergens"]]
+        return (f"{_join_words(free).capitalize()} have none of the main allergens.",
+                "Ask about a dish by name for its allergens.", calls)
+    if intent == "dietary":
+        r = get_dietary(dish["name"] if dish else "all"); calls.append(("get_dietary", r))
+        if re.search(r"\b(how many|count|booked|meals)\b", q):
+            if not r["guests_booked"]:
+                return "No guests have booked on the guest page yet.", "Dietary counts will appear as guests book.", calls
+            return (f"Guests booked {r['halal_meals_booked']} halal and {r['vegetarian_meals_booked']} vegetarian meals.",
+                    f"That is from {r['guests_booked']} guests who booked on the guest page.", calls)
+        if dish:
+            x = r["dishes"][0]
+            h, v = x["halal"], x["vegetarian"]
+            name = x["dish"]
+            if h and v:
+                return f"{name} {_is(name)} halal and vegetarian.", "", calls
+            if h:
+                return f"{name} {_is(name)} halal but not vegetarian.", "", calls
+            if v:
+                return f"{name} {_is(name)} vegetarian but not halal.", "", calls
+            return f"{name} {_is(name)} neither halal nor vegetarian.", "", calls
+        if re.search(r"\b(vegetarian|vegetarians|veggie|vegan)\b", q):
+            names = [x["dish"].lower() for x in r["dishes"] if x["vegetarian"]]
+            return f"Vegetarian dishes today: {_join_words(names)}.", "", calls
+        not_halal = [x["dish"].lower() for x in r["dishes"] if not x["halal"]]
+        if not not_halal:
+            return "Every dish today is halal.", "", calls
+        return f"Every dish is halal except {_join_words(not_halal)}.", "", calls
+    if intent == "safety":
+        r = get_food_safety("reheating" if re.search(r"reheat|reuse", q) else "holding"); calls.append(("get_food_safety", r))
+        if re.search(r"reheat|reuse", q):
+            return "No.", r["reuse_policy"], calls
+        if dish and dish["name"] in r["chilled_dishes"]:
+            return (f"Keep {dish['name'].lower()} at {r['cold_food_at_or_below_c']}°C or below.",
+                    f"Food between {r['cold_food_at_or_below_c']} and {r['hot_food_at_or_above_c']}°C for over "
+                    f"{r['danger_zone_limit_hours']} hours must be thrown away.", calls)
+        return (f"Keep hot food at {r['hot_food_at_or_above_c']}°C or above and cold food at "
+                f"{r['cold_food_at_or_below_c']}°C or below.",
+                f"Food between them for over {r['danger_zone_limit_hours']} hours must be thrown away.", calls)
+    r = get_waste(dish["name"] if dish else "all"); calls.append(("get_waste", r))
+    if dish:
+        x = r["dishes"][0]
+        thrown = (f"{x['thrown_away_kg']} kg has been thrown away so far today." if x["thrown_away_kg"]
+                  else "None has been thrown away so far today.")
+        return (f"About {x['likely_left_at_close_kg']} kg of {dish['name'].lower()} is likely to be left at close.",
+                thrown, calls)
+    if not r["thrown_away_kg"]:
+        return ("Nothing has been thrown away so far today.",
+                f"About {r['likely_left_at_close_kg']} kg is likely to be left at close.", calls)
+    return (f"{r['thrown_away_kg']} kg has been thrown away so far today, worth about S${round(r['thrown_away_cost'])}.",
+            f"About {r['likely_left_at_close_kg']} kg is likely to be left at close.", calls)
+
+
+def _is(name: str) -> str:
+    """'are' for plural dish names (scrambled eggs, croissants), 'is' otherwise (mee goreng, cut fruit)."""
+    return "are" if name.lower().endswith("s") else "is"
+
+
+def _contains(name: str) -> str:
+    return "contain" if name.lower().endswith("s") else "contains"
+
+
+def _join_words(items: list[str]) -> str:
+    if not items:
+        return ""
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
 
 
 # ---- consistency check ----
