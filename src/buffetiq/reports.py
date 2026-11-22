@@ -168,7 +168,8 @@ def events(svc, eng, today, log) -> list[dict]:
     if svc.plans:
         guests = svc.confirmed_guests()
         out.append({"title": f"{guests} guests booked on the guest page",
-                    "line": f"{len(svc.plans)} rooms replied, {svc.declined_guests()} guests said not this time."})
+                    "line": f"{len(svc.plans)} room{'s' if len(svc.plans) != 1 else ''} replied, "
+                            f"{svc.declined_guests()} guest{'s' if svc.declined_guests() != 1 else ''} said not this time."})
     start = [x for x in eng.log if x[1] == "cook_to_order"]
     if start and len(out) < 4:
         out.append({"title": f"Cook-to-order from {nowcast.hhmm(start[0][0])}",

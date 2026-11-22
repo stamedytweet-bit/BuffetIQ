@@ -122,7 +122,7 @@ def engine():
 def test_engine_opens_with_full_pans_and_follows_calls():
     e = engine()
     e.step(SERVICE_START)
-    assert e.stock["scrambled_eggs"] == 2.5 and e.out_at["scrambled_eggs"] == SERVICE_START
+    assert e.stock["scrambled_eggs"] == 2.5 and e.out_at["scrambled_eggs"] == SERVICE_START - 10   # set out at 06:20
     e.tray_check("scrambled_eggs", 0.0, "empty", at("07:00"))
     e.step(at("07:00"))
     c = e.calls["scrambled_eggs"]

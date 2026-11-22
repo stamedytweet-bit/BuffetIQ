@@ -16,7 +16,7 @@ The point of difference is timing. Tools such as Winnow Foresight plan quantitie
 | 5 | Nowcast, refill engine, live kitchen board and the 65-day replay | Done |
 | 6 | Ask BuffetIQ voice assistant (Gemini run waiting for a key) | Built |
 | 7 | Day-end report, history and retraining | Done |
-| 8 | Colab and showcase mode | Next |
+| 8 | Colab notebook, showcase mode, demo script and backup video checklist | Done |
 
 ## Pages
 
@@ -92,21 +92,15 @@ Browsers allow the microphone only on secure links: it works on the laptop at `1
 
 ## Run it in Google Colab
 
-Phase 8 adds `notebooks/run_in_colab.ipynb`, which does all of this in one go. Until then, create a new Colab notebook and run these cells in order.
+Open `notebooks/run_in_colab.ipynb` in Colab (File, then Open notebook, then the GitHub tab, then this repository and branch) and run the cells in order. The notebook clones the repository, installs the packages, reads `GEMINI_API_KEY` and `GEMINI_MODEL` from Colab Secrets (the key icon in the left bar), prepares the camera model, starts the app with the showcase morning, prints a link for each page and shows QR codes for the guest and runner pages. Gradio share links last 72 hours and anyone with the link can open them, so launch on the day and never enter real guest data.
 
-```python
-!git clone https://github.com/stamedytweet-bit/BuffetIQ.git
-%cd BuffetIQ
-!pip install -q -r requirements.txt
+## Showcase mode
+
+```bash
+python app.py --host 0.0.0.0 --showcase
 ```
 
-```python
-!python app.py --share
-```
-
-Colab prints a public link ending in `gradio.live`. Add `/runner`, `/guest`, `/report` or `/about` to it for the other pages. Gradio share links last 72 hours and anyone with the link can open them, so launch on the day and never enter real guest data.
-
-From Phase 6, add `GEMINI_API_KEY` and `GEMINI_MODEL` under Colab Secrets (the key icon in the left bar) rather than typing them into a cell.
+This loads the prepared showcase morning: a fictional Tuesday 24 November at 82% occupancy, with an unannounced tour group of 24 arriving at 07:45. The About page (`/about`) holds the presenter controls: **Load showcase morning**, **Reset to 06:15**, **Jump to** a time, the clock speed (paused, 1x, 2x, 5x or 10x), and **Log arrivals +1** or **+10**. Simulated guests arrive and a simulated runner checks every tray every 15 minutes, while real taps, photos and questions are added on top. The five-minute demo is in `docs/DEMO_SCRIPT.md`.
 
 ## Run the tests
 
@@ -127,9 +121,17 @@ tests/                 pytest checks
 docs/                  assumptions, evidence and the demo script
 ```
 
-## Backup if Wi-Fi or Colab fails
+## Backup video if Wi-Fi or Colab fails
 
-Phase 8 adds a checklist for recording a three-minute backup video and a link to it here.
+Record a three-minute screen video a few days before the showcase, so the demo can still be shown if the network fails. Link it here once it is uploaded: **Backup video: (add the link)**.
+
+1. Start the app on the laptop with `python app.py --showcase` and close other apps and notifications.
+2. On a Mac, press Cmd, Shift and 5 and choose "Record Entire Screen" with the microphone on, so you can narrate.
+3. Follow `docs/DEMO_SCRIPT.md`, shortened: the guest booking at 08:00 switched to 09:30 (30 seconds), the board alert (15 seconds), jump to 08:00 and the tour group alert (30 seconds), jump to 08:40, the pancake tray photo and "Cook 1.5 kg" (30 seconds), Ask BuffetIQ on the runner page (20 seconds), jump to 09:50 for cook-to-order and Treatsure (25 seconds), and the day-end report with the 65-day panel (30 seconds).
+4. Use the browser window at 1920 x 1080 for the board, and a phone-sized window (or the phone, mirrored) for the guest and runner pages.
+5. Say "simulated on fictional data" when showing results, as on screen.
+6. Watch it back once, trim the start and end, and save it as MP4 under 3 minutes.
+7. Keep one copy on the laptop's desktop and one on a USB drive or Google Drive, and test that it plays offline.
 
 ## Regenerate the synthetic data
 

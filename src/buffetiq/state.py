@@ -152,18 +152,20 @@ class Service:
     """One breakfast morning: its forecast, its clock and what guests have told us."""
 
     def __init__(self, service_date: str = DEFAULT_SERVICE_DATE, clock: str = DEFAULT_CLOCK,
-                 checkins_path: Path = CHECKINS_PATH, model=None, log_path: Path | None = None):
+                 checkins_path: Path | None = None, model=None, log_path: Path | None = None,
+                 row=None, mode: str = "demo"):
         from buffetiq import forecast
 
         self.config = load_config()
         self.service_date = service_date
         self.clock = datetime.strptime(f"{service_date} {clock}", "%Y-%m-%d %H:%M")
-        self.checkins_path = Path(checkins_path)
+        self.checkins_path = Path(checkins_path or CHECKINS_PATH)
         history = forecast.load_history()
-        rows = history[history["date"] == service_date]
+        rows = history[history["date"] == service_date] if row is None else row
         if rows.empty:
             raise ValueError(f"No booking data for {service_date}")
         self.row = rows.copy()
+        self.mode = mode                         # "demo" (the data's morning) or "showcase" (prepared morning)
         # trained only on days before the service, so the forecast never sees the morning itself
         self.model = model or forecast.Forecaster(self.config).fit(history[history["date"] < service_date], tune=False)
         self.base_check_ins = int(self.row["check_ins"].iloc[0])
@@ -178,6 +180,7 @@ class Service:
         self.world = None                        # simulated kitchen after replay_to (demo only)
         self.world_rng = None
         self._logged_engine = 0                  # engine log entries already written to the service log
+        self._tour_alerted = False
         self.log_path = Path(log_path) if log_path else SERVICE_LOG_PATH
         self._load_plans()
         # expected amount per diner for each dish, from the night-before dish model
@@ -316,27 +319,72 @@ class Service:
                                unit=self.dish(dish_id)["unit"], note=reason, source="chef")
             e.step(self.clock_minutes())
 
-    def replay_to(self, hhmm_text: str, seed: int | None = None) -> None:
-        """Replay this morning from 06:30 to `hhmm_text` with simulated guests and camera checks,
-        so the board shows a running service (used by --at and the showcase controls)."""
+    def _start_world(self, seed: int | None = None) -> None:
+        """The simulated kitchen for this morning: guests arrive and trays are checked by themselves."""
         import random as _random
 
         from buffetiq import data_gen, simulate
-        from buffetiq.nowcast import SERVICE_START
 
+        r = self.row.iloc[0]
+        demand = {d["id"]: float(r[data_gen.dish_columns(d)["demand"]]) for d in self.config["dishes"]}
+        self.world = simulate.World(self.config["dishes"], demand, r[data_gen.ARRIVAL_COLUMNS].to_numpy(float),
+                                    self.config["replay"]["step_minutes"], self.config["rules"]["cook_to_order_waste"])
+        self.world.seen_log = len(self.engine.log)
+        self.world_rng = _random.Random(self.config["simulation"]["seed"] if seed is None else seed)
+
+    def advance_to(self, minute: float) -> None:
+        """Move the service clock forward, playing the simulated guests and tray rounds up to it."""
+        from buffetiq import simulate
+        from buffetiq.nowcast import SERVICE_END, SERVICE_START
+
+        with LOCK:
+            minute = min(max(minute, self.clock_minutes_exact()), SERVICE_END)
+            if minute >= SERVICE_START:
+                if self.world is None:
+                    self._start_world()
+                step = self.config["replay"]["step_minutes"]
+                target = int(minute // step * step)
+                if target > self.world.until:
+                    simulate.play(self.engine, self.world, self.world.until, target, self.config, self.world_rng)
+            day = datetime.strptime(self.service_date, "%Y-%m-%d")
+            self.clock = day + timedelta(seconds=round(minute * 60))
+            self.kitchen()
+            self._showcase_events()
+
+    def replay_to(self, hhmm_text: str, seed: int | None = None) -> None:
+        """Replay this morning from 06:30 to `hhmm_text` with simulated guests and camera checks,
+        so the board shows a running service (used by --at and the presenter's "Jump to")."""
         with LOCK:
             self.engine = self._new_engine()
             self._logged_engine = 0
-            r = self.row.iloc[0]
-            demand = {d["id"]: float(r[data_gen.dish_columns(d)["demand"]]) for d in self.config["dishes"]}
-            world = simulate.World(self.config["dishes"], demand, r[data_gen.ARRIVAL_COLUMNS].to_numpy(float),
-                                   self.config["replay"]["step_minutes"], self.config["rules"]["cook_to_order_waste"])
-            until = minutes(hhmm_text)
-            rng = _random.Random(self.config["simulation"]["seed"] if seed is None else seed)
-            simulate.play(self.engine, world, SERVICE_START, until, self.config, rng)
-            self.world, self.world_rng = world, rng      # the simulated kitchen, kept so the day can be finished
-            self.clock = datetime.strptime(f"{self.service_date} {hhmm_text}", "%Y-%m-%d %H:%M")
-            self.engine.step(until)
+            self.world = None
+            self._tour_alerted = False
+            self.clock = datetime.strptime(f"{self.service_date} {DEFAULT_CLOCK}", "%Y-%m-%d %H:%M")
+            self._start_world(seed)
+            self.advance_to(minutes(hhmm_text))
+
+    def clock_minutes_exact(self) -> float:
+        return self.clock.hour * 60 + self.clock.minute + self.clock.second / 60
+
+    def _showcase_events(self) -> None:
+        """In the showcase morning, name the tour group when its 24 guests have been logged."""
+        if self.mode != "showcase" or self._tour_alerted:
+            return
+        from buffetiq import showcase
+        from buffetiq.nowcast import EngineAlert
+
+        if self.clock_minutes() >= showcase.tour_minute() + 15:      # the slot has been logged
+            e = self.engine
+            at = showcase.tour_minute() + 15
+            # replace the general "more guests than forecast" alert with the named tour group
+            e.alerts = [a for a in e.alerts if not (a.key.startswith("jump-") and a.at >= showcase.tour_minute())]
+            e.alerts.insert(0, EngineAlert("info", f"Tour group of {showcase.TOUR_GROUP} arrived at {showcase.TOUR_SLOT}",
+                                           f"Expected diners raised from {round(e.n0)} to {round(e.n())}.", at,
+                                           "tour-group"))
+            e.last_announced = e.n()
+            self._tour_alerted = True
+            self.log_event("tour_group", amount=showcase.TOUR_GROUP, note=f"arrived at {showcase.TOUR_SLOT}",
+                           source="showcase")
 
     # ---- tray levels (Phase 4) and the action log ----
     def dish(self, dish_id: str) -> dict:
@@ -360,6 +408,8 @@ class Service:
             if not leftover:
                 self.trays[dish_id] = entry
                 self.kitchen().tray_check(dish_id, est["amount"], level, self.clock_minutes())
+                if self.world is not None:          # in the demo, a real photo is the truth for that tray
+                    self.world.stock[dish_id] = est["amount"]
             self.log_event("leftover" if leftover else "tray_check", dish=dish_id, level=level,
                            amount=round(est["amount"], 3), unit=est["unit"],
                            confidence=None if confidence is None else round(confidence, 3), source=source)
@@ -485,4 +535,46 @@ def reset_service(**kwargs) -> Service:
     global _SERVICE
     with LOCK:
         _SERVICE = Service(**kwargs)
+        return _SERVICE
+
+
+def clear_day_records(service_date: str) -> None:
+    """Remove one service date's guest plans and log rows (presenter reset; files stay on this laptop)."""
+    for path, key in ((CHECKINS_PATH, "service_date"), (SERVICE_LOG_PATH, "service_date")):
+        if not path.exists():
+            continue
+        with open(path, newline="", encoding="utf-8") as fh:
+            rows = list(csv.DictReader(fh))
+            fields = rows[0].keys() if rows else None
+        keep = [r for r in rows if r.get(key) != service_date]
+        if fields is None:
+            continue
+        with open(path, "w", newline="", encoding="utf-8") as fh:
+            w = csv.DictWriter(fh, fieldnames=list(fields))
+            w.writeheader()
+            w.writerows(keep)
+
+
+def load_showcase() -> Service:
+    """The prepared showcase morning at 06:15, with no bookings or log rows yet."""
+    from buffetiq import showcase
+
+    global _SERVICE
+    with LOCK:
+        old = _SERVICE
+        clear_day_records(DEFAULT_SERVICE_DATE)
+        _SERVICE = Service(row=showcase.showcase_row(), mode="showcase",
+                           model=old.model if old is not None else None)
+        return _SERVICE
+
+
+def reset() -> Service:
+    """Back to 06:15 of the same morning (showcase or demo), with no bookings or log rows."""
+    global _SERVICE
+    with LOCK:
+        old = _SERVICE
+        if old is not None and old.mode == "showcase":
+            return load_showcase()
+        clear_day_records(DEFAULT_SERVICE_DATE)
+        _SERVICE = Service(model=old.model if old is not None else None)
         return _SERVICE

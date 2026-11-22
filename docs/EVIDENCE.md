@@ -2,6 +2,24 @@
 
 This file collects every metric, chart and test result in one place for the showcase slides. Each phase adds its section, and every result here is simulated on fictional data.
 
+## At a glance
+
+| Area | Result | Section |
+| --- | --- | --- |
+| Night-before diner forecast | Misses by 9.1 diners a day (3.2%) against 20.3 (7.2%) for the same-weekday baseline | Phase 2 |
+| Dish forecast | Beats the baseline for all eight dishes, by 19% to 39% | Phase 2 |
+| Guest booking to kitchen board | 1.8 to 2.9 seconds in browser tests (target 5 seconds) | Phases 3 and 8 |
+| Leftover food at close (65 days) | 11.0 kg a day with BuffetIQ against 21.9 kg under the chef rule (-50%) | Phase 5 |
+| Food cost of leftovers (65 days) | S$59.9 a day against S$119.6 (-50%, about S$21,800 a year) | Phase 5 |
+| Minutes a dish was empty (65 days) | 6.9 a day against 12.9 | Phase 5 |
+| Ask BuffetIQ, scripted questions | 20 of 20 match the board typed, 20 of 20 spoken (median 0.83 seconds); 10 of 10 on added topics | Phase 6 |
+| Forecast learning | Error 7.3% with 1 month of history, 3.3% with 10 months, on the same test days | Phase 7 |
+| Camera tray check | Waiting for training images; no accuracy reported yet | Phase 4 |
+| Gemini answers | Waiting for an API key | Phase 6 |
+| Tests | 235 automated tests pass | All |
+
+Two engine bugs were found and fixed after the first replay results had been seen; both are disclosed in Phase 5. Not every morning improves: on the data's demo morning BuffetIQ left more food than the chef rule (Phase 7).
+
 ## Phase 0: setup and static screens
 
 Phase 0 has no models, so its evidence is the test suite and the screen comparison. The test suite (`python -m pytest -q`) checks the configuration, the colour tokens from CLAUDE.md, text contrast of at least 4.5:1 for every text and background pair in both modes, the absence of em dashes in on-screen copy, the "Fictional data" labels, accessible names for symbol-only buttons, that all five pages build, and that no API key is committed.
@@ -258,3 +276,14 @@ The 8 tests in `tests/test_reports.py` check that the report balances (prepared 
 Ask BuffetIQ was extended with five more functions so that it can answer more of what cooks ask during service, still only from data: `get_dietary` (halal and vegetarian status, and today's halal and vegetarian meal counts from the guest page, as counts only), `get_allergens` (allergens per dish from the recipe card), `get_food_safety` (Singapore Food Agency holding rules and the kitchen's reuse policy), `get_call_reason` (why the board makes its call, from stock, reserve, expected guests and need) and `get_waste` (food thrown away so far and food likely to be left at close). Each has a rule-based answer, so it also works without Gemini.
 
 Ten extra questions were scored separately, so the brief's 20 stay unchanged. All 10 matched with basic answers, for example "Does the mee goreng have peanuts?" answered "No, mee goreng has no peanuts. Its recipe card lists gluten, soy and egg." and "Why cook more sausages?" answered with the board's call and the guests expected in the next hour. With the extra functions in place, the original 20 typed questions still matched 20 of 20, and the 20 spoken questions matched 20 of 20 with a median of 0.83 seconds. The new tests in `tests/test_assistant.py` cover the new intents, dietary answers from the config, dietary counts without room numbers, allergen answers, the SFA temperatures, the "why" answer repeating the board's call, and waste answers whose numbers match the function results.
+
+
+## Phase 8: showcase mode and the demo rehearsal
+
+This section records whether the five-minute demo works end to end. The prepared showcase morning is a fictional Tuesday 24 November at 82% occupancy with an unannounced tour group of 24 arriving at 07:45; it is built from the data's demo morning (guests, arrivals and demand scaled to 82% occupancy), and the tour group is not in the night-before features, so only the nowcast can catch it. Opening pans now go out at 06:20, ten minutes before service, which starts their 4-hour timers; this changes only the timer display, not any result.
+
+An automated browser rehearsal on 22 November 2026 ran all seven steps. The guest page marked 07:00 to 08:30 Busy and 09:30 Quiet; a booking at 08:00, switched to 09:30, appeared on the board 1.8 seconds after Confirm. Jumping to 08:00 showed "Tour group of 24 arrived at 07:45 · Expected diners raised from 277 to 306". At 08:40 a Low photo of the pancake tray turned its card into "Cook 1.5 kg · Now · ready in 6 min", and Ask BuffetIQ answered "Cook 1.5 kg of pancakes now. Ready in 6 minutes." At 09:50 the hot dishes showed "Cook to order" and Treatsure offers appeared for eggs, cut fruit and rice. The day-end report showed 11.7 kg left against 12.6 kg the usual way (7% less), S$59 against S$76 of food wasted, and 24 against 13 minutes with an empty dish, mostly hash browns during the tour group rush.
+
+Three steps of the brief's demo were changed to match the data rather than the other way round. The guest picks 08:00, because in this data 09:00 is Moderate, not Busy. The tray photo is of pancakes, because at 08:40 BuffetIQ holds 2.2 kg of eggs in reserve and correctly says Hold for a low egg pan. No pan timer turns saffron at 09:50, because every pan was refreshed by a new batch during the busy morning; the timers are shown on the cards and tested in `tests/test_nowcast.py`.
+
+The 7 tests in `tests/test_showcase.py` check the showcase morning's occupancy and unbooked tour group, loading it at 06:15, the tour group alert replacing the general forecast alert, reset, jumping back in time, the running clock and a photo counting as the truth for its tray.

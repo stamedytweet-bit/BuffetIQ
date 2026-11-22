@@ -99,13 +99,31 @@ def render_learning(weeks: list[tuple[str, float]], unit: str = "week of use") -
 </section>"""
 
 
+def render_simulation(sim: dict | None) -> str:
+    """The 65-day replay result, so one morning is seen next to the average."""
+    if not sim:
+        return ""
+    b, q = sim["baseline"], sim["buffetiq"]
+    return check_copy(f"""
+<section class="rp-panel" aria-label="65 days simulated">
+  <div style="display:flex;flex-direction:column;gap:4px"><h2>Across 65 simulated days</h2>
+    <span class="sub" style="font-size:14px;color:{GUEST['muted']}">Full BuffetIQ against the usual chef rule, simulated on fictional data</span></div>
+  <div class="rp-event"><span class="t">{abs(q['change_left_pct']):.0f}% less food left over</span>
+    <span class="d">{q['left_kg']:.1f} kg a day against {b['left_kg']:.1f} kg</span></div>
+  <div class="rp-event"><span class="t">S${b['cost'] - q['cost']:.0f} a day less food wasted</span>
+    <span class="d">S${q['cost']:.0f} against S${b['cost']:.0f}</span></div>
+  <div class="rp-event"><span class="t">{q['empty_minutes']:.0f} minutes a day with an empty dish</span>
+    <span class="d">Against {b['empty_minutes']:.0f} minutes under the chef rule</span></div>
+</section>""")
+
+
 def render_body(r: dict) -> str:
     html = f"""
 <div class="rp-body">
   {render_figures(r['figures'])}
   <div class="rp-split">
     {render_leftovers(r['leftovers'], r['usual_total'])}
-    <div class="rp-right">{render_events(r['events'])}{render_learning(r['learning'], r.get('learning_unit', 'week of use'))}</div>
+    <div class="rp-right">{render_events(r['events'])}{render_simulation(r.get('simulation'))}{render_learning(r['learning'], r.get('learning_unit', 'week of use'))}</div>
   </div>
   <p class="rp-foot">{esc(r['footnote'])}</p>
 </div>"""
@@ -158,10 +176,20 @@ def report_view() -> dict:
         "events": r["events"] or [{"title": "A quiet morning", "line": "No stock-outs, overrides or Treatsure offers."}],
         "learning": r["learning"],
         "learning_unit": "months of use, on the same 65 test days",
+        "simulation": _simulation(),
         "footnote": ("Simulated on fictional data for the prototype. A usual day is this same morning replayed under "
                      "the usual chef rule. The NEA file lists each day's food waste by dish in kilograms, ready to "
                      "adapt to NEA's reporting template."),
     }
+
+
+def _simulation() -> dict | None:
+    import json
+
+    path = state.ROOT / "docs" / "phase5_results.json"
+    if not path.exists():
+        return None
+    return json.loads(path.read_text())["policies"]
 
 
 def render_retrain(status: dict | None) -> str:

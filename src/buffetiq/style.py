@@ -690,6 +690,13 @@ REPORT_CSS = """
 .ab-link .p { font-size: 13px; color: var(--bq-muted); }
 .ab-link .d { font-size: 14px; line-height: 1.45; color: var(--bq-muted); }
 .ab-qr { gap: 14px !important; }
+.ab-presenter { gap: 14px !important; }
+.ab-status { margin: 0; font-size: 15px; line-height: 1.5; color: var(--bq-text); background: var(--bq-teal-tint);
+  border-radius: 12px; padding: 12px 16px; }
+.ab-controls { align-items: flex-end !important; }
+.ab-field { min-width: 180px !important; }
+.ab-speed .wrap { gap: 8px !important; }
+.ab-speed label { min-height: 44px; border-radius: 12px !important; }
 .ab-qr-link { margin: 0; font-size: 15px; color: var(--bq-text); word-break: break-all; }
 .ab-qr-image { max-width: 320px; background: #FFFFFF !important; border: 1px solid var(--bq-border) !important; border-radius: 14px !important; }
 .bq-guest code { font-size: 14px; background: var(--bq-divider); padding: 1px 6px; border-radius: 6px; }

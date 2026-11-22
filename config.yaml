@@ -27,6 +27,7 @@ rules:
   cover_minutes: 45              # a cook call covers expected demand until ready plus this long
   min_forecast_share: 0.05       # below this share of the morning, the nowcast keeps the night-before forecast
   override_minutes: 30           # how long a chef override stands before BuffetIQ calls again
+  opening_out_minutes: 10        # opening pans go out at 06:20, ten minutes before doors open
   cook_to_order_waste: 0.03      # share of cooked-to-order food left on plates or pans (our estimate)
   forecast_jump_alert: 0.05      # alert when expected diners move this much (5%) from the last alert
   fill_fraction:                 # amount = pan capacity x fraction

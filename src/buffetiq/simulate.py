@@ -122,6 +122,8 @@ class World:
         self.w = cook_to_order_waste
         self.stock = {d["id"]: float(d["pan_capacity"]) for d in dishes}
         self.pending = []                       # (ready minute, dish id, amount)
+        self.seen_log = 0                       # engine log entries already turned into cooking here
+        self.until = SERVICE_START              # the simulated kitchen has been played up to here
         self.r = DayResult()
         for d in dishes:
             did = d["id"]
@@ -238,7 +240,7 @@ def play(eng: Engine, world: World, start: float, end: float, cfg: dict, rng: ra
     dishes, step = cfg["dishes"], cfg["replay"]["step_minutes"]
     acc = cfg["replay"]["camera_accuracy"]
     check = eng.rules["check_minutes"]
-    seen = len(eng.log)
+    seen = world.seen_log
     treat = 0.0
     for t in range(int(start), int(end), step):
         world.bring_out(t)
@@ -259,6 +261,8 @@ def play(eng: Engine, world: World, start: float, end: float, cfg: dict, rng: ra
         to_order = {d["id"] for d in dishes if eng.to_order and d.get("hot")}
         eng.log_arrivals(world.arrivals_in(t), t)
         world.consume(t, to_order)
+        world.until = t + step
+    world.seen_log = seen
     return treat
 
 

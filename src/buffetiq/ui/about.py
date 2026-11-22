@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import gradio as gr
 
-from buffetiq import qr
+from buffetiq import qr, state
 from buffetiq.style import check_copy, esc
 
 PAGE_INFO = [
@@ -68,13 +68,18 @@ QR_INTRO = check_copy("""
   Wi-Fi and the app was started with <code>--host 0.0.0.0</code>, or through the Colab share link.</p>
 </div>""")
 
+PRESENTER_INTRO = check_copy("""
+<div style="display:flex;flex-direction:column;gap:8px">
+  <h2 style="margin:0;font-size:20px;font-weight:800">Presenter controls</h2>
+  <p style="margin:0;font-size:15px;line-height:1.55;color:var(--bq-muted)">"Load showcase morning" sets up the prepared
+  fictional morning: Tuesday 24 November at 82% occupancy, with a tour group of 24 that nobody booked arriving at 07:45.
+  The clock then runs at the chosen speed, or jumps to a time; simulated guests arrive and a simulated runner checks
+  every tray every 15 minutes, while your taps, photos and questions are added on top. "Reset" returns the morning to
+  06:15 and removes its bookings and log rows.</p>
+</div>""")
+
 ABOUT_END = check_copy("""
 <div class="rp-body">
-  <section class="ab-section">
-    <h2>Presenter controls</h2>
-    <p class="muted">Load showcase morning, reset, jump to a time and the clock speed will appear here when the showcase
-    mode is built.</p>
-  </section>
   <p class="rp-foot">All hotel names, guests, dishes and numbers in this prototype are fictional. Every result is
   simulated on fictional data.</p>
 </div>""")
@@ -85,6 +90,24 @@ def make_qr(request: gr.Request):
     path = qr.sleeve(url)
     link = f'<p class="ab-qr-link">Guest page: <a href="{esc(url)}" target="_blank">{esc(url)}</a></p>'
     return qr.qr_image(url), link, gr.update(value=str(path), visible=True)
+
+
+SPEED_LABELS = ["Paused", "1x", "2x", "5x", "10x"]
+JUMP_TIMES = ["06:15", "06:30", "07:00", "07:30", "07:45", "08:00", "08:15", "08:40", "09:00", "09:30", "09:50",
+              "10:15", "10:30"]
+
+
+def render_status() -> str:
+    from buffetiq import showcase
+
+    s = state.service()
+    e = s.kitchen()
+    speed = next((k for k, v in showcase.SPEEDS.items() if v == showcase.CLOCK.speed), "Paused")
+    mode = "Showcase morning" if s.mode == "showcase" else "Demo morning from the data"
+    return check_copy(
+        f'<p class="ab-status" role="status"><b>{esc(mode)}</b> · {esc(state.long_date(s.service_date))} · '
+        f'clock {s.clock.strftime("%H:%M")} · {esc(speed)} · {int(round(e.arrived()))} diners so far · '
+        f'expected {int(round(e.n() if e.started else s.expected_diners()))}</p>')
 
 
 def build_page(pages: dict) -> dict:
@@ -101,6 +124,61 @@ def build_page(pages: dict) -> dict:
                 link = gr.HTML("")
                 code = gr.Image(show_label=False, interactive=False, height=320, width=320,
                                 elem_classes=["ab-qr-image"], buttons=[])
+            with gr.Column(elem_classes=["ab-section", "ab-presenter"]):
+                gr.HTML(PRESENTER_INTRO)
+                status = gr.HTML(render_status)
+                with gr.Row(elem_classes=["rp-actions"]):
+                    load_btn = gr.Button("Load showcase morning", elem_classes=["bq-btn", "rp-primary"])
+                    reset_btn = gr.Button("Reset to 06:15", elem_classes=["bq-btn", "rp-secondary"])
+                with gr.Row(elem_classes=["rp-actions", "ab-controls"]):
+                    jump_to = gr.Dropdown(JUMP_TIMES, value="07:45", label="Jump to", elem_classes=["ab-field"])
+                    jump_btn = gr.Button("Jump", elem_classes=["bq-btn", "rp-secondary"])
+                    speed = gr.Radio(list(SPEED_LABELS), value="Paused", label="Clock speed",
+                                     elem_classes=["ab-field", "ab-speed"])
+                with gr.Row(elem_classes=["rp-actions"]):
+                    plus1 = gr.Button("Log arrivals +1", elem_classes=["bq-btn", "rp-secondary"])
+                    plus10 = gr.Button("Log arrivals +10", elem_classes=["bq-btn", "rp-secondary"])
             gr.HTML(ABOUT_END)
+    ticker = gr.Timer(2)
+    ticker.tick(render_status, None, status, show_progress="hidden", queue=False)
+
+    def load():
+        from buffetiq import showcase
+
+        showcase.CLOCK.set_speed(0)
+        state.load_showcase()
+        return render_status(), "Paused"
+
+    def do_reset():
+        from buffetiq import showcase
+
+        showcase.CLOCK.set_speed(0)
+        state.reset()
+        return render_status(), "Paused"
+
+    def jump(t):
+        svc = state.service()
+        if state.minutes(t) < svc.clock_minutes():
+            svc.replay_to(t)          # going back replays the morning from 06:30
+        else:
+            svc.advance_to(state.minutes(t))
+        return render_status()
+
+    def set_speed(label):
+        from buffetiq import showcase
+
+        showcase.CLOCK.set_speed(showcase.SPEEDS[label])
+        return render_status()
+
+    def log(n):
+        state.service().log_arrivals(n)
+        return render_status()
+
+    load_btn.click(load, None, [status, speed])
+    reset_btn.click(do_reset, None, [status, speed])
+    jump_btn.click(jump, jump_to, status)
+    speed.change(set_speed, speed, status)
+    plus1.click(lambda: log(1), None, status)
+    plus10.click(lambda: log(10), None, status)
     show_btn.click(make_qr, None, [code, link, sleeve_btn])
     return {"body": body, "qr": code}

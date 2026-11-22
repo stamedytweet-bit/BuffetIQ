@@ -209,10 +209,11 @@ class Engine:
 
     # ---- set-up ----
     def open_service(self) -> None:
-        """At 06:30 one full pan of each dish is out, cooked before service."""
+        """At 06:30 one full pan of each dish is out, cooked and set out before service
+        (`opening_out_minutes` earlier, which starts the 4-hour pan timer)."""
         for d in self.dishes:
             self.stock[d["id"]] = float(d["pan_capacity"])
-            self.out_at[d["id"]] = SERVICE_START
+            self.out_at[d["id"]] = SERVICE_START - float(self.rules.get("opening_out_minutes", 0))
         self.started = True
         self.last_announced = self.n0
 
