@@ -174,6 +174,7 @@ class Service:
         self.plans: dict[str, GuestPlan] = {}
         self.alerts: list[Alert] = []            # newest first; the board shows three
         self.trays: dict[str, dict] = {}         # latest tray level per dish id
+        self.last_answer: dict | None = None     # the last Ask BuffetIQ answer, shown on the board
         self.log_path = Path(log_path) if log_path else SERVICE_LOG_PATH
         self._load_plans()
         # expected amount per diner for each dish, from the night-before dish model

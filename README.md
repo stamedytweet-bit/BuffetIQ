@@ -14,8 +14,9 @@ The point of difference is timing. Tools such as Winnow Foresight plan quantitie
 | 3 | Guest flow with live check-ins and the guest QR code | Done |
 | 4 | Camera tray check (waiting for the group's photos to train the real model) | Built |
 | 5 | Nowcast, refill engine, live kitchen board and the 65-day replay | Done |
-| 6 | Ask BuffetIQ voice assistant | Next |
-| 7 to 8 | Report, retraining and showcase | Planned |
+| 6 | Ask BuffetIQ voice assistant (Gemini run waiting for a key) | Built |
+| 7 | Day-end report, history and retraining | Next |
+| 8 | Colab and showcase mode | Planned |
 
 ## Pages
 
@@ -71,7 +72,9 @@ To open the runner and guest pages on phones connected to the same Wi-Fi, start 
 python app.py --host 0.0.0.0
 ```
 
-The Gemini key is not needed until Phase 6. When it is, copy `.env.example` to `.env` and fill in `GEMINI_API_KEY` and `GEMINI_MODEL` (copy the current free-tier Flash or Flash-Lite model ID from Google AI Studio). Git ignores `.env`, so the key never reaches GitHub.
+Ask BuffetIQ works without a Gemini key, giving "Basic answers". For Gemini answers, create a free key at aistudio.google.com (Get API key), copy `.env.example` to `.env`, and fill in `GEMINI_API_KEY` and `GEMINI_MODEL` (copy the current free-tier Flash or Flash-Lite model ID from Google AI Studio). Git ignores `.env`, so the key never reaches GitHub. Restart the app after changing it.
+
+Browsers allow the microphone only on secure links: it works on the laptop at `127.0.0.1` and through a Colab share link, but not on a phone opening `http://192.168.x.x`, where the page offers typing instead.
 
 ## Try the guest page on a phone
 
@@ -176,3 +179,13 @@ python -m buffetiq.simulate
 ```
 
 It replays every test morning under the baseline chef rule, forecast only and full BuffetIQ, prints surplus, cost and stock-out minutes, and redraws `docs/charts/phase5_policies.png`.
+
+## Evaluate Ask BuffetIQ
+
+From the `src` folder:
+
+```bash
+python -m buffetiq.assistant_eval
+```
+
+It asks 20 scripted questions on the demo morning at 08:40, typed and spoken (computer voice), with basic answers and, if a key is set, with Gemini, and reports how many match the board and the median response time. To add your own voice, record questions as `data/voice_tests/q01.m4a` and so on, numbered as in `src/buffetiq/assistant_eval.py`.

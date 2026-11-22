@@ -1,0 +1,521 @@
+{
+  "model": null,
+  "runs": {
+    "typed_basic": [
+      {
+        "n": 1,
+        "question": "How much egg should I cook?",
+        "expected": [
+          "hold",
+          "egg"
+        ],
+        "answer": "Hold the scrambled eggs. Next check 08:55.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 2,
+        "question": "Do we need more sausages?",
+        "expected": [
+          "cook 5 kg",
+          "sausage"
+        ],
+        "answer": "Cook 5 kg of chicken sausages now. The tray has been empty since 08:35.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 3,
+        "question": "What about the hash browns?",
+        "expected": [
+          "hold",
+          "hash brown"
+        ],
+        "answer": "Hold the hash browns. Next check 08:55.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 4,
+        "question": "Should I make more pancakes?",
+        "expected": [
+          "hold",
+          "pancake"
+        ],
+        "answer": "Hold the pancakes. Next check 08:55.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 5,
+        "question": "How much mee goreng should I cook?",
+        "expected": [
+          "hold",
+          "mee goreng"
+        ],
+        "answer": "Hold the mee goreng. Next check 08:55.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 6,
+        "question": "Do I need to cook more rice?",
+        "expected": [
+          "hold",
+          "rice"
+        ],
+        "answer": "Hold the nasi lemak rice. Next check 08:55.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 7,
+        "question": "How many croissants should I bake?",
+        "expected": [
+          "hold",
+          "croissant"
+        ],
+        "answer": "Hold the croissants. Next check 08:55.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 8,
+        "question": "Do we need more fruit?",
+        "expected": [
+          "hold",
+          "fruit"
+        ],
+        "answer": "Hold the cut fruit. Next check 08:55.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 9,
+        "question": "What is running low?",
+        "expected": [
+          "chicken sausages"
+        ],
+        "answer": "Chicken sausages is empty. Check the board for what to cook.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 10,
+        "question": "How much egg is left on the tray?",
+        "expected": [
+          "full",
+          "egg"
+        ],
+        "answer": "Scrambled eggs is full, with 2.5 kg on the tray. 2.3 kg more in reserve.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 11,
+        "question": "Is the fruit tray full?",
+        "expected": [
+          "full"
+        ],
+        "answer": "Cut fruit is full, with 5.0 kg on the tray. 1.6 kg more in reserve.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 12,
+        "question": "How many guests are we expecting today?",
+        "expected": [
+          "310"
+        ],
+        "answer": "310 guests expected today, 223 so far. The next 15 minutes look moderate, about 25 guests.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.01
+      },
+      {
+        "n": 13,
+        "question": "How many people have come in so far?",
+        "expected": [
+          "223"
+        ],
+        "answer": "310 guests expected today, 223 so far. The next 15 minutes look moderate, about 25 guests.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.01
+      },
+      {
+        "n": 14,
+        "question": "Is the next 15 minutes going to be busy?",
+        "expected": [
+          "moderate"
+        ],
+        "answer": "310 guests expected today, 223 so far. The next 15 minutes look moderate, about 25 guests.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.01
+      },
+      {
+        "n": 15,
+        "question": "Any pans near 4 hours?",
+        "expected": [
+          "no pan"
+        ],
+        "answer": "No pans are near 4 hours. The next swap is chicken sausages at 12:00.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 16,
+        "question": "When does the sausage pan need swapping?",
+        "expected": [
+          "12:00"
+        ],
+        "answer": "The chicken sausages pan went out at 08:00. Swap it by 12:00.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 17,
+        "question": "When do I stop croissants?",
+        "expected": [
+          "09:50"
+        ],
+        "answer": "The last bake for croissants is 09:50. The board says Hold now.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 18,
+        "question": "When is the last cook for nasi lemak?",
+        "expected": [
+          "09:55"
+        ],
+        "answer": "The last cook for nasi lemak rice is 09:55. The board says Hold now.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 19,
+        "question": "Any alerts?",
+        "expected": [
+          "chicken sausages"
+        ],
+        "answer": "Chicken sausages ran out at 08:35. Cook 5 kg now.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.0
+      },
+      {
+        "n": 20,
+        "question": "What's the weather like outside?",
+        "expected": [
+          "i don't have that"
+        ],
+        "answer": "I don't have that. Please check the board.",
+        "mode": "none",
+        "match": true,
+        "seconds": 0.0
+      }
+    ],
+    "spoken_gtts": [
+      {
+        "n": 1,
+        "question": "How much egg should I cook?",
+        "heard": "How much egg should I cook?",
+        "expected": [
+          "hold",
+          "egg"
+        ],
+        "answer": "Hold the scrambled eggs. Next check 08:55.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.89,
+        "speech_to_text_seconds": 0.89
+      },
+      {
+        "n": 2,
+        "question": "Do we need more sausages?",
+        "heard": "Do we need more sausages?",
+        "expected": [
+          "cook 5 kg",
+          "sausage"
+        ],
+        "answer": "Cook 5 kg of chicken sausages now. The tray has been empty since 08:35.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.79,
+        "speech_to_text_seconds": 0.79
+      },
+      {
+        "n": 3,
+        "question": "What about the hash browns?",
+        "heard": "What about the hash browns?",
+        "expected": [
+          "hold",
+          "hash brown"
+        ],
+        "answer": "Hold the hash browns. Next check 08:55.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.8,
+        "speech_to_text_seconds": 0.8
+      },
+      {
+        "n": 4,
+        "question": "Should I make more pancakes?",
+        "heard": "Should I make more pancakes?",
+        "expected": [
+          "hold",
+          "pancake"
+        ],
+        "answer": "Hold the pancakes. Next check 08:55.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.79,
+        "speech_to_text_seconds": 0.79
+      },
+      {
+        "n": 5,
+        "question": "How much mee goreng should I cook?",
+        "heard": "How much mee goreng should I cook?",
+        "expected": [
+          "hold",
+          "mee goreng"
+        ],
+        "answer": "Hold the mee goreng. Next check 08:55.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.81,
+        "speech_to_text_seconds": 0.81
+      },
+      {
+        "n": 6,
+        "question": "Do I need to cook more rice?",
+        "heard": "Do I need to cook more rice?",
+        "expected": [
+          "hold",
+          "rice"
+        ],
+        "answer": "Hold the nasi lemak rice. Next check 08:55.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.81,
+        "speech_to_text_seconds": 0.81
+      },
+      {
+        "n": 7,
+        "question": "How many croissants should I bake?",
+        "heard": "How many croissants should I bake?",
+        "expected": [
+          "hold",
+          "croissant"
+        ],
+        "answer": "Hold the croissants. Next check 08:55.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.81,
+        "speech_to_text_seconds": 0.81
+      },
+      {
+        "n": 8,
+        "question": "Do we need more fruit?",
+        "heard": "Do we need more fruit?",
+        "expected": [
+          "hold",
+          "fruit"
+        ],
+        "answer": "Hold the cut fruit. Next check 08:55.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.79,
+        "speech_to_text_seconds": 0.79
+      },
+      {
+        "n": 9,
+        "question": "What is running low?",
+        "heard": "What is running low?",
+        "expected": [
+          "chicken sausages"
+        ],
+        "answer": "Chicken sausages is empty. Check the board for what to cook.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.79,
+        "speech_to_text_seconds": 0.79
+      },
+      {
+        "n": 10,
+        "question": "How much egg is left on the tray?",
+        "heard": "How much egg is left on the tray?",
+        "expected": [
+          "full",
+          "egg"
+        ],
+        "answer": "Scrambled eggs is full, with 2.5 kg on the tray. 2.3 kg more in reserve.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.81,
+        "speech_to_text_seconds": 0.81
+      },
+      {
+        "n": 11,
+        "question": "Is the fruit tray full?",
+        "heard": "Is the fruit tray full?",
+        "expected": [
+          "full"
+        ],
+        "answer": "Cut fruit is full, with 5.0 kg on the tray. 1.6 kg more in reserve.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.79,
+        "speech_to_text_seconds": 0.78
+      },
+      {
+        "n": 12,
+        "question": "How many guests are we expecting today?",
+        "heard": "How many guests are we expecting today?",
+        "expected": [
+          "310"
+        ],
+        "answer": "310 guests expected today, 223 so far. The next 15 minutes look moderate, about 25 guests.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.82,
+        "speech_to_text_seconds": 0.8
+      },
+      {
+        "n": 13,
+        "question": "How many people have come in so far?",
+        "heard": "How many people have come in so far?",
+        "expected": [
+          "223"
+        ],
+        "answer": "310 guests expected today, 223 so far. The next 15 minutes look moderate, about 25 guests.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.84,
+        "speech_to_text_seconds": 0.82
+      },
+      {
+        "n": 14,
+        "question": "Is the next 15 minutes going to be busy?",
+        "heard": "Is the next 15 minutes going to be busy?",
+        "expected": [
+          "moderate"
+        ],
+        "answer": "310 guests expected today, 223 so far. The next 15 minutes look moderate, about 25 guests.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.83,
+        "speech_to_text_seconds": 0.82
+      },
+      {
+        "n": 15,
+        "question": "Any pans near 4 hours?",
+        "heard": "Any pans near four hours.",
+        "expected": [
+          "no pan"
+        ],
+        "answer": "No pans are near 4 hours. The next swap is chicken sausages at 12:00.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.79,
+        "speech_to_text_seconds": 0.79
+      },
+      {
+        "n": 16,
+        "question": "When does the sausage pan need swapping?",
+        "heard": "When does the sausage pan need swapping?",
+        "expected": [
+          "12:00"
+        ],
+        "answer": "The chicken sausages pan went out at 08:00. Swap it by 12:00.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.81,
+        "speech_to_text_seconds": 0.81
+      },
+      {
+        "n": 17,
+        "question": "When do I stop croissants?",
+        "heard": "When do I stop croissants?",
+        "expected": [
+          "09:50"
+        ],
+        "answer": "The last bake for croissants is 09:50. The board says Hold now.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.8,
+        "speech_to_text_seconds": 0.8
+      },
+      {
+        "n": 18,
+        "question": "When is the last cook for nasi lemak?",
+        "heard": "When is the last cook for nasi lemak?",
+        "expected": [
+          "09:55"
+        ],
+        "answer": "The last cook for nasi lemak rice is 09:55. The board says Hold now.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.82,
+        "speech_to_text_seconds": 0.82
+      },
+      {
+        "n": 19,
+        "question": "Any alerts?",
+        "heard": "Any alerts?",
+        "expected": [
+          "chicken sausages"
+        ],
+        "answer": "Chicken sausages ran out at 08:35. Cook 5 kg now.",
+        "mode": "basic",
+        "match": true,
+        "seconds": 0.76,
+        "speech_to_text_seconds": 0.76
+      },
+      {
+        "n": 20,
+        "question": "What's the weather like outside?",
+        "heard": "What's the weather like outside?",
+        "expected": [
+          "i don't have that"
+        ],
+        "answer": "I don't have that. Please check the board.",
+        "mode": "none",
+        "match": true,
+        "seconds": 0.79,
+        "speech_to_text_seconds": 0.79
+      }
+    ]
+  },
+  "summary": {
+    "typed_basic": {
+      "questions": 20,
+      "matched": 20,
+      "median_seconds": 0.0,
+      "max_seconds": 0.01
+    },
+    "spoken_gtts": {
+      "questions": 20,
+      "matched": 20,
+      "median_seconds": 0.81,
+      "max_seconds": 0.89
+    }
+  }
+}

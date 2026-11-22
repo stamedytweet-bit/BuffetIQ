@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
 
 import gradio as gr  # noqa: E402
 
-from buffetiq import state, style  # noqa: E402
+from buffetiq import assistant, state, style  # noqa: E402
 from buffetiq.ui import about, guest, kitchen, report, runner  # noqa: E402
 
 # Page paths. The navbar is hidden on every page; the About page links them all.
@@ -58,6 +58,7 @@ def main(argv: list[str] | None = None) -> None:
 
     print("Preparing the forecast for the service...")
     state.service()   # train the live forecast once, before the first page opens
+    assistant.preload_whisper()   # load speech-to-text in the background so the first question is quick
     if args.at:
         state.service().replay_to(args.at)
         print(f"Replayed the demo morning to {args.at} with simulated guests and tray checks.")

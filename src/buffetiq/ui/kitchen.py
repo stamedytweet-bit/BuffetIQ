@@ -5,7 +5,8 @@ Each read-only region is a gr.HTML rendered from the kitchen engine in state.py
 and refreshed every 5 seconds with gr.Timer. The four backup buttons are native
 gr.Buttons: "Log arrivals +5" counts diners, "Check a tray" shows a QR code for
 the runner page, and "Override a call" opens the override chooser. "Hold to ask
-BuffetIQ" and the last voice answer arrive in Phase 6.
+BuffetIQ" records from the laptop microphone; the answer is spoken through the
+laptop and shown in the "Last voice answer" panel.
 """
 
 from __future__ import annotations
@@ -14,7 +15,7 @@ import gradio as gr
 
 from buffetiq import nowcast, state, style
 from buffetiq.style import check_copy, esc, fmt_amount, icon
-from buffetiq.ui import sample
+from buffetiq.ui import sample, voice
 
 REFRESH_SECONDS = state.load_config()["service"]["refresh_seconds"]
 BAR_AREA_PX = 130
@@ -116,11 +117,13 @@ def render_alerts(alerts: list[dict]) -> str:
 
 
 def render_voice(v: dict) -> str:
+    q = f'<div class="q">“{esc(v["question"])}”</div>' if v.get("question") else ""
+    cls = "a problem" if v.get("problem") else ("a empty" if v.get("empty") else "a")
     html = f"""
 <div class="k-panel k-voice">
   <div class="head">{icon('mic', 20, 2)} Last voice answer</div>
-  <div class="q">“{esc(v['question'])}”</div>
-  <div class="a">{esc(v['answer'])}</div>
+  {q}
+  <div class="{cls}">{esc(v['answer'])}</div>
 </div>"""
     return check_copy(html)
 
@@ -241,9 +244,21 @@ def live_alerts() -> list[dict]:
     return [a for _, a in items[:3]]
 
 
+def live_voice() -> dict:
+    a = state.service().last_answer
+    if not a:
+        return {"question": "", "answer": "Hold the button and ask, such as \"How much egg should I cook?\"",
+                "problem": False, "empty": True}
+    return {"question": a["question"], "answer": a["spoken"], "problem": False}
+
+
 def refresh():
     return (render_header(live_header()), render_dishes(live_dishes()), render_arrivals(live_arrivals()),
             render_alerts(live_alerts()))
+
+
+def refresh_all():
+    return (*refresh(), render_voice(live_voice()))
 
 
 OVERRIDE_ACTIONS = [("Cook a batch now", "cook"), ("Hold", "hold"), ("Let it run down", "run_down"),
@@ -264,11 +279,11 @@ def build_page() -> dict:
                 with gr.Column(elem_id="bq-rail"):
                     arrivals = gr.HTML(lambda: render_arrivals(live_arrivals()), elem_id="bq-arrivals")
                     alerts = gr.HTML(lambda: render_alerts(live_alerts()), elem_id="bq-alerts")
-                    voice = gr.HTML(render_voice(sample.KITCHEN_VOICE), elem_id="bq-voice")
+                    voice_panel = gr.HTML(lambda: render_voice(live_voice()), elem_id="bq-voice")
             with gr.Row(elem_id="bq-strip"):
                 log_btn = gr.Button("Log arrivals +5", elem_id="k-log", elem_classes=["bq-btn", "bq-ico-user-plus"])
                 tray_btn = gr.Button("Check a tray", elem_id="k-tray", elem_classes=["bq-btn", "bq-ico-camera"])
-                ask_btn = gr.Button("Hold to ask BuffetIQ", elem_id="k-ask", elem_classes=["bq-btn", "bq-primary", "bq-ico-mic"])
+                ask_btn = voice.hold_button("Hold to ask BuffetIQ", "Hold to ask BuffetIQ", "board", "k-ask")
                 override_btn = gr.Button("Override a call", elem_id="k-override", elem_classes=["bq-btn", "bq-ico-pencil"])
 
             # ---- touch backups, shown over the board only when asked for ----
@@ -285,8 +300,22 @@ def build_page() -> dict:
                 tray_html = gr.HTML("")
                 tray_close = gr.Button("Close", elem_classes=["bq-btn", "k-sheet-secondary"])
 
+    board_audio = gr.HTML("", elem_id="k-answer-audio", elem_classes=["bq-hidden-audio"])
+
     timer = gr.Timer(REFRESH_SECONDS)
-    timer.tick(refresh, None, [header, dishes, arrivals, alerts], show_progress="hidden", queue=False)
+    timer.tick(refresh_all, None, [header, dishes, arrivals, alerts, voice_panel], show_progress="hidden", queue=False)
+
+    def ask_aloud(path):
+        """Board microphone: transcribe, answer, speak through the laptop and show it in the panel."""
+        from buffetiq import assistant
+
+        ans, problem = assistant.ask_from_audio(path)
+        if ans is None:
+            panel = render_voice({"question": "", "answer": problem, "problem": True})
+            return panel, gr.update()
+        return render_voice(live_voice()), assistant.audio_html(assistant.speak(ans.spoken))
+
+    ask_btn.submit(ask_aloud, ask_btn, [voice_panel, board_audio], show_progress="hidden")
 
     def log_five():
         state.service().log_arrivals(5)
@@ -324,6 +353,6 @@ def build_page() -> dict:
     o_apply.click(apply_override, [o_dish, o_action, o_reason], [override_panel, header, dishes, arrivals, alerts])
 
     return {
-        "timer": timer, "header": header, "dishes": dishes, "arrivals": arrivals, "alerts": alerts, "voice": voice,
+        "timer": timer, "header": header, "dishes": dishes, "arrivals": arrivals, "alerts": alerts, "voice": voice_panel,
         "log": log_btn, "tray": tray_btn, "ask": ask_btn, "override": override_btn,
     }

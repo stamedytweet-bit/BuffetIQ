@@ -329,6 +329,24 @@ KITCHEN_BOARD_CSS = """
 .k-alert .txt { display: flex; flex-direction: column; gap: 2px; }
 .k-alert .title { font-size: 18px; font-weight: 700; line-height: 1.25; }
 .k-alert .line { font-size: 16px; line-height: 1.4; color: var(--bq-text-2); }
+/* hold-to-talk buttons (ui/voice.py) */
+.bq-hold-wrap { width: 100%; }
+.bq-hold { display: flex; align-items: center; justify-content: center; cursor: pointer; border: none;
+  font-family: inherit; background: var(--bq-act); color: var(--bq-act-ink); touch-action: none; user-select: none;
+  -webkit-user-select: none; -webkit-touch-callout: none; }
+.bq-hold:focus-visible { outline: 3px solid var(--bq-brand); outline-offset: 3px; }
+.bq-hold-board { width: 100%; height: 96px; border-radius: 18px; gap: 14px; font-size: 26px; font-weight: 800; }
+.bq-hold-phone { width: 132px; height: 132px; border-radius: 66px; border: 6px solid var(--bq-act-ring); flex-direction: column;
+  gap: 6px; font-size: 17px; font-weight: 800; margin: 0 auto; }
+.bq-hold[data-state="recording"] { background: var(--bq-empty); color: var(--bq-empty-ink); }
+.bq-hold[data-state="thinking"] { background: var(--bq-raised); color: var(--bq-text); }
+.bq-hold-wrap-phone { display: flex; justify-content: center; }
+.bq-hold .lbl { white-space: nowrap; }
+.bq-hidden-audio { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; }
+.k-voice .a.empty { font-size: 18px; font-weight: 600; color: var(--bq-text-3); }
+.k-voice .a.problem { font-size: 18px; color: var(--bq-act); }
+.r-empty { margin: 0; font-size: 16px; line-height: 1.5; color: var(--bq-text-3); }
+.r-problem { margin: 0; font-size: 16px; line-height: 1.45; font-weight: 600; color: var(--bq-act); }
 .k-empty { margin: 0; font-size: 16px; line-height: 1.4; color: var(--bq-text-3); }
 .k-voice { gap: 10px; }
 .k-voice .head { display: flex; align-items: center; gap: 10px; font-size: 16px; color: var(--bq-text-3); }
@@ -707,7 +725,6 @@ ARIA_LABELS = {
     "g-halal-plus": "One more halal meal",
     "g-veg-minus": "One fewer vegetarian meal",
     "g-veg-plus": "One more vegetarian meal",
-    "r-mic": "Hold to talk to BuffetIQ",
     "r-replay": "Replay spoken answer",
 }
 

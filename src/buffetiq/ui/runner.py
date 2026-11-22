@@ -11,7 +11,9 @@ and nothing is sent. "Camera not working? Set the level by hand" and "Wrong
 level? Fix it" open the manual level buttons, labelled as manual. "Record
 leftovers" at the end of service writes the amount left to the history instead.
 
-Ask BuffetIQ still shows sample data; the voice pipeline arrives in Phase 6.
+Ask BuffetIQ (Phase 6): hold the microphone button to ask by voice, tap a
+"Try asking" chip, or type. Answers come from assistant.py, which reads the same
+kitchen engine as the board, and are spoken with gTTS.
 """
 
 from __future__ import annotations
@@ -21,9 +23,9 @@ import io
 
 import gradio as gr
 
-from buffetiq import camera, state
+from buffetiq import assistant, camera, state
 from buffetiq.style import check_copy, esc, icon
-from buffetiq.ui import sample
+from buffetiq.ui import sample, voice
 
 TRAY, ASK = "Tray check", "Ask BuffetIQ"
 
@@ -169,6 +171,27 @@ def render_said(question: str, at: str) -> str:
     )
 
 
+EMPTY_ASK = check_copy('<p class="r-empty">Hold the button and ask about any dish, such as '
+                       '"How much egg should I cook?" The answer uses the same numbers as the kitchen board.</p>')
+REPLAY_JS = """() => { const a = document.querySelector('#r-answer-audio audio');
+  if (a) { a.currentTime = 0; a.play(); } }"""
+
+
+def last_said() -> str:
+    a = state.service().last_answer
+    return render_said(a["question"], a["at"]) if a else ""
+
+
+def render_same(ans) -> str:
+    if ans.mode == "none":
+        return ""
+    return f'<span class="same">{icon("check-circle", 18, 2)} Same numbers as the board</span>'
+
+
+def render_problem(text: str) -> str:
+    return f'<p class="r-problem" role="alert">{esc(text)}</p>' if text else ""
+
+
 def render_answer(main: str, more: str) -> str:
     return check_copy(
         f'<div style="display:flex;flex-direction:column;gap:12px"><span class="kicker">BuffetIQ answer</span>'
@@ -259,26 +282,28 @@ def build_page() -> dict:
             gr.HTML("", elem_classes=["bq-spacer"])
             cancel_btn = gr.Button("Cancel", elem_classes=["bq-btn", "r-raised"])
 
-        # ---- 02 Ask BuffetIQ (sample until Phase 6) ----
+        # ---- 02 Ask BuffetIQ ----
         with gr.Column(elem_classes=["bq-view", "bq-gap-18"], visible=False) as v_ask:
-            gr.HTML(lambda: render_ask_head(clock(), ask["status"]))
+            ask_head = gr.HTML(lambda: render_ask_head(clock(), assistant.status()))
             with gr.Column(elem_classes=["bq-gap-14", "bq-spacer"]):
-                gr.HTML(render_said(ask["question"], ask["asked_at"]))
-                with gr.Column(elem_classes=["r-answer"]):
-                    gr.HTML(render_answer(ask["answer_main"], ask["answer_more"]))
+                said = gr.HTML(lambda: last_said())
+                with gr.Column(elem_classes=["r-answer"], visible=False) as answer_box:
+                    answer_html = gr.HTML("")
                     with gr.Row(elem_classes=["bq-between", "r-answer-foot"]):
-                        gr.HTML(f'<span class="same">{icon("check-circle", 18, 2)} Same numbers as the board</span>')
+                        same_html = gr.HTML("")
                         replay_btn = gr.Button("Replay", elem_id="r-replay",
                                                elem_classes=["bq-btn", "r-replay", "bq-ico-speaker"])
+                message = gr.HTML(EMPTY_ASK)
                 with gr.Column(elem_classes=["bq-gap-10"]):
                     gr.HTML('<span class="r-label">Try asking</span>')
                     with gr.Row(elem_classes=["r-try"]):
                         chips = [gr.Button(q, elem_classes=["bq-btn"]) for q in ask["try_asking"]]
             with gr.Column(elem_classes=["r-mic-wrap"]):
-                mic_btn = gr.Button("Hold to talk", elem_id="r-mic", elem_classes=["bq-btn", "r-mic", "bq-ico-mic"])
+                mic = voice.hold_button("Hold to talk", "Hold to talk to BuffetIQ", "phone", "r-mic")
                 type_btn = gr.Button("Type a question instead", elem_classes=["bq-btn", "bq-link-btn"])
                 typed = gr.Textbox(label="Your question", placeholder="How much egg should I cook?",
                                    visible=False, lines=1, max_lines=1, elem_classes=["r-typed"])
+            answer_audio = gr.HTML("", elem_id="r-answer-audio", elem_classes=["bq-hidden-audio"])
 
         switch = gr.Radio([TRAY, ASK], value=TRAY, label="Runner tool", show_label=False, container=False,
                           interactive=True, elem_classes=["r-switch"])
@@ -369,6 +394,36 @@ def build_page() -> dict:
     switch.change(_show, switch, [v_check, v_result, v_manual, v_ask])
     type_btn.click(lambda: gr.update(visible=True), None, typed)
 
+    # ---- Ask BuffetIQ ----
+    ask_outputs = [ask_head, said, answer_box, answer_html, same_html, message, answer_audio, typed]
+
+    def show_answer(ans):
+        head = render_ask_head(clock(), assistant.status())
+        if ans is None:
+            return head, gr.update(), gr.update(), gr.update(), gr.update(), gr.update(), gr.update(), gr.update()
+        audio = assistant.audio_html(assistant.speak(ans.spoken))
+        same = render_same(ans)
+        return (head, render_said(ans.question, ans.at), gr.update(visible=True),
+                render_answer(ans.main, ans.more), same, "", audio, gr.update(value=""))
+
+    def from_text(q):
+        return show_answer(assistant.ask(q)) if (q or "").strip() else show_answer(None)
+
+    def from_audio(path):
+        ans, problem = assistant.ask_from_audio(path)
+        if ans is None:
+            out = list(show_answer(None))
+            out[5] = render_problem(problem)
+            out[7] = gr.update(visible=True) if "Type" in problem or "type" in problem else gr.update()
+            return tuple(out)
+        return show_answer(ans)
+
+    mic.submit(from_audio, mic, ask_outputs, show_progress="hidden")
+    typed.submit(from_text, typed, ask_outputs, show_progress="hidden")
+    for c in chips:
+        c.click(from_text, c, ask_outputs, show_progress="hidden")
+    replay_btn.click(None, None, None, js=REPLAY_JS)
+
     return {"dish": dish, "check": check_btn, "manual": manual_btn, "change_station": change_station,
-            "fix": fix_btn, "replay": replay_btn, "chips": chips, "mic": mic_btn, "typed": typed,
+            "fix": fix_btn, "replay": replay_btn, "chips": chips, "mic": mic, "typed": typed,
             "switch": switch, "camera_input": camera_input}

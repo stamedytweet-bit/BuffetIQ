@@ -69,7 +69,7 @@ dishes:
     halal: true
     vegetarian: false
     hot: true
-    synonyms: ["sausage", "sausages", "chicken sausage", "chicken sausages", "hotdog", "hot dog"]
+    synonyms: ["sausage", "sausages", "chicken sausage", "chicken sausages", "hotdog", "hotdogs", "hot dog", "hot dogs"]
 
   - id: hash_browns
     name: "Hash browns"
