@@ -63,6 +63,8 @@ CONFUSION_PATH = ROOT / "docs" / "charts" / "phase4_confusion_matrix.png"
 BASE_WEIGHTS = "yolo26n-cls.pt"
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".heic", ".heif", ".webp"}
 MIN_PER_LEVEL = 8      # two Gemini grids of four photos per level
+SMALL_VAL_PER_LEVEL = 5
+SMALL_SET_EPOCHS = 100
 
 
 # ---------------------------------------------------------------------------
@@ -341,11 +343,16 @@ def train(src: Path = PHOTOS_DIR, weights_out: Path = MODEL_PATH, epochs: int = 
     seed = load_config()["simulation"]["seed"]
     split_dir = SPLIT_DIR.with_name(SPLIT_DIR.name + ("_standin" if standin else ""))
     counts = make_split(src, split_dir, seed)
+    # With only one or two validation photos per level, the validation score is too noisy to pick the
+    # best round or to stop early, so small sets train for a fixed number of rounds and keep the last one.
+    small = min(counts["val"].values()) < SMALL_VAL_PER_LEVEL
+    if small:
+        epochs = max(epochs, SMALL_SET_EPOCHS)
     model = YOLO(BASE_WEIGHTS)
     model.train(data=str(split_dir), epochs=epochs, imgsz=224, batch=16, device=device(), seed=seed,
-                deterministic=True, patience=10, project=str(ROOT / "runs"), name="standin" if standin else "tray",
-                exist_ok=True, verbose=False, plots=False)
-    best = Path(model.trainer.best)
+                deterministic=True, patience=0 if small else 10, project=str(ROOT / "runs"),
+                name="standin" if standin else "tray", exist_ok=True, verbose=False, plots=False)
+    best = Path(model.trainer.last if small else model.trainer.best)
     weights_out.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy(best, weights_out)
     _MODELS.clear()
@@ -354,6 +361,7 @@ def train(src: Path = PHOTOS_DIR, weights_out: Path = MODEL_PATH, epochs: int = 
         results["demo_cards"] = evaluate_cards(weights_out)
     results["counts"] = counts
     results["epochs"] = epochs
+    results["kept"] = "last round (small set, no early stopping)" if small else "best validation round"
     results["base_weights"] = BASE_WEIGHTS
     results["standin"] = standin
     if write_results and not standin:

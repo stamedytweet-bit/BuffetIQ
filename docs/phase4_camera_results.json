@@ -1,0 +1,94 @@
+{
+  "test_photos": 4,
+  "accuracy": 0.25,
+  "per_level_accuracy": {
+    "empty": 1.0,
+    "low": 0.0,
+    "half": 0.0,
+    "full": 0.0
+  },
+  "confusion": {
+    "levels": [
+      "empty",
+      "low",
+      "half",
+      "full"
+    ],
+    "matrix": [
+      [
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        0
+      ]
+    ]
+  },
+  "share_sure": 0.5,
+  "accuracy_when_sure": 0.5,
+  "off_by_more_than_one_level": 1,
+  "demo_cards": [
+    {
+      "card": "demo_pancakes_full.jpg",
+      "expected": "full",
+      "predicted": "full",
+      "confidence": 0.97,
+      "sure": true
+    },
+    {
+      "card": "demo_pancakes_half.jpg",
+      "expected": "half",
+      "predicted": "half",
+      "confidence": 0.87,
+      "sure": true
+    },
+    {
+      "card": "demo_pancakes_low.jpg",
+      "expected": "low",
+      "predicted": "low",
+      "confidence": 1.0,
+      "sure": true
+    }
+  ],
+  "counts": {
+    "train": {
+      "empty": 6,
+      "low": 6,
+      "half": 6,
+      "full": 6
+    },
+    "val": {
+      "empty": 1,
+      "low": 1,
+      "half": 1,
+      "full": 1
+    },
+    "test": {
+      "empty": 1,
+      "low": 1,
+      "half": 1,
+      "full": 1
+    }
+  },
+  "epochs": 100,
+  "kept": "last round (small set, no early stopping)",
+  "base_weights": "yolo26n-cls.pt",
+  "standin": false
+}

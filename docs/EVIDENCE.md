@@ -14,7 +14,7 @@ This file collects every metric, chart and test result in one place for the show
 | Minutes a dish was empty (65 days) | 6.9 a day against 12.9 | Phase 5 |
 | Ask BuffetIQ, scripted questions | 20 of 20 match the board typed, 20 of 20 spoken (median 0.83 seconds); 10 of 10 on added topics | Phase 6 |
 | Forecast learning | Error 7.3% with 1 month of history, 3.3% with 10 months, on the same test days | Phase 7 |
-| Camera tray check | Waiting for training images; no accuracy reported yet | Phase 4 |
+| Camera tray check | 3 of 3 printed demo cards right; 1 of 4 held-out grid photos right (32 AI-generated training photos, too few for a reliable accuracy) | Phase 4 |
 | Gemini answers | Waiting for an API key | Phase 6 |
 | Tests | 235 automated tests pass | All |
 
@@ -124,13 +124,24 @@ The 23 tests in `tests/test_guest_flow.py` check the Quiet, Moderate and Busy th
 
 ## Phase 4: camera tray check
 
-This section will report how accurately the camera model judges tray levels from photos it has never seen. The test accuracy and confusion matrix are written to `docs/phase4_camera_results.json` and `docs/charts/phase4_confusion_matrix.png` by `notebooks/01_train_camera_model.ipynb` once the AI-generated images are in (8 per level, cut from two Gemini grids per level; see `docs/GENERATED_PHOTOS.md`). With 32 photos, about 4 are held back for testing, so each mistake moves the test accuracy by about 25 percentage points, and photos cut from the same grid share Gemini's lighting and style, which can flatter the score. The four printed demo cards, made separately and never trained on, are therefore reported alongside it as the cleaner check. **Status: waiting for images, so no accuracy is reported yet.**
+This section reports how accurately the camera model judges tray levels from images it has never seen. The model was trained on 23 November 2026 on AI-generated images: eight 2 by 2 grids made in the Gemini app (two per level, see `docs/GENERATED_PHOTOS.md`), cut into 32 photos, 8 per level. Results are in `docs/phase4_camera_results.json` and `docs/charts/phase4_confusion_matrix.png`. All images are AI-generated, not real phone photos, so these numbers say how the model handles Gemini's trays, not a real buffet.
+
+| Check | Images | Right | Notes |
+| --- | --- | --- | --- |
+| Held-out test photos, cut from the grids | 4 (1 per level) | 1 of 4 (25%) | Empty right; the three noodle trays in the patterned foil tray were wrong (Low read as Full, Half as Low, Full as Half) |
+| Printed demo cards, made separately, never trained on | 3 (Low, Half, Full) | 3 of 3 | 100%, 87% and 97% sure; the Empty card was not made |
+
+The two checks disagree, and with so few images neither is a reliable accuracy: each test photo is worth 25 percentage points, and all three test errors are one dish in one tray, whose pressed foil pattern and tangled noodles look alike at every level. The 60% confidence rule caught two of the three errors (shown as "Not sure about this one", so nothing reached the board), but Half read as Low at 83% would have been sent. One error was more than one level off (Low read as Full, at 55%, so not sent). The honest summary is that the camera works on the demo cards and is unreliable on the hardest dish, so "Wrong level? Fix it" remains part of the design, not only a backup. More grids per level are the clearest way to improve it.
+
+The first training run kept the round with the best validation score and stopped early. With one validation photo per level, that score is noise, so it kept round 1 (before the model had learned much) and scored 25% on the test photos and 2 of 3 demo cards. Training on sets with fewer than 5 validation photos per level now runs a fixed 100 rounds and keeps the last one. That rule was chosen for the small set before seeing the second result and applied once; it was not adjusted against the test photos or the demo cards.
+
+The weakness found with the stand-in model remains: a plain grey image is read as Full at 53% (not sent) and a plain white one as Full at 68% (sent). A confidence threshold catches photos the model finds ambiguous, not photos of something that is not a tray, so runners still need to glance at the result.
 
 The photos are split 70% for training, 15% for validation (used only to pick the best training round) and 15% for testing, with each level's share kept in every part, so the test photos are never seen in training. Ultralytics' own automatic split (80% training, 20% validation) was not used, because it would leave no untouched test photos.
 
 Before the photos exist, the pipeline was checked end to end with a throwaway model trained on 240 computer-drawn tray images. Its accuracy is not reported, because drawn trays say nothing about real ones. With it, an automated browser test on a 390 x 844 phone screen confirmed that "Check tray" opens the phone camera, a photo of a low tray returns "Low" with a confidence pill and "About 0.4 kg left of 2.5 kg", the kitchen board's egg card changes to Low within 5 seconds, "Wrong level? Fix it" saves the photo into the corrected level's folder, the manual buttons work on another station, and "Record leftovers" writes to the service log without changing the board.
 
-One weakness showed up: a plain grey image, which is not a tray at all, was classified as Empty with 85% confidence. A confidence threshold only catches photos the model finds ambiguous, not photos of something else entirely, so runners still need to look at the result. We will check whether the model trained on real photos behaves the same way.
+With the stand-in model, a plain grey image, which is not a tray at all, was classified as Empty with 85% confidence; the trained model's behaviour on such images is reported above.
 
 The 16 tests in `tests/test_camera.py` check the amount formula (pan capacity times 0, 0.15, 0.5 or 0.9), the wording against the design, that results below 60% confidence are not sent, that a missing model falls back to the manual buttons, that sure, manual and leftover results reach the board or the history correctly, that the log holds no guest data, that corrections are saved in the right folder, that the split keeps every level in each part with no overlap, and that the photo check flags shortfalls and copies.
 
