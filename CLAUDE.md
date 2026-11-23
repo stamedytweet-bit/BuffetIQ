@@ -10,11 +10,11 @@ The interface is already designed and approved. The screens are in `design/` (se
 
 ## Hard constraints
 
-- Free tools only. No paid APIs and no billing accounts.
+- Free tools only. No paid APIs and no billing accounts. One agreed exception: the showcase is hosted on a Hugging Face Space under the owner's existing PRO account (free CPU Basic hardware).
 - Hardware is one laptop, a TV or projector, and the team's phones. There are no scales, sensors or fixed cameras, so phone cameras, the laptop webcam and the laptop microphone are the only inputs.
-- The same code must run in two places: locally in VS Code on CPU for development, and in Google Colab Pro on GPU for training and for the showcase.
+- The same code must run in three places: locally in VS Code on CPU for development, on a Hugging Face Space (CPU) for the showcase, and in Google Colab Pro on GPU for training and as a spare.
 - All data is synthetic. Label it "Fictional data" wherever it appears on screen, and label every result "Simulated on fictional data".
-- Secrets: read `GEMINI_API_KEY` from an environment variable locally and from Colab Secrets in Colab. Never write a key into code, notebooks, logs or commits, and keep `.env` in `.gitignore`.
+- Secrets: read `GEMINI_API_KEY` from an environment variable locally, from the Space's secrets on Hugging Face, and from Colab Secrets in Colab. Never write a key into code, notebooks, logs or commits, and keep `.env` in `.gitignore`.
 - Model names: read the Gemini model ID from `GEMINI_MODEL`. Do not hardcode one, because Google renames and retires models often. Tell us to copy the current free-tier Flash or Flash-Lite model ID from Google AI Studio.
 - Privacy: never send personal data to an external API. Only dish names, quantities and times may leave the machine. Room numbers stay local and are deleted after checkout in the simulation.
 - Every AI feature must still work, in a simpler form, when its model, key, microphone or internet connection is missing (see Fallbacks).
@@ -139,4 +139,4 @@ Accessibility (non-negotiable): every tap target is at least 44px (56px for runn
 - No Gemini key, or the free tier is rate limited: a rule-based intent parser that answers the same question types from the same functions, and the status pill on Ask BuffetIQ reads "Basic answers" so chefs know.
 - No microphone: typed questions.
 - No internet for gTTS: text answers only.
-- Colab or Wi-Fi fails on the day: the README links to a backup screen recording.
+- The Space, Colab or Wi-Fi fails on the day: the laptop copy, then the backup screen recording linked in the README.

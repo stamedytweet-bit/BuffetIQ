@@ -195,9 +195,11 @@ def test_app_builds_with_all_pages():
 # ---- secrets ----
 
 def test_no_api_keys_committed():
-    pattern = re.compile(r"AIza[0-9A-Za-z_\-]{30,}")
+    pattern = re.compile(r"AIza[0-9A-Za-z_\-]{30,}|hf_[0-9A-Za-z]{30,}")   # Gemini and Hugging Face keys
     for path in ROOT.rglob("*"):
-        if path.is_file() and ".git" not in path.parts and path.suffix in {".py", ".md", ".yaml", ".txt", ".ipynb", ".toml", ".cfg"}:
+        if path.name == ".env" or ".venv" in path.parts:
+            continue
+        if path.is_file() and ".git" not in path.parts and path.suffix in {".py", ".md", ".yaml", ".yml", ".txt", ".ipynb", ".toml", ".cfg"}:
             assert not pattern.search(path.read_text(encoding="utf-8", errors="ignore")), path
 
 

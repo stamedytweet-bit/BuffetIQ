@@ -21,6 +21,9 @@ models/*
 !models/.gitkeep
 *.pt
 runs/
+# The camera models are small (about 3 MB) and the Space needs them
+!models/tray_cls_standin.pt
+!models/tray_cls.pt
 
 # Tray photos are large; keep folders, not images
 tray_photos/**/*.jpg

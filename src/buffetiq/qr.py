@@ -4,7 +4,8 @@ The link is worked out from the address the presenter used to open the About
 page, so it works on a laptop on the hotel Wi-Fi and through a Colab share link.
 When the page was opened as 127.0.0.1 or localhost, a phone could not reach that
 address, so the laptop's address on the local network is used instead (the app
-must then be started with --host 0.0.0.0). BUFFETIQ_PUBLIC_URL overrides both.
+must then be started with --host 0.0.0.0). On a Hugging Face Space the Space's
+own https address is used. BUFFETIQ_PUBLIC_URL overrides all of these.
 
 Print:  python -m buffetiq.qr --url http://192.168.1.20:7860/guest   (from src)
 """
@@ -43,6 +44,8 @@ def lan_ip() -> str:
 def guest_url(host: str | None = None, scheme: str = "http") -> str:
     """The address a guest's phone should open."""
     override = os.environ.get("BUFFETIQ_PUBLIC_URL")
+    if not override and os.environ.get("SPACE_HOST"):
+        override = "https://" + os.environ["SPACE_HOST"]
     if override:
         return override.rstrip("/") + GUEST_PATH
     host = host or "127.0.0.1:7860"

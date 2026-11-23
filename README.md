@@ -74,7 +74,7 @@ python app.py --host 0.0.0.0
 
 Ask BuffetIQ works without a Gemini key, giving "Basic answers". For Gemini answers, create a free key at aistudio.google.com (Get API key), copy `.env.example` to `.env`, and fill in `GEMINI_API_KEY` and `GEMINI_MODEL` (copy the current free-tier Flash or Flash-Lite model ID from Google AI Studio). Git ignores `.env`, so the key never reaches GitHub. Restart the app after changing it.
 
-Browsers allow the microphone only on secure links: it works on the laptop at `127.0.0.1` and through a Colab share link, but not on a phone opening `http://192.168.x.x`, where the page offers typing instead.
+Browsers allow the microphone only on secure links: it works on the laptop at `127.0.0.1`, on the Hugging Face Space and through a Colab share link, but not on a phone opening `http://192.168.x.x`, where the page offers typing instead.
 
 ## Try the guest page on a phone
 
@@ -88,7 +88,20 @@ Browsers allow the microphone only on secure links: it works on the laptop at `1
 3. On the laptop, open http://127.0.0.1:7860/about and click "Show the guest QR code". It shows the laptop's network address, such as `http://192.168.1.28:7860/guest`. If macOS asks whether to allow incoming connections, click Allow.
 4. Scan the code with the phone's camera. The page opens without the kitchen pages, and a booking appears on the kitchen board within 5 seconds.
 
-"Download sleeve insert (PNG)" saves an 85 x 55 mm card to print for the mock key-card sleeve. Some school or office Wi-Fi networks block phones from reaching laptops; a phone hotspot or the Colab share link avoids that.
+"Download sleeve insert (PNG)" saves an 85 x 55 mm card to print for the mock key-card sleeve. Some school or office Wi-Fi networks block phones from reaching laptops; a phone hotspot, the Hugging Face Space or the Colab share link avoids that.
+
+## Run it online (Hugging Face Space)
+
+The showcase copy runs on a Hugging Face Space, a hosted page that runs the same `app.py` as the laptop on Hugging Face's computers. Its address never changes, so the printed QR codes keep working, and it is a secure (https) link, so the phone microphone and camera work for every phone. Hosting runs on the free CPU Basic hardware (2 processors, 16 GB of memory); since July 2026 creating a Gradio Space on it needs a Hugging Face PRO account, which the project owner has.
+
+Set it up once:
+
+1. On huggingface.co, open Settings, then Access Tokens, and create a token with **Write** permission. Never paste it into code, chat or a commit.
+2. In the GitHub repository, open Settings, then Secrets and variables, then Actions. Add a **secret** `HF_TOKEN` with the token, and a **variable** `HF_SPACE` with the Space name, such as `your-username/buffetiq`.
+3. Publish: every push to `main` now publishes the Space through `.github/workflows/deploy-space.yml`, and the Actions tab has a **Run workflow** button. To publish from the laptop instead, add `HF_TOKEN=...` to the git-ignored `.env` file and run `python deploy/push_to_space.py --space your-username/buffetiq`. Either way, only files that git tracks are sent, so `.env` never leaves the laptop.
+4. On the Space page, open Settings, then Variables and secrets. Add a **secret** `GEMINI_API_KEY` and a **variable** `GEMINI_MODEL` (the current free-tier Flash or Flash-Lite model ID from Google AI Studio). Without them, Ask BuffetIQ uses basic answers.
+
+The pages are then at `https://your-username-buffetiq.hf.space/` (kitchen board), `/runner`, `/guest`, `/report` and `/about`. On a Space the app opens the showcase morning by itself. Three things to know: the Space sleeps after a period with no visitors and takes a few minutes to wake, so open it about 10 minutes before the demo; bookings, service logs and retraining are wiped whenever the Space restarts, which is fine for a demo; and anyone with the link can open every page, so never enter real guest data.
 
 ## Run it in Google Colab
 
@@ -119,9 +132,10 @@ src/buffetiq/state.py  shared state for all pages, with a lock
 src/buffetiq/ui/       one module per page, plus sample.py with the screenshot data
 tests/                 pytest checks
 docs/                  assumptions, evidence and the demo script
+deploy/                publishing to the Hugging Face Space
 ```
 
-## Backup video if Wi-Fi or Colab fails
+## Backup video if Wi-Fi, the Space or Colab fails
 
 Record a three-minute screen video a few days before the showcase, so the demo can still be shown if the network fails. Link it here once it is uploaded: **Backup video: (add the link)**.
 

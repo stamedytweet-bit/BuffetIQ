@@ -1,0 +1,24 @@
+# Publishes BuffetIQ to its Hugging Face Space on every push to main.
+# Needs, in the GitHub repository settings (Settings, Secrets and variables, Actions):
+#   secret   HF_TOKEN   a Hugging Face access token with write permission
+#   variable HF_SPACE   the Space, such as your-username/buffetiq
+name: Deploy to Hugging Face Space
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    if: ${{ vars.HF_SPACE != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "huggingface_hub>=0.25" python-dotenv
+      - run: python deploy/push_to_space.py --space "${{ vars.HF_SPACE }}"
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}

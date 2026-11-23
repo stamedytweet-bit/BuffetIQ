@@ -2,6 +2,8 @@
 
 Run locally:  python app.py          (opens on http://127.0.0.1:7860)
 In Colab:     python app.py --share  (or use notebooks/run_in_colab.ipynb)
+On a Hugging Face Space the app listens on 0.0.0.0 and opens the showcase
+morning by itself (see deploy/push_to_space.py).
 """
 
 from __future__ import annotations
@@ -46,6 +48,19 @@ def in_colab() -> bool:
     return "google.colab" in sys.modules or "COLAB_RELEASE_TAG" in os.environ
 
 
+def on_space() -> bool:
+    """True when running on a Hugging Face Space, which sets SPACE_ID."""
+    return bool(os.environ.get("SPACE_ID"))
+
+
+def public_url() -> str | None:
+    """The address people open: BUFFETIQ_PUBLIC_URL, or the Space's own address."""
+    if os.environ.get("BUFFETIQ_PUBLIC_URL"):
+        return os.environ["BUFFETIQ_PUBLIC_URL"].rstrip("/")
+    host = os.environ.get("SPACE_HOST")
+    return f"https://{host}" if host else None
+
+
 def launch(share: bool = False, host: str = "127.0.0.1", port: int = 7860, at: str | None = None,
            showcase_morning: bool = False, block: bool = True) -> dict:
     """Prepare the service and start the app. Returns the local and share links for each page."""
@@ -68,9 +83,10 @@ def launch(share: bool = False, host: str = "127.0.0.1", port: int = 7860, at: s
         head=style.HEAD,
         js=style.JS,
         footer_links=[],
+        ssr_mode=False,   # Spaces turn server-side rendering on by default; the pages' own scripts expect it off
         prevent_thread_lock=True,
     )
-    base = (share_url or local_url).rstrip("/")
+    base = (share_url or public_url() or local_url).rstrip("/")
     links = {name: base + (path if path != "/" else "/") for name, path in PAGES.items()}
     print("\nBuffetIQ pages:")
     for name, url in links.items():
@@ -85,15 +101,17 @@ def launch(share: bool = False, host: str = "127.0.0.1", port: int = 7860, at: s
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Launch the BuffetIQ prototype.")
     parser.add_argument("--share", action="store_true", help="create a public Gradio share link (used in Colab)")
-    parser.add_argument("--port", type=int, default=int(os.environ.get("BUFFETIQ_PORT", 7860)))
-    parser.add_argument("--host", default=os.environ.get("BUFFETIQ_HOST", "127.0.0.1"),
+    parser.add_argument("--port", type=int,
+                        default=int(os.environ.get("BUFFETIQ_PORT") or os.environ.get("GRADIO_SERVER_PORT") or 7860))
+    parser.add_argument("--host", default=os.environ.get("BUFFETIQ_HOST") or ("0.0.0.0" if on_space() else "127.0.0.1"),
                         help="use 0.0.0.0 so phones on the same Wi-Fi can open the pages")
     parser.add_argument("--at", metavar="HH:MM",
                         help="replay the morning up to this time first, such as 08:40 (simulated guests and trays)")
     parser.add_argument("--showcase", action="store_true",
                         help="start with the prepared showcase morning (82%% occupancy, tour group at 07:45)")
     args = parser.parse_args(argv)
-    launch(share=args.share, host=args.host, port=args.port, at=args.at, showcase_morning=args.showcase)
+    showcase_morning = args.showcase or on_space() or os.environ.get("BUFFETIQ_SHOWCASE") == "1"
+    launch(share=args.share, host=args.host, port=args.port, at=args.at, showcase_morning=showcase_morning)
 
 
 if __name__ == "__main__":
