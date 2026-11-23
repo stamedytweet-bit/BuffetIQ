@@ -7,7 +7,7 @@ This script runs the five-minute BuffetIQ showcase demo with one presenter, a la
 1. Open the Hugging Face Space (`https://your-username-buffetiq.hf.space/about`) about 10 minutes early so it is awake; it opens the showcase morning by itself. If the Space is down, start the app in Colab with `notebooks/run_in_colab.ipynb` (cell 4 loads the showcase morning and prints the links) or on the laptop with `python app.py --host 0.0.0.0 --showcase`.
 2. On the laptop, open the kitchen board (`/`) on the TV and press F11 for full screen. Open the About page (`/about`) in a second window on the laptop screen for the presenter controls.
 3. On your phone, open the runner page (`/runner`). On the Space or a Colab share link the microphone works; on the laptop's Wi-Fi address it does not, so type questions there instead.
-4. Put the printed key-card sleeve (guest QR code) on the table, and have a small foil tray with a few pieces of food or props ready to photograph as a nearly empty pancake tray.
+4. Put the printed key-card sleeve (guest QR code) on the table, with the four printed pancake tray cards (A5, matte, from `docs/GENERATED_PHOTOS.md`) face down beside it, the Low card on top.
 5. On the About page, click **Load showcase morning**. The status line should read "Showcase morning · Tuesday 24 November · clock 06:15 · Paused · 0 diners so far · expected 277".
 
 ## The demo (5 minutes)
@@ -32,9 +32,9 @@ This script runs the five-minute BuffetIQ showcase demo with one presenter, a la
 
 ### 4. A tray check by phone (2:00 to 2:50)
 
-**Do:** On the About page, jump to **08:40**. On your phone, in **Tray check**, tap **Change station** once (Live station, Pancakes), tap **Check tray** and photograph the nearly empty tray. The phone shows **Low** with how sure it is, and "Kitchen board updated · Pancakes: tray low". If the result is wrong or unsure, tap **Wrong level? Fix it** and choose **Low**, which is the backup for a real kitchen too.
+**Do:** On the About page, jump to **08:40**. On your phone, in **Tray check**, tap **Change station** once (Live station, Pancakes), turn over the Low tray card, tap **Check tray** and photograph the card from about 40 cm so it fills the frame. The phone shows **Low** with how sure it is, and "Kitchen board updated · Pancakes: tray low". If the result is wrong or unsure, tap **Wrong level? Fix it** and choose **Low**, which is the backup for a real kitchen too.
 
-**Say:** "A runner photographs a tray instead of weighing it. A small image model judges the level, and only a sure result reaches the board." Point at the pancake card on the TV, which now reads **Low · Cook 1.5 kg · Now · ready in 6 min** in saffron.
+**Say:** "We are in a classroom, so this printed card stands in for the tray at the pass; the camera has never seen it. A runner photographs a tray instead of weighing it. A small image model judges the level, and only a sure result reaches the board." Point at the pancake card on the TV, which now reads **Low · Cook 1.5 kg · Now · ready in 6 min** in saffron.
 
 ### 5. Ask BuffetIQ (2:50 to 3:30)
 
