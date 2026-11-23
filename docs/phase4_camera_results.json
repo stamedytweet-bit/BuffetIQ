@@ -46,6 +46,13 @@
   "off_by_more_than_one_level": 1,
   "demo_cards": [
     {
+      "card": "demo_pancakes_empty.jpg",
+      "expected": "empty",
+      "predicted": "empty",
+      "confidence": 0.99,
+      "sure": true
+    },
+    {
       "card": "demo_pancakes_full.jpg",
       "expected": "full",
       "predicted": "full",

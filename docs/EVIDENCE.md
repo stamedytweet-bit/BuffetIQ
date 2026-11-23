@@ -14,7 +14,7 @@ This file collects every metric, chart and test result in one place for the show
 | Minutes a dish was empty (65 days) | 6.9 a day against 12.9 | Phase 5 |
 | Ask BuffetIQ, scripted questions | 20 of 20 match the board typed, 20 of 20 spoken (median 0.83 seconds); 10 of 10 on added topics | Phase 6 |
 | Forecast learning | Error 7.3% with 1 month of history, 3.3% with 10 months, on the same test days | Phase 7 |
-| Camera tray check | 3 of 3 printed demo cards right; 1 of 4 held-out grid photos right (32 AI-generated training photos, too few for a reliable accuracy) | Phase 4 |
+| Camera tray check | 4 of 4 printed demo cards right; 1 of 4 held-out grid photos right (32 AI-generated training photos, too few for a reliable accuracy) | Phase 4 |
 | Gemini answers | Waiting for an API key | Phase 6 |
 | Tests | 235 automated tests pass | All |
 
@@ -129,9 +129,9 @@ This section reports how accurately the camera model judges tray levels from ima
 | Check | Images | Right | Notes |
 | --- | --- | --- | --- |
 | Held-out test photos, cut from the grids | 4 (1 per level) | 1 of 4 (25%) | Empty right; the three noodle trays in the patterned foil tray were wrong (Low read as Full, Half as Low, Full as Half) |
-| Printed demo cards, made separately, never trained on | 3 (Low, Half, Full) | 3 of 3 | 100%, 87% and 97% sure; the Empty card was not made |
+| Printed demo cards, made separately, never trained on | 4 (one per level) | 4 of 4 | Empty 99%, Low 100%, Half 87% and Full 97% sure; the Empty card was scored after training, with the same model |
 
-The two checks disagree, and with so few images neither is a reliable accuracy: each test photo is worth 25 percentage points, and all three test errors are one dish in one tray, whose pressed foil pattern and tangled noodles look alike at every level. The 60% confidence rule caught two of the three errors (shown as "Not sure about this one", so nothing reached the board), but Half read as Low at 83% would have been sent. One error was more than one level off (Low read as Full, at 55%, so not sent). The honest summary is that the camera works on the demo cards and is unreliable on the hardest dish, so "Wrong level? Fix it" remains part of the design, not only a backup. More grids per level are the clearest way to improve it.
+The two checks disagree, and with so few images neither is a reliable accuracy: each test photo is worth 25 percentage points, and all three test errors are one dish in one tray, whose pressed foil pattern and tangled noodles look alike at every level. The 60% confidence rule caught two of the three errors (shown as "Not sure about this one", so nothing reached the board), but Half read as Low at 83% would have been sent. One error was more than one level off (Low read as Full, at 55%, so not sent). The honest summary is that the camera reads all four demo cards correctly and is unreliable on the hardest dish, so "Wrong level? Fix it" remains part of the design, not only a backup. More grids per level are the clearest way to improve it.
 
 The first training run kept the round with the best validation score and stopped early. With one validation photo per level, that score is noise, so it kept round 1 (before the model had learned much) and scored 25% on the test photos and 2 of 3 demo cards. Training on sets with fewer than 5 validation photos per level now runs a fixed 100 rounds and keeps the last one. That rule was chosen for the small set before seeing the second result and applied once; it was not adjusted against the test photos or the demo cards.
 
