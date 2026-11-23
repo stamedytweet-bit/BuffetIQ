@@ -693,6 +693,12 @@ REPORT_CSS = """
 .ab-presenter { gap: 14px !important; }
 .ab-status { margin: 0; font-size: 15px; line-height: 1.5; color: var(--bq-text); background: var(--bq-teal-tint);
   border-radius: 12px; padding: 12px 16px; }
+.ab-pass { min-width: 260px !important; }
+.ab-pass input { min-height: 48px !important; height: 48px !important; border-radius: 12px !important;
+  border: 1.5px solid var(--bq-border-strong) !important; background-color: var(--bq-surface) !important; padding: 0 14px !important;
+  font-size: 17px !important; color: var(--bq-text) !important; box-shadow: none !important; }
+.ab-pass .input-container { background-color: transparent !important; }
+.ab-lock-note { margin: 4px 0 0; font-size: 15px; line-height: 1.5; color: var(--bq-text); }
 .ab-controls { align-items: flex-end !important; }
 .ab-field { min-width: 180px !important; }
 .ab-speed .wrap { gap: 8px !important; }

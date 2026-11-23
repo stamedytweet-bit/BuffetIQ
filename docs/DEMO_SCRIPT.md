@@ -5,7 +5,7 @@ This script runs the five-minute BuffetIQ showcase demo with one presenter, a la
 ## Set up before the assessors arrive (10 minutes)
 
 1. Open the Hugging Face Space (`https://your-username-buffetiq.hf.space/about`) about 10 minutes early so it is awake; it opens the showcase morning by itself. If the Space is down, start the app in Colab with `notebooks/run_in_colab.ipynb` (cell 4 loads the showcase morning and prints the links) or on the laptop with `python app.py --host 0.0.0.0 --showcase`.
-2. On the laptop, open the kitchen board (`/`) on the TV and press F11 for full screen. Open the About page (`/about`) in a second window on the laptop screen for the presenter controls.
+2. On the laptop, open the kitchen board (`/`) on the TV and press F11 for full screen. Open the About page (`/about`) in a second window on the laptop screen, type the presenter passcode and click **Unlock controls**.
 3. On your phone, open the runner page (`/runner`). On the Space or a Colab share link the microphone works; on the laptop's Wi-Fi address it does not, so type questions there instead.
 4. Put the printed key-card sleeve (guest QR code) on the table, with the four printed pancake tray cards (A5, matte, from `docs/GENERATED_PHOTOS.md`) face down beside it, the Low card on top.
 5. On the About page, click **Load showcase morning**. The status line should read "Showcase morning · Tuesday 24 November · clock 06:15 · Paused · 0 diners so far · expected 277".

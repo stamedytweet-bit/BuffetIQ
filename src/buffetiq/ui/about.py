@@ -5,6 +5,10 @@ no approved design for this page, so it reuses the report's cards and type.
 
 from __future__ import annotations
 
+import hmac
+import os
+import time
+
 import gradio as gr
 
 from buffetiq import qr, state
@@ -92,6 +96,60 @@ def make_qr(request: gr.Request):
     return qr.qr_image(url), link, gr.update(value=str(path), visible=True)
 
 
+# ---------------------------------------------------------------------------
+# Presenter passcode
+# ---------------------------------------------------------------------------
+# On a public link (the Hugging Face Space) anyone could press Reset or Jump during the demo, so the
+# presenter controls stay locked until the passcode in BUFFETIQ_PASSCODE is entered. On the laptop with
+# no passcode set they are open, as before. Each browser session unlocks separately, every control checks
+# the session on the server, and five wrong tries lock the box for a minute.
+
+MAX_TRIES = 5
+LOCKOUT_S = 60
+
+
+try:  # on the laptop the passcode can sit in the git-ignored .env file
+    from dotenv import load_dotenv
+
+    load_dotenv(state.ROOT / ".env")
+except ImportError:  # pragma: no cover
+    pass
+
+
+def passcode() -> str:
+    return os.environ.get("BUFFETIQ_PASSCODE", "").strip()
+
+
+def passcode_required() -> bool:
+    return bool(passcode()) or bool(os.environ.get("SPACE_ID"))
+
+
+def new_session() -> dict:
+    return {"open": not passcode_required(), "tries": 0, "until": 0.0}
+
+
+def try_passcode(session: dict, entered: str, now: float | None = None) -> tuple[dict, str]:
+    """Check a passcode for one browser session. Returns the new session and a message for the page."""
+    now = time.time() if now is None else now
+    session = dict(session or new_session())
+    code = passcode()
+    if not code:
+        return session, "No passcode is set. Add BUFFETIQ_PASSCODE to the Space secrets (or .env), then restart."
+    if now < session["until"]:
+        return session, f"Too many wrong tries. Wait {int(session['until'] - now) + 1} seconds, then try again."
+    if hmac.compare_digest((entered or "").strip().encode(), code.encode()):
+        return {"open": True, "tries": 0, "until": 0.0}, ""
+    session["tries"] += 1
+    if session["tries"] >= MAX_TRIES:
+        session["tries"], session["until"] = 0, now + LOCKOUT_S
+        return session, f"Too many wrong tries. Wait {LOCKOUT_S} seconds, then try again."
+    return session, "That passcode is not right. Check it and try again."
+
+
+def _note(text: str) -> str:
+    return check_copy(f'<p class="ab-lock-note" role="status">{esc(text)}</p>') if text else ""
+
+
 SPEED_LABELS = ["Paused", "1x", "2x", "5x", "10x"]
 JUMP_TIMES = ["06:15", "06:30", "07:00", "07:30", "07:45", "08:00", "08:15", "08:40", "09:00", "09:30", "09:50",
               "10:15", "10:30"]
@@ -127,20 +185,41 @@ def build_page(pages: dict) -> dict:
             with gr.Column(elem_classes=["ab-section", "ab-presenter"]):
                 gr.HTML(PRESENTER_INTRO)
                 status = gr.HTML(render_status)
-                with gr.Row(elem_classes=["rp-actions"]):
-                    load_btn = gr.Button("Load showcase morning", elem_classes=["bq-btn", "rp-primary"])
-                    reset_btn = gr.Button("Reset to 06:15", elem_classes=["bq-btn", "rp-secondary"])
-                with gr.Row(elem_classes=["rp-actions", "ab-controls"]):
-                    jump_to = gr.Dropdown(JUMP_TIMES, value="07:45", label="Jump to", elem_classes=["ab-field"])
-                    jump_btn = gr.Button("Jump", elem_classes=["bq-btn", "rp-secondary"])
-                    speed = gr.Radio(list(SPEED_LABELS), value="Paused", label="Clock speed",
-                                     elem_classes=["ab-field", "ab-speed"])
-                with gr.Row(elem_classes=["rp-actions"]):
-                    plus1 = gr.Button("Log arrivals +1", elem_classes=["bq-btn", "rp-secondary"])
-                    plus10 = gr.Button("Log arrivals +10", elem_classes=["bq-btn", "rp-secondary"])
+                session = gr.State(new_session)
+                with gr.Column(visible=passcode_required()) as lock_box:
+                    with gr.Row(elem_classes=["rp-actions", "ab-controls"]):
+                        code_in = gr.Textbox(label="Presenter passcode", type="password", max_lines=1,
+                                             elem_classes=["ab-field", "ab-pass"])
+                        unlock_btn = gr.Button("Unlock controls", elem_classes=["bq-btn", "rp-primary"])
+                    lock_note = gr.HTML("")
+                with gr.Column(visible=not passcode_required()) as controls:
+                    with gr.Row(elem_classes=["rp-actions"]):
+                        load_btn = gr.Button("Load showcase morning", elem_classes=["bq-btn", "rp-primary"])
+                        reset_btn = gr.Button("Reset to 06:15", elem_classes=["bq-btn", "rp-secondary"])
+                    with gr.Row(elem_classes=["rp-actions", "ab-controls"]):
+                        jump_to = gr.Dropdown(JUMP_TIMES, value="07:45", label="Jump to", elem_classes=["ab-field"])
+                        jump_btn = gr.Button("Jump", elem_classes=["bq-btn", "rp-secondary"])
+                        speed = gr.Radio(list(SPEED_LABELS), value="Paused", label="Clock speed",
+                                         elem_classes=["ab-field", "ab-speed"])
+                    with gr.Row(elem_classes=["rp-actions"]):
+                        plus1 = gr.Button("Log arrivals +1", elem_classes=["bq-btn", "rp-secondary"])
+                        plus10 = gr.Button("Log arrivals +10", elem_classes=["bq-btn", "rp-secondary"])
             gr.HTML(ABOUT_END)
     ticker = gr.Timer(2)
     ticker.tick(render_status, None, status, show_progress="hidden", queue=False)
+
+    def unlock(sess, entered):
+        sess, msg = try_passcode(sess, entered)
+        return (sess, gr.update(visible=not sess["open"]), gr.update(visible=sess["open"]),
+                _note(msg), gr.update(value=""))
+
+    def guarded(fn, with_speed: bool = False):
+        """Run a control only for a session that has entered the passcode; otherwise change nothing."""
+        def run(sess, *args):
+            if not (sess or {}).get("open"):
+                return (render_status(), gr.update()) if with_speed else render_status()
+            return fn(*args)
+        return run
 
     def load():
         from buffetiq import showcase
@@ -174,11 +253,13 @@ def build_page(pages: dict) -> dict:
         state.service().log_arrivals(n)
         return render_status()
 
-    load_btn.click(load, None, [status, speed])
-    reset_btn.click(do_reset, None, [status, speed])
-    jump_btn.click(jump, jump_to, status)
-    speed.change(set_speed, speed, status)
-    plus1.click(lambda: log(1), None, status)
-    plus10.click(lambda: log(10), None, status)
+    unlock_btn.click(unlock, [session, code_in], [session, lock_box, controls, lock_note, code_in])
+    code_in.submit(unlock, [session, code_in], [session, lock_box, controls, lock_note, code_in])
+    load_btn.click(guarded(load, with_speed=True), session, [status, speed])
+    reset_btn.click(guarded(do_reset, with_speed=True), session, [status, speed])
+    jump_btn.click(guarded(jump), [session, jump_to], status)
+    speed.change(guarded(set_speed), [session, speed], status)
+    plus1.click(guarded(lambda: log(1)), session, status)
+    plus10.click(guarded(lambda: log(10)), session, status)
     show_btn.click(make_qr, None, [code, link, sleeve_btn])
     return {"body": body, "qr": code}

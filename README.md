@@ -99,9 +99,9 @@ Set it up once:
 1. On huggingface.co, open Settings, then Access Tokens, and create a token with **Write** permission. Never paste it into code, chat or a commit.
 2. In the GitHub repository, open Settings, then Secrets and variables, then Actions. Add a **secret** `HF_TOKEN` with the token, and a **variable** `HF_SPACE` with the Space name, such as `your-username/buffetiq`.
 3. Publish: every push to `main` now publishes the Space through `.github/workflows/deploy-space.yml`, and the Actions tab has a **Run workflow** button. To publish from the laptop instead, add `HF_TOKEN=...` to the git-ignored `.env` file and run `python deploy/push_to_space.py --space your-username/buffetiq`. Either way, only files that git tracks are sent, so `.env` never leaves the laptop.
-4. On the Space page, open Settings, then Variables and secrets. Add a **secret** `GEMINI_API_KEY` and a **variable** `GEMINI_MODEL` (the current free-tier Flash or Flash-Lite model ID from Google AI Studio). Without them, Ask BuffetIQ uses basic answers.
+4. On the Space page, open Settings, then Variables and secrets. Add a **secret** `BUFFETIQ_PASSCODE` (the presenter passcode, such as three random words), a **secret** `GEMINI_API_KEY` and a **variable** `GEMINI_MODEL` (the current free-tier Flash or Flash-Lite model ID from Google AI Studio). Without the passcode, the presenter controls on the Space stay locked; without the Gemini settings, Ask BuffetIQ uses basic answers.
 
-The pages are then at `https://your-username-buffetiq.hf.space/` (kitchen board), `/runner`, `/guest`, `/report` and `/about`. On a Space the app opens the showcase morning by itself. Three things to know: the Space sleeps after a period with no visitors and takes a few minutes to wake, so open it about 10 minutes before the demo; bookings, service logs and retraining are wiped whenever the Space restarts, which is fine for a demo; and anyone with the link can open every page, so never enter real guest data.
+The pages are then at `https://your-username-buffetiq.hf.space/` (kitchen board), `/runner`, `/guest`, `/report` and `/about`. On a Space the app opens the showcase morning by itself. Three things to know: the Space sleeps after a period with no visitors and takes a few minutes to wake, so open it about 10 minutes before the demo; bookings, service logs and retraining are wiped whenever the Space restarts, which is fine for a demo; and anyone with the link can open every page, so never enter real guest data. Only the About page's presenter controls are behind the passcode; the kitchen board and runner buttons stay open because the demo needs them.
 
 ## Run it in Google Colab
 
@@ -113,7 +113,7 @@ Open `notebooks/run_in_colab.ipynb` in Colab (File, then Open notebook, then the
 python app.py --host 0.0.0.0 --showcase
 ```
 
-This loads the prepared showcase morning: a fictional Tuesday 24 November at 82% occupancy, with an unannounced tour group of 24 arriving at 07:45. The About page (`/about`) holds the presenter controls: **Load showcase morning**, **Reset to 06:15**, **Jump to** a time, the clock speed (paused, 1x, 2x, 5x or 10x), and **Log arrivals +1** or **+10**. Simulated guests arrive and a simulated runner checks every tray every 15 minutes, while real taps, photos and questions are added on top. The five-minute demo is in `docs/DEMO_SCRIPT.md`.
+This loads the prepared showcase morning: a fictional Tuesday 24 November at 82% occupancy, with an unannounced tour group of 24 arriving at 07:45. The About page (`/about`) holds the presenter controls, locked behind the passcode in `BUFFETIQ_PASSCODE` when one is set (always on the Space; open on the laptop if it is left empty). Each browser unlocks separately, and five wrong tries lock the box for a minute. The controls are: **Load showcase morning**, **Reset to 06:15**, **Jump to** a time, the clock speed (paused, 1x, 2x, 5x or 10x), and **Log arrivals +1** or **+10**. Simulated guests arrive and a simulated runner checks every tray every 15 minutes, while real taps, photos and questions are added on top. The five-minute demo is in `docs/DEMO_SCRIPT.md`.
 
 ## Run the tests
 

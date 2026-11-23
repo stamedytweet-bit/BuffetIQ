@@ -74,3 +74,48 @@ def test_a_photo_is_the_truth_for_that_tray(live):
     s.record_tray("pancakes", "low", "camera", 0.91)
     assert s.world.stock["pancakes"] == pytest.approx(0.225)
     assert s.kitchen().calls["pancakes"].action in ("cook", "hold")
+
+
+# ---- presenter passcode ----
+
+from buffetiq.ui import about as about_page  # noqa: E402
+
+
+@pytest.fixture
+def no_space(monkeypatch):
+    monkeypatch.delenv("SPACE_ID", raising=False)
+    monkeypatch.delenv("BUFFETIQ_PASSCODE", raising=False)
+
+
+def test_controls_are_open_on_the_laptop_without_a_passcode(no_space):
+    assert not about_page.passcode_required() and about_page.new_session()["open"]
+
+
+def test_a_space_without_a_passcode_stays_locked(no_space, monkeypatch):
+    monkeypatch.setenv("SPACE_ID", "someone/buffetiq")
+    session = about_page.new_session()
+    assert about_page.passcode_required() and not session["open"]
+    session, msg = about_page.try_passcode(session, "anything")
+    assert not session["open"] and "BUFFETIQ_PASSCODE" in msg
+
+
+def test_right_passcode_unlocks_and_wrong_one_does_not(no_space, monkeypatch):
+    monkeypatch.setenv("BUFFETIQ_PASSCODE", "kaya toast 42")
+    session = about_page.new_session()
+    assert not session["open"]
+    session, msg = about_page.try_passcode(session, "kaya toast")
+    assert not session["open"] and "not right" in msg
+    session, msg = about_page.try_passcode(session, " kaya toast 42 ")
+    assert session["open"] and msg == ""
+
+
+def test_five_wrong_tries_lock_the_box_for_a_minute(no_space, monkeypatch):
+    monkeypatch.setenv("BUFFETIQ_PASSCODE", "kaya toast 42")
+    session = about_page.new_session()
+    for _ in range(about_page.MAX_TRIES):
+        session, msg = about_page.try_passcode(session, "guess", now=1000.0)
+    assert "Wait 60 seconds" in msg
+    session, msg = about_page.try_passcode(session, "kaya toast 42", now=1030.0)
+    assert not session["open"] and "Wait" in msg
+    session, msg = about_page.try_passcode(session, "kaya toast 42", now=1061.0)
+    assert session["open"]
