@@ -169,10 +169,11 @@ It trains on the first 300 days, tests on the last 65, prints the errors against
 
 ## Train the camera model
 
-1. Take the tray photos following `docs/PHOTO_CHECKLIST.md` and put them in `tray_photos/empty`, `low`, `half` and `full`.
-2. From the `src` folder, check them:
+1. Make the training images in the Gemini app with `docs/GENERATED_PHOTOS.md`: eight 2 by 2 grids saved in `tray_photos/grids/` (such as `grid_low_1.png`) and four demo cards in `tray_photos/demo_cards/`. Real phone photos, taken with `docs/PHOTO_CHECKLIST.md`, can go straight into the level folders.
+2. From the `src` folder, cut the grids into photos, look through each level folder, then check them:
 
    ```bash
+   python -m buffetiq.camera grids
    python -m buffetiq.camera check
    ```
 
@@ -182,7 +183,7 @@ It trains on the first 300 days, tests on the last 65, prints the errors against
    python -m buffetiq.camera train
    ```
 
-   This saves `models/tray_cls.pt` and writes the test accuracy and confusion matrix into `docs/`. Restart the app to use it.
+   This saves `models/tray_cls.pt`, writes the test accuracy and confusion matrix into `docs/`, and scores the four demo cards, which the model never trains on. Restart the app to use it, and commit `models/tray_cls.pt` so the Hugging Face Space uses it too.
 
 Until then, `python -m buffetiq.camera standin` trains a stand-in model on computer-drawn trays so the runner page can be tried; the page labels its results as coming from a test model.
 

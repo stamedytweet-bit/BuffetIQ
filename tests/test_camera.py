@@ -137,9 +137,59 @@ def test_photo_check_reports_shortfalls_and_copies(tmp_path):
     r = camera.check_photos(tmp_path)
     assert r["counts"]["low"] == 2 and not r["ready"]
     assert any("copy of" in p for p in r["problems"])
-    assert any("at least 50" in p for p in r["problems"])
+    assert any(f"at least {camera.MIN_PER_LEVEL}" in p for p in r["problems"])
 
 
 def test_photos_are_ignored_by_git():
     ignore = (state.ROOT / ".gitignore").read_text()
     assert "tray_photos/**/*.jpg" in ignore and "*.pt" in ignore
+
+
+# ---- Gemini grids ----
+
+def make_grid(rng, gutter=12, border=8, size=300):
+    """Four stand-in trays in a 2 by 2 grid with white lines between them, like a Gemini grid."""
+    side = 2 * size + gutter + 2 * border
+    grid = Image.new("RGB", (side, side), "white")
+    tiles = [camera.draw_standin(lv, rng, size) for lv in camera.LEVELS]
+    spots = [(border, border), (border + size + gutter, border),
+             (border, border + size + gutter), (border + size + gutter, border + size + gutter)]
+    for tile, spot in zip(tiles, spots):
+        grid.paste(tile, spot)
+    return grid
+
+
+def test_grid_is_cut_into_four_photos_without_the_white_lines():
+    import numpy as np
+
+    tiles = camera.cut_grid(make_grid(random.Random(3)))
+    assert len(tiles) == 4
+    for t in tiles:
+        assert abs(t.width - 300) <= 6 and abs(t.height - 300) <= 6
+        g = np.asarray(t.convert("L"), dtype=float)
+        for edge in (g[0], g[-1], g[:, 0], g[:, -1]):
+            assert edge.mean() < 215, "a white border was left on the photo"
+
+
+def test_grid_without_lines_is_cut_at_the_middle():
+    im = Image.effect_noise((600, 400), 60).convert("RGB")
+    tiles = camera.cut_grid(im)
+    assert [t.size for t in tiles] == [(300, 200)] * 4
+
+
+def test_grids_are_filed_by_the_level_in_their_name(tmp_path):
+    src = tmp_path / "grids"
+    src.mkdir()
+    make_grid(random.Random(4)).save(src / "grid_low_1.png")
+    make_grid(random.Random(5)).save(src / "grid_half_2.png")
+    make_grid(random.Random(6)).save(src / "my_picture.png")
+    r = camera.split_grids(src, tmp_path)
+    assert r["grids"] == 2 and r["photos"]["low"] == 4 and r["photos"]["half"] == 4
+    assert sorted(p.name for p in (tmp_path / "low").iterdir()) == [f"g_low_1_{k}.jpg" for k in range(1, 5)]
+    assert any("my_picture.png" in s for s in r["skipped"])
+
+
+@pytest.mark.parametrize("name,level", [("grid_low_1", "low"), ("demo_pancakes_half", "half"),
+                                        ("g_full_03", "full"), ("grid_1", None), ("low_full", None)])
+def test_level_from_name(name, level):
+    assert camera.level_from_name(name) == level

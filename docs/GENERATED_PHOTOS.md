@@ -1,14 +1,69 @@
 # Generated tray images
 
-These prompts make AI-generated training images for the camera model with the Gemini app, because the project is run by one person and a full photo shoot is not practical. Paste the setup message once at the start of a new Gemini chat, then one prompt at a time, and save each image in its level's folder with the name shown. Images made this way are labelled "AI-generated" in `docs/EVIDENCE.md`, and real phone photos, where available, are used only for testing.
+These prompts make AI-generated training images for the camera model with the Gemini app, because the project is run by one person and a full photo shoot is not practical. To keep the work small, each request asks for one image holding a 2 by 2 grid of four tray photos at the same fill level, so 8 requests give 32 training photos (8 per level), and BuffetIQ cuts each grid into its four photos. Four more single images are made as printed demo cards. That is 12 requests in all. Images made this way are labelled "AI-generated" in `docs/EVIDENCE.md`.
 
-## Setup message (paste once)
+The four dish and container pairs in each grid are the same at every level, so the only thing that changes between levels is how full the trays are, and the model cannot tell the levels apart by the container instead.
 
-> I am making training images for a computer-vision model that judges how full a buffet tray is. For every request, generate exactly one photorealistic image that looks like an ordinary smartphone photo: natural colours, no artistic style, no people, no hands, no text, no logos, no flash glare, and the whole container visible. Follow the fill level exactly, because it is the label. Do not add garnish or extra dishes.
+## Step by step
 
-## Prompts
+1. Start a new Gemini chat and paste the grid setup message once.
+2. Paste the eight grid prompts one at a time. Download each image at full size and save it in `tray_photos/grids/` with the name shown, such as `grid_low_1.png`. The level in the name is the label, so check it before saving. If Gemini draws trays at different levels in one grid, ask it to try again.
+3. Start another new chat, paste the single-photo setup message, then the four demo card prompts. Save them in `tray_photos/demo_cards/`.
+4. From the `src` folder, run `python -m buffetiq.camera grids` to cut the grids into photos in `tray_photos/empty`, `low`, `half` and `full`. Look through each folder and delete any photo whose level is wrong.
+5. Run `python -m buffetiq.camera check`, then `python -m buffetiq.camera train`.
 
-### Empty: save in `tray_photos/empty/`
+## Grid setup message (paste once)
+
+> I am making training images for a computer-vision model that judges how full a buffet tray is. For every request, generate exactly one square image laid out as a 2 by 2 grid of four separate photorealistic photos, each looking like an ordinary smartphone photo: natural colours, no artistic style, no people, no hands, no text, no labels, no logos, no flash glare, and the whole container visible. Put a thin plain white line between the four photos. Every photo in the grid must show the fill level I ask for exactly, because it is the label. Do not add garnish or extra dishes.
+
+## Grid prompts: save in `tray_photos/grids/`
+
+### Empty
+
+1. **grid_empty_1**: One square image laid out as a 2 by 2 grid of four separate realistic phone photos, with a thin plain white line between them. In all four photos the container is EMPTY: bare metal bottom everywhere, with only a few crumbs and smears of the food. Top left: scrambled eggs in a deep steel hotel buffet pan on a granite counter, straight down from 50 cm, bright ceiling light. Top right: chicken sausages in a shallow steel tray on a white tablecloth, tilted about 30 degrees, warm lamp light. Bottom left: hash browns in a round steel chafing dish, lid open, on a dark wooden table, straight down from 50 cm, soft window daylight. Bottom right: small pancakes in an aluminium foil tray on a steel kitchen bench, tilted about 30 degrees, dim morning light. The whole container is in frame in every photo, and all four show the same fill level. No people, hands, text, labels, logos or flash.
+
+2. **grid_empty_2**: One square image laid out as a 2 by 2 grid of four separate realistic phone photos, with a thin plain white line between them. In all four photos the container is EMPTY: bare metal bottom everywhere, with only a few crumbs and smears of the food. Top left: fried yellow noodles in an aluminium foil tray on a white tablecloth, straight down from 50 cm, bright ceiling light. Top right: white coconut rice in a deep steel hotel buffet pan on a dark wooden table, tilted about 30 degrees, soft window daylight. Bottom left: croissants in a shallow steel tray on a granite counter, straight down from 50 cm, warm lamp light. Bottom right: cut watermelon and papaya in a round steel chafing dish, lid open, on a steel kitchen bench, tilted about 30 degrees, dim morning light. The whole container is in frame in every photo, and all four show the same fill level. No people, hands, text, labels, logos or flash.
+
+
+### Low
+
+1. **grid_low_1**: One square image laid out as a 2 by 2 grid of four separate realistic phone photos, with a thin plain white line between them. In all four photos the container is NEARLY EMPTY: a small amount of the food pushed to one side, covering about 15% of the bottom; most of the metal shows. Top left: scrambled eggs in a deep steel hotel buffet pan on a granite counter, straight down from 50 cm, bright ceiling light. Top right: chicken sausages in a shallow steel tray on a white tablecloth, tilted about 30 degrees, warm lamp light. Bottom left: hash browns in a round steel chafing dish, lid open, on a dark wooden table, straight down from 50 cm, soft window daylight. Bottom right: small pancakes in an aluminium foil tray on a steel kitchen bench, tilted about 30 degrees, dim morning light. The whole container is in frame in every photo, and all four show the same fill level. No people, hands, text, labels, logos or flash.
+
+2. **grid_low_2**: One square image laid out as a 2 by 2 grid of four separate realistic phone photos, with a thin plain white line between them. In all four photos the container is NEARLY EMPTY: a small amount of the food pushed to one side, covering about 15% of the bottom; most of the metal shows. Top left: fried yellow noodles in an aluminium foil tray on a white tablecloth, straight down from 50 cm, bright ceiling light. Top right: white coconut rice in a deep steel hotel buffet pan on a dark wooden table, tilted about 30 degrees, soft window daylight. Bottom left: croissants in a shallow steel tray on a granite counter, straight down from 50 cm, warm lamp light. Bottom right: cut watermelon and papaya in a round steel chafing dish, lid open, on a steel kitchen bench, tilted about 30 degrees, dim morning light. The whole container is in frame in every photo, and all four show the same fill level. No people, hands, text, labels, logos or flash.
+
+
+### Half
+
+1. **grid_half_1**: One square image laid out as a 2 by 2 grid of four separate realistic phone photos, with a thin plain white line between them. In all four photos the container is HALF FULL: the food covers about half of the bottom; the other half is bare metal. Top left: scrambled eggs in a deep steel hotel buffet pan on a granite counter, straight down from 50 cm, bright ceiling light. Top right: chicken sausages in a shallow steel tray on a white tablecloth, tilted about 30 degrees, warm lamp light. Bottom left: hash browns in a round steel chafing dish, lid open, on a dark wooden table, straight down from 50 cm, soft window daylight. Bottom right: small pancakes in an aluminium foil tray on a steel kitchen bench, tilted about 30 degrees, dim morning light. The whole container is in frame in every photo, and all four show the same fill level. No people, hands, text, labels, logos or flash.
+
+2. **grid_half_2**: One square image laid out as a 2 by 2 grid of four separate realistic phone photos, with a thin plain white line between them. In all four photos the container is HALF FULL: the food covers about half of the bottom; the other half is bare metal. Top left: fried yellow noodles in an aluminium foil tray on a white tablecloth, straight down from 50 cm, bright ceiling light. Top right: white coconut rice in a deep steel hotel buffet pan on a dark wooden table, tilted about 30 degrees, soft window daylight. Bottom left: croissants in a shallow steel tray on a granite counter, straight down from 50 cm, warm lamp light. Bottom right: cut watermelon and papaya in a round steel chafing dish, lid open, on a steel kitchen bench, tilted about 30 degrees, dim morning light. The whole container is in frame in every photo, and all four show the same fill level. No people, hands, text, labels, logos or flash.
+
+
+### Full
+
+1. **grid_full_1**: One square image laid out as a 2 by 2 grid of four separate realistic phone photos, with a thin plain white line between them. In all four photos the container is FULL: the food is piled across the whole container; no metal bottom shows. Top left: scrambled eggs in a deep steel hotel buffet pan on a granite counter, straight down from 50 cm, bright ceiling light. Top right: chicken sausages in a shallow steel tray on a white tablecloth, tilted about 30 degrees, warm lamp light. Bottom left: hash browns in a round steel chafing dish, lid open, on a dark wooden table, straight down from 50 cm, soft window daylight. Bottom right: small pancakes in an aluminium foil tray on a steel kitchen bench, tilted about 30 degrees, dim morning light. The whole container is in frame in every photo, and all four show the same fill level. No people, hands, text, labels, logos or flash.
+
+2. **grid_full_2**: One square image laid out as a 2 by 2 grid of four separate realistic phone photos, with a thin plain white line between them. In all four photos the container is FULL: the food is piled across the whole container; no metal bottom shows. Top left: fried yellow noodles in an aluminium foil tray on a white tablecloth, straight down from 50 cm, bright ceiling light. Top right: white coconut rice in a deep steel hotel buffet pan on a dark wooden table, tilted about 30 degrees, soft window daylight. Bottom left: croissants in a shallow steel tray on a granite counter, straight down from 50 cm, warm lamp light. Bottom right: cut watermelon and papaya in a round steel chafing dish, lid open, on a steel kitchen bench, tilted about 30 degrees, dim morning light. The whole container is in frame in every photo, and all four show the same fill level. No people, hands, text, labels, logos or flash.
+
+
+## Single-photo setup message (for the demo cards)
+
+> I am making test images for a computer-vision model that judges how full a buffet tray is. For every request, generate exactly one photorealistic image that looks like an ordinary smartphone photo: natural colours, no artistic style, no people, no hands, no text, no logos, no flash glare, and the whole container visible. Follow the fill level exactly, because it is the label. Do not add garnish or extra dishes.
+
+## Demo cards: save in `tray_photos/demo_cards/`, never in a level folder
+
+Make these in a new Gemini chat that starts with the single-photo setup message below, because each card must be one photo, not a grid. The showcase is held in a classroom, not a kitchen, so the runner photographs a printed tray card instead of a real tray. These four images are made separately and are never used for training, so the camera has not seen them before and the demo is a fair test. Print each one at A5 on matte paper (gloss reflects ceiling lights), lay it flat on the table, and photograph it from about 40 cm so the card fills the frame.
+
+1. **demo_pancakes_low**: Realistic phone photo, straight down from 50 cm, of a shallow steel tray on a steel kitchen bench, bright ceiling light. NEARLY EMPTY: a small amount of small pancakes pushed to one side, covering about 15% of the bottom; most of the metal shows. Whole container in frame. No people, hands, text, logos or flash.
+2. **demo_pancakes_half**: Realistic phone photo, straight down from 50 cm, of a shallow steel tray on a steel kitchen bench, bright ceiling light. HALF FULL: small pancakes covers about half of the bottom; the other half is bare metal. Whole container in frame. No people, hands, text, logos or flash.
+3. **demo_pancakes_full**: Realistic phone photo, straight down from 50 cm, of a shallow steel tray on a steel kitchen bench, bright ceiling light. FULL: small pancakes piled across the whole container; no metal bottom shows. Whole container in frame. No people, hands, text, logos or flash.
+4. **demo_pancakes_empty**: Realistic phone photo, straight down from 50 cm, of a shallow steel tray on a steel kitchen bench, bright ceiling light. EMPTY: bare metal bottom everywhere, only a few crumbs and smears of small pancakes. Whole container in frame. No people, hands, text, logos or flash.
+
+## Optional: extra single photos
+
+If the camera misreads trays after training, these single-photo prompts add more training photos. Use the single-photo setup message and save each image directly in its level's folder with the name shown.
+
+#### Empty: save in `tray_photos/empty/`
 
 1. **g_empty_01**: Realistic phone photo, straight down from 50 cm, of a deep steel hotel buffet pan on a granite counter, bright ceiling light. EMPTY: bare metal bottom everywhere, only a few crumbs and smears of scrambled eggs. Whole container in frame. No people, hands, text, logos or flash.
 2. **g_empty_02**: Realistic phone photo, straight down from 50 cm, of a deep steel hotel buffet pan on a white tablecloth, bright ceiling light. EMPTY: bare metal bottom everywhere, only a few crumbs and smears of chicken sausages. Whole container in frame. No people, hands, text, logos or flash.
@@ -31,7 +86,7 @@ These prompts make AI-generated training images for the camera model with the Ge
 19. **g_empty_19**: Realistic phone photo, straight down from 50 cm, of a shallow steel tray on a dark wooden table, soft window daylight. EMPTY: bare metal bottom everywhere, only a few crumbs and smears of hash browns. Whole container in frame. No people, hands, text, logos or flash.
 20. **g_empty_20**: Realistic phone photo, tilted about 30 degrees, of a shallow steel tray on a steel kitchen bench, soft window daylight. EMPTY: bare metal bottom everywhere, only a few crumbs and smears of fried yellow noodles. Whole container in frame. No people, hands, text, logos or flash.
 
-### Low: save in `tray_photos/low/`
+#### Low: save in `tray_photos/low/`
 
 1. **g_low_01**: Realistic phone photo, straight down from 50 cm, of a shallow steel tray on a white tablecloth, warm lamp light. NEARLY EMPTY: a small amount of chicken sausages pushed to one side, covering about 15% of the bottom; most of the metal shows. Whole container in frame. No people, hands, text, logos or flash.
 2. **g_low_02**: Realistic phone photo, straight down from 50 cm, of a shallow steel tray on a dark wooden table, warm lamp light. NEARLY EMPTY: a small amount of hash browns pushed to one side, covering about 15% of the bottom; most of the metal shows. Whole container in frame. No people, hands, text, logos or flash.
@@ -54,7 +109,7 @@ These prompts make AI-generated training images for the camera model with the Ge
 19. **g_low_19**: Realistic phone photo, straight down from 50 cm, of a round steel chafing dish, lid open on a steel kitchen bench, dim morning light. NEARLY EMPTY: a small amount of fried yellow noodles pushed to one side, covering about 15% of the bottom; most of the metal shows. Whole container in frame. No people, hands, text, logos or flash.
 20. **g_low_20**: Realistic phone photo, tilted about 30 degrees, of a round steel chafing dish, lid open on a granite counter, dim morning light. NEARLY EMPTY: a small amount of white coconut rice pushed to one side, covering about 15% of the bottom; most of the metal shows. Whole container in frame. No people, hands, text, logos or flash.
 
-### Half: save in `tray_photos/half/`
+#### Half: save in `tray_photos/half/`
 
 1. **g_half_01**: Realistic phone photo, straight down from 50 cm, of a round steel chafing dish, lid open on a dark wooden table, soft window daylight. HALF FULL: hash browns covers about half of the bottom; the other half is bare metal. Whole container in frame. No people, hands, text, logos or flash.
 2. **g_half_02**: Realistic phone photo, straight down from 50 cm, of a round steel chafing dish, lid open on a steel kitchen bench, soft window daylight. HALF FULL: fried yellow noodles covers about half of the bottom; the other half is bare metal. Whole container in frame. No people, hands, text, logos or flash.
@@ -77,7 +132,7 @@ These prompts make AI-generated training images for the camera model with the Ge
 19. **g_half_19**: Realistic phone photo, straight down from 50 cm, of an aluminium foil tray on a granite counter, bright ceiling light. HALF FULL: white coconut rice covers about half of the bottom; the other half is bare metal. Whole container in frame. No people, hands, text, logos or flash.
 20. **g_half_20**: Realistic phone photo, tilted about 30 degrees, of an aluminium foil tray on a white tablecloth, bright ceiling light. HALF FULL: small pancakes covers about half of the bottom; the other half is bare metal. Whole container in frame. No people, hands, text, logos or flash.
 
-### Full: save in `tray_photos/full/`
+#### Full: save in `tray_photos/full/`
 
 1. **g_full_01**: Realistic phone photo, straight down from 50 cm, of an aluminium foil tray on a steel kitchen bench, dim morning light. FULL: fried yellow noodles piled across the whole container; no metal bottom shows. Whole container in frame. No people, hands, text, logos or flash.
 2. **g_full_02**: Realistic phone photo, straight down from 50 cm, of an aluminium foil tray on a granite counter, dim morning light. FULL: white coconut rice piled across the whole container; no metal bottom shows. Whole container in frame. No people, hands, text, logos or flash.
@@ -99,12 +154,3 @@ These prompts make AI-generated training images for the camera model with the Ge
 18. **g_full_18**: Realistic phone photo, straight down from 50 cm, of an aluminium foil tray on a granite counter, bright ceiling light. FULL: white coconut rice piled across the whole container; no metal bottom shows. Whole container in frame. No people, hands, text, logos or flash.
 19. **g_full_19**: Realistic phone photo, straight down from 50 cm, of a deep steel hotel buffet pan on a white tablecloth, warm lamp light. FULL: small pancakes piled across the whole container; no metal bottom shows. Whole container in frame. No people, hands, text, logos or flash.
 20. **g_full_20**: Realistic phone photo, tilted about 30 degrees, of a deep steel hotel buffet pan on a dark wooden table, warm lamp light. FULL: croissants piled across the whole container; no metal bottom shows. Whole container in frame. No people, hands, text, logos or flash.
-
-## Demo cards: save in `tray_photos/demo_cards/`, never in a level folder
-
-The showcase is held in a classroom, not a kitchen, so the runner photographs a printed tray card instead of a real tray. These four images are made separately and are never used for training, so the camera has not seen them before and the demo is a fair test. Print each one at A5 on matte paper (gloss reflects ceiling lights), lay it flat on the table, and photograph it from about 40 cm so the card fills the frame.
-
-1. **demo_pancakes_low**: Realistic phone photo, straight down from 50 cm, of a shallow steel tray on a steel kitchen bench, bright ceiling light. NEARLY EMPTY: a small amount of small pancakes pushed to one side, covering about 15% of the bottom; most of the metal shows. Whole container in frame. No people, hands, text, logos or flash.
-2. **demo_pancakes_half**: Realistic phone photo, straight down from 50 cm, of a shallow steel tray on a steel kitchen bench, bright ceiling light. HALF FULL: small pancakes covers about half of the bottom; the other half is bare metal. Whole container in frame. No people, hands, text, logos or flash.
-3. **demo_pancakes_full**: Realistic phone photo, straight down from 50 cm, of a shallow steel tray on a steel kitchen bench, bright ceiling light. FULL: small pancakes piled across the whole container; no metal bottom shows. Whole container in frame. No people, hands, text, logos or flash.
-4. **demo_pancakes_empty**: Realistic phone photo, straight down from 50 cm, of a shallow steel tray on a steel kitchen bench, bright ceiling light. EMPTY: bare metal bottom everywhere, only a few crumbs and smears of small pancakes. Whole container in frame. No people, hands, text, logos or flash.

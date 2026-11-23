@@ -124,7 +124,7 @@ The 23 tests in `tests/test_guest_flow.py` check the Quiet, Moderate and Busy th
 
 ## Phase 4: camera tray check
 
-This section will report how accurately the camera model judges tray levels from photos it has never seen. The test accuracy and confusion matrix are written to `docs/phase4_camera_results.json` and `docs/charts/phase4_confusion_matrix.png` by `notebooks/01_train_camera_model.ipynb` once the group's photos are in (at least 50 per level; see `docs/PHOTO_CHECKLIST.md`). **Status: waiting for photos, so no accuracy is reported yet.**
+This section will report how accurately the camera model judges tray levels from photos it has never seen. The test accuracy and confusion matrix are written to `docs/phase4_camera_results.json` and `docs/charts/phase4_confusion_matrix.png` by `notebooks/01_train_camera_model.ipynb` once the AI-generated images are in (8 per level, cut from two Gemini grids per level; see `docs/GENERATED_PHOTOS.md`). With 32 photos, about 4 are held back for testing, so each mistake moves the test accuracy by about 25 percentage points, and photos cut from the same grid share Gemini's lighting and style, which can flatter the score. The four printed demo cards, made separately and never trained on, are therefore reported alongside it as the cleaner check. **Status: waiting for images, so no accuracy is reported yet.**
 
 The photos are split 70% for training, 15% for validation (used only to pick the best training round) and 15% for testing, with each level's share kept in every part, so the test photos are never seen in training. Ultralytics' own automatic split (80% training, 20% validation) was not used, because it would leave no untouched test photos.
 

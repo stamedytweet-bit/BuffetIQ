@@ -13,7 +13,14 @@ Models, in order of preference:
                                its accuracy is never reported
 With neither, the runner page offers only the manual level buttons.
 
+Training images are AI-generated in the Gemini app as 2 by 2 grids of four
+photos each (docs/GENERATED_PHOTOS.md), saved in tray_photos/grids/ as
+grid_<level>_<n>.png, then cut into single photos in tray_photos/<level>/.
+Four extra single images in tray_photos/demo_cards/ are never trained on and
+are scored separately, as the photos the camera has truly never seen.
+
 Command line (from the src folder):
+  python -m buffetiq.camera grids            cut tray_photos/grids/ into single photos
   python -m buffetiq.camera check            count and check tray_photos/
   python -m buffetiq.camera standin          draw stand-in images and train the stand-in model
   python -m buffetiq.camera train            train on tray_photos/ and write the test results
@@ -45,6 +52,8 @@ except ImportError:  # pragma: no cover
 LEVELS = ["empty", "low", "half", "full"]
 WORDS = {"empty": "Empty", "low": "Low", "half": "Half", "full": "Full"}
 PHOTOS_DIR = ROOT / "tray_photos"
+GRIDS_DIR = PHOTOS_DIR / "grids"
+DEMO_CARDS_DIR = PHOTOS_DIR / "demo_cards"
 STANDIN_DIR = ROOT / "data" / "standin_trays"
 SPLIT_DIR = ROOT / "data" / "tray_split"
 MODEL_PATH = ROOT / "models" / "tray_cls.pt"
@@ -53,7 +62,7 @@ RESULTS_PATH = ROOT / "docs" / "phase4_camera_results.json"
 CONFUSION_PATH = ROOT / "docs" / "charts" / "phase4_confusion_matrix.png"
 BASE_WEIGHTS = "yolo26n-cls.pt"
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".heic", ".heif", ".webp"}
-MIN_PER_LEVEL = 50
+MIN_PER_LEVEL = 8      # two Gemini grids of four photos per level
 
 
 # ---------------------------------------------------------------------------
@@ -186,9 +195,101 @@ def check_photos(root: Path = PHOTOS_DIR) -> dict:
     for level, n in report["counts"].items():
         if n < MIN_PER_LEVEL:
             report["problems"].append(f"{level} has {n} photos; at least {MIN_PER_LEVEL} are needed")
-    if counts and max(counts) - min(counts) > 10 and min(counts) >= MIN_PER_LEVEL:
-        report["problems"].append("the levels differ by more than 10 photos; try to balance them")
+    if counts and max(counts) > 1.5 * min(counts) and min(counts) >= MIN_PER_LEVEL:
+        report["problems"].append("one level has more than one and a half times the photos of another; try to balance them")
     report["ready"] = all(n >= MIN_PER_LEVEL for n in counts)
+    return report
+
+
+# ---------------------------------------------------------------------------
+# Cutting Gemini grids into single photos
+# ---------------------------------------------------------------------------
+
+def level_from_name(name: str) -> str | None:
+    """The level named in a file name, such as grid_low_2.png or demo_pancakes_half.png."""
+    parts = name.lower().replace("-", "_").split("_")
+    found = [lv for lv in LEVELS if lv in parts]
+    return found[0] if len(found) == 1 else None
+
+
+def _gutter(std: np.ndarray, limit: float = 10.0) -> tuple[int, int]:
+    """Where to cut along one axis: the plain band nearest the middle, or the exact middle if there is none.
+
+    std holds how much the pixels vary along each column (or row). A white line
+    between photos varies very little, so it shows as a run of low values.
+    """
+    n = len(std)
+    lo, hi = int(n * 0.35), int(n * 0.65)
+    mid = n // 2
+    flat = std[lo:hi] < limit
+    if not flat.any():
+        return mid, mid
+    idx = np.flatnonzero(flat) + lo
+    centre = int(idx[np.argmin(np.abs(idx - mid))])
+    a = b = centre
+    while a > lo and std[a - 1] < limit:
+        a -= 1
+    while b < hi - 1 and std[b + 1] < limit:
+        b += 1
+    return a, b + 1
+
+
+def _is_line(pixels: np.ndarray, limit: float) -> bool:
+    """A plain white or black strip, the colours Gemini uses between photos (not a plain table top)."""
+    return pixels.std() < limit and (pixels.mean() > 215 or pixels.mean() < 40)
+
+
+def _trim(gray: np.ndarray, limit: float = 10.0, most: float = 0.12) -> tuple[int, int, int, int]:
+    """Trim white or black borders left over from the grid lines, never more than 12% a side."""
+    h, w = gray.shape
+    top, bottom, left, right = 0, h, 0, w
+    while top < h * most and _is_line(gray[top], limit):
+        top += 1
+    while h - bottom < h * most and _is_line(gray[bottom - 1], limit):
+        bottom -= 1
+    while left < w * most and _is_line(gray[:, left], limit):
+        left += 1
+    while w - right < w * most and _is_line(gray[:, right - 1], limit):
+        right -= 1
+    return top, bottom, left, right
+
+
+def cut_grid(image: Image.Image) -> list[Image.Image]:
+    """Cut a 2 by 2 grid into its four photos: top left, top right, bottom left, bottom right."""
+    im = ImageOps.exif_transpose(image).convert("RGB")
+    gray = np.asarray(im.convert("L"), dtype=float)
+    x0, x1 = _gutter(gray.std(axis=0))
+    y0, y1 = _gutter(gray.std(axis=1))
+    h, w = gray.shape
+    boxes = [(0, 0, x0, y0), (x1, 0, w, y0), (0, y1, x0, h), (x1, y1, w, h)]
+    tiles = []
+    for left, top, right, bottom in boxes:
+        t, b, l, r = _trim(gray[top:bottom, left:right])
+        tiles.append(im.crop((left + l, top + t, left + r, top + b)))
+    return tiles
+
+
+def split_grids(src: Path = GRIDS_DIR, dest: Path = PHOTOS_DIR) -> dict:
+    """Cut every grid in src into four photos in dest/<level>/, named g_<level>_<n>_<1 to 4>.jpg."""
+    report = {"grids": 0, "photos": {lv: 0 for lv in LEVELS}, "skipped": []}
+    for f in list_images(src):
+        level = level_from_name(f.stem)
+        if level is None:
+            report["skipped"].append(f"{f.name}: the name must contain one level, such as grid_low_1.png")
+            continue
+        try:
+            with Image.open(f) as im:
+                tiles = cut_grid(im)
+        except Exception:
+            report["skipped"].append(f"{f.name}: cannot be opened")
+            continue
+        out = dest / level
+        out.mkdir(parents=True, exist_ok=True)
+        stem = f.stem.lower().replace("grid_", "g_", 1)
+        for k, tile in enumerate(tiles, start=1):
+            tile.save(out / f"{stem}_{k}.jpg", quality=92)
+        report["grids"] += 1
+        report["photos"][level] += len(tiles)
     return report
 
 
@@ -249,6 +350,8 @@ def train(src: Path = PHOTOS_DIR, weights_out: Path = MODEL_PATH, epochs: int = 
     shutil.copy(best, weights_out)
     _MODELS.clear()
     results = evaluate(weights_out, split_dir / "test")
+    if not standin:
+        results["demo_cards"] = evaluate_cards(weights_out)
     results["counts"] = counts
     results["epochs"] = epochs
     results["base_weights"] = BASE_WEIGHTS
@@ -284,6 +387,23 @@ def evaluate(weights: Path, test_dir: Path) -> dict:
         "accuracy_when_sure": float((truth[sure] == pred[sure]).mean()) if sure.any() else 0.0,
         "off_by_more_than_one_level": int(sum(abs(LEVELS.index(t) - LEVELS.index(p)) > 1 for t, p in zip(truth, pred))),
     }
+
+
+def evaluate_cards(weights: Path, folder: Path = DEMO_CARDS_DIR) -> list[dict]:
+    """Score the demo cards, which are never trained on. The level comes from each file name."""
+    from ultralytics import YOLO
+
+    files = [f for f in list_images(folder) if level_from_name(f.stem)] if folder.exists() else []
+    if not files:
+        return []
+    model = YOLO(str(weights))
+    rows = []
+    for f in files:
+        r = model.predict(to_rgb(f), imgsz=224, verbose=False)[0]
+        conf = float(r.probs.top1conf)
+        rows.append({"card": f.name, "expected": level_from_name(f.stem), "predicted": r.names[int(r.probs.top1)],
+                     "confidence": round(conf, 2), "sure": conf >= threshold()})
+    return rows
 
 
 def plot_confusion(results: dict, path: Path) -> None:
@@ -384,10 +504,16 @@ def make_standins(out: Path = STANDIN_DIR, per_level: int = 60, seed: int = 7) -
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="BuffetIQ camera model")
-    parser.add_argument("command", choices=["check", "standin", "train"])
+    parser.add_argument("command", choices=["grids", "check", "standin", "train"])
     parser.add_argument("--epochs", type=int, default=30)
     args = parser.parse_args()
-    if args.command == "check":
+    if args.command == "grids":
+        r = split_grids()
+        print(f"Cut {r['grids']} grids into photos: " + ", ".join(f"{WORDS[lv]} {n}" for lv, n in r["photos"].items()))
+        for problem in r["skipped"]:
+            print(f"  - skipped {problem}")
+        print("Look through each level folder and move or delete any photo that does not match its level.")
+    elif args.command == "check":
         r = check_photos()
         for level in LEVELS:
             print(f"{WORDS[level]:<6} {r['counts'][level]:>4} photos")
@@ -405,6 +531,9 @@ def main() -> None:
             raise SystemExit("Not enough photos yet; run 'python -m buffetiq.camera check'.")
         r = train(epochs=args.epochs)
         print(f"Test accuracy {r['accuracy']:.1%} on {r['test_photos']} unseen photos. Saved {MODEL_PATH}.")
+        for c in r.get("demo_cards", []):
+            mark = "right" if c["predicted"] == c["expected"] else "WRONG"
+            print(f"  demo card {c['card']}: {c['predicted']} ({c['confidence']:.0%} sure), {mark}")
 
 
 if __name__ == "__main__":

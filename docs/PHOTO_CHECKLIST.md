@@ -1,6 +1,6 @@
 # Tray photo checklist
 
-> The project is now run by one person, so the training images are being made with the Gemini app instead, using the prompts in `docs/GENERATED_PHOTOS.md`. This checklist still applies to any real phone photos taken for testing.
+> The project is now run by one person, so the training images are being made with the Gemini app instead, using the prompts in `docs/GENERATED_PHOTOS.md` (eight 2 by 2 grids, cut into 8 photos per level). This checklist still applies to any real phone photos, which can be added to the level folders; the counts below were for a full photo shoot.
 
 This checklist explains how to take the photos that teach BuffetIQ's camera model to judge how full a buffet tray is. The model learns only from these photos, so their variety matters more than their number: photos that differ in tray, food, light, background and angle give a model that works in the demo, while 200 near-identical photos give one that does not.
 
