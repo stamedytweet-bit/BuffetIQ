@@ -12,6 +12,8 @@ line in the git-ignored .env file) and is never printed.
 Run from the project folder:
     python deploy/push_to_space.py --space your-username/buffetiq
     python deploy/push_to_space.py --space your-username/buffetiq --dry-run   (list files only)
+    python deploy/push_to_space.py --space your-username/buffetiq --settings  (also copy the Gemini
+        key and passcode from .env into the Space's secrets, and GEMINI_MODEL into its settings)
 
 GitHub runs the same command on every push to main (.github/workflows/deploy-space.yml).
 """
@@ -93,7 +95,20 @@ def space_address(space: str) -> str:
     return f"https://{sub}.hf.space"
 
 
-def publish(space: str, dry_run: bool = False) -> None:
+# Copied from .env to the Space by --settings. Secrets are hidden on the Space;
+# variables are plain settings. HF_TOKEN is never copied.
+SPACE_SECRETS = ("GEMINI_API_KEY", "BUFFETIQ_PASSCODE")
+SPACE_VARIABLES = ("GEMINI_MODEL",)
+
+
+def space_settings(env: dict[str, str]) -> tuple[dict[str, str], dict[str, str]]:
+    """The secrets and variables to set on the Space, skipping any that are empty."""
+    secrets = {k: env[k].strip() for k in SPACE_SECRETS if env.get(k, "").strip()}
+    variables = {k: env[k].strip() for k in SPACE_VARIABLES if env.get(k, "").strip()}
+    return secrets, variables
+
+
+def publish(space: str, dry_run: bool = False, settings: bool = False) -> None:
     files = build_files()
     size = sum(len(b) for b in files.values()) / 1e6
     print(f"{len(files)} files, {size:.1f} MB, from {git_label()}.")
@@ -115,6 +130,14 @@ def publish(space: str, dry_run: bool = False) -> None:
 
     api = HfApi(token=token)
     api.create_repo(space, repo_type="space", space_sdk="gradio", exist_ok=True)
+    if settings:
+        secrets, variables = space_settings(dict(os.environ))
+        for k, v in secrets.items():
+            api.add_space_secret(space, k, v)
+        for k, v in variables.items():
+            api.add_space_variable(space, k, v)
+        names = list(secrets) + [f"{k} (setting)" for k in variables]
+        print("Space secrets and settings saved: " + (", ".join(names) or "none found in .env"))
     remote = set(api.list_repo_files(space, repo_type="space"))
     ops = [CommitOperationAdd(path_in_repo=f, path_or_fileobj=b) for f, b in files.items()]
     ops += [CommitOperationDelete(path_in_repo=f) for f in sorted(remote - set(files)) if f != ".gitattributes"]
@@ -130,10 +153,13 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--space", default=os.environ.get("HF_SPACE"),
                         help="owner/name of the Space, such as your-username/buffetiq (or set HF_SPACE)")
     parser.add_argument("--dry-run", action="store_true", help="list the files that would be sent, and stop")
+    parser.add_argument("--settings", action="store_true",
+                        help="also copy GEMINI_API_KEY and BUFFETIQ_PASSCODE (as secrets) and GEMINI_MODEL "
+                             "(as a setting) from .env to the Space; values are never printed")
     args = parser.parse_args(argv)
     if not args.space and not args.dry_run:
         parser.error("give --space your-username/buffetiq, or set HF_SPACE")
-    publish(args.space or "", dry_run=args.dry_run)
+    publish(args.space or "", dry_run=args.dry_run, settings=args.settings)
 
 
 if __name__ == "__main__":

@@ -32,6 +32,15 @@ def test_files_sent_include_space_settings_and_no_secrets():
     assert not any(f == ".env" or f.startswith(".github/") for f in files)
 
 
+def test_space_settings_copy_only_the_app_secrets_and_never_the_token():
+    env = {"GEMINI_API_KEY": "k", "BUFFETIQ_PASSCODE": " p ", "GEMINI_MODEL": "m",
+           "HF_TOKEN": "hf_secret", "OTHER": "x"}
+    secrets, variables = push.space_settings(env)
+    assert secrets == {"GEMINI_API_KEY": "k", "BUFFETIQ_PASSCODE": "p"}
+    assert variables == {"GEMINI_MODEL": "m"}
+    assert push.space_settings({"GEMINI_API_KEY": "  "}) == ({}, {})
+
+
 def test_space_address():
     assert push.space_address("Some_User/buffetiq") == "https://some-user-buffetiq.hf.space"
 
