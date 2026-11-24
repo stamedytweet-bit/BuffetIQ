@@ -1,11 +1,11 @@
 {
-  "test_photos": 4,
-  "accuracy": 0.25,
+  "test_photos": 8,
+  "accuracy": 0.5,
   "per_level_accuracy": {
     "empty": 1.0,
     "low": 0.0,
-    "half": 0.0,
-    "full": 0.0
+    "half": 0.5,
+    "full": 0.5
   },
   "confusion": {
     "levels": [
@@ -16,7 +16,7 @@
     ],
     "matrix": [
       [
-        1,
+        2,
         0,
         0,
         0
@@ -24,74 +24,81 @@
       [
         0,
         0,
+        2,
+        0
+      ],
+      [
         0,
+        0,
+        1,
         1
       ],
       [
         0,
-        1,
-        0,
-        0
-      ],
-      [
-        0,
         0,
         1,
-        0
+        1
       ]
     ]
   },
-  "share_sure": 0.5,
-  "accuracy_when_sure": 0.5,
-  "off_by_more_than_one_level": 1,
+  "share_sure": 0.875,
+  "accuracy_when_sure": 0.5714285714285714,
+  "off_by_more_than_one_level": 0,
   "demo_cards": [
+    {
+      "card": "demo_noodles_low_messy.jpg",
+      "expected": "low",
+      "predicted": "low",
+      "confidence": 0.96,
+      "sure": true
+    },
     {
       "card": "demo_pancakes_empty.jpg",
       "expected": "empty",
       "predicted": "empty",
-      "confidence": 0.99,
+      "confidence": 0.98,
       "sure": true
     },
     {
       "card": "demo_pancakes_full.jpg",
       "expected": "full",
       "predicted": "full",
-      "confidence": 0.97,
+      "confidence": 0.99,
       "sure": true
     },
     {
       "card": "demo_pancakes_half.jpg",
       "expected": "half",
-      "predicted": "half",
-      "confidence": 0.87,
-      "sure": true
+      "predicted": "low",
+      "confidence": 0.5,
+      "sure": false
     },
     {
       "card": "demo_pancakes_low.jpg",
       "expected": "low",
       "predicted": "low",
-      "confidence": 1.0,
+      "confidence": 0.92,
       "sure": true
     }
   ],
   "counts": {
     "train": {
-      "empty": 6,
-      "low": 6,
-      "half": 6,
-      "full": 6
+      "empty": 8,
+      "low": 8,
+      "half": 8,
+      "full": 8
     },
     "val": {
-      "empty": 1,
-      "low": 1,
-      "half": 1,
-      "full": 1
+      "empty": 2,
+      "low": 2,
+      "half": 2,
+      "full": 2
     },
     "test": {
-      "empty": 1,
-      "low": 1,
-      "half": 1,
-      "full": 1
+      "empty": 2,
+      "low": 2,
+      "half": 2,
+      "full": 2
     }
   },
   "epochs": 100,

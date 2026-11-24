@@ -14,7 +14,7 @@ This file collects every metric, chart and test result in one place for the show
 | Minutes a dish was empty (65 days) | 6.9 a day against 12.9 | Phase 5 |
 | Ask BuffetIQ, scripted questions | 20 of 20 match the board typed, 20 of 20 spoken (median 0.83 seconds); 10 of 10 on added topics | Phase 6 |
 | Forecast learning | Error 7.3% with 1 month of history, 3.3% with 10 months, on the same test days | Phase 7 |
-| Camera tray check | 4 of 4 printed demo cards right; 1 of 4 held-out grid photos right (32 AI-generated training photos, too few for a reliable accuracy) | Phase 4 |
+| Camera tray check | Messy trays of a dish it never saw: 13 of 16 right (the earlier model 8 of 16); demo cards under 13 kinds of rough handling: 49 of 65 right, but the neat Half card fails; 48 AI-generated training photos, still too few for a reliable accuracy | Phase 4 |
 | Gemini answers | Flash-Lite: 18 of 20 typed and 19 of 20 spoken questions match the board after the instructions were tightened (13 of 20 before), median 1.7 seconds; on 8 new questions about as good as the basic answers | Phase 6 |
 | Tests | 254 automated tests pass | All |
 
@@ -132,6 +132,22 @@ This section reports how accurately the camera model judges tray levels from ima
 | Printed demo cards, made separately, never trained on | 4 (one per level) | 4 of 4 | Empty 99%, Low 100%, Half 87% and Full 97% sure; the Empty card was scored after training, with the same model |
 
 The two checks disagree, and with so few images neither is a reliable accuracy: each test photo is worth 25 percentage points, and all three test errors are one dish in one tray, whose pressed foil pattern and tangled noodles look alike at every level. The 60% confidence rule caught two of the three errors (shown as "Not sure about this one", so nothing reached the board), but Half read as Low at 83% would have been sent. One error was more than one level off (Low read as Full, at 55%, so not sent). The honest summary is that the camera reads all four demo cards correctly and is unreliable on the hardest dish, so "Wrong level? Fix it" remains part of the design, not only a backup. More grids per level are the clearest way to improve it.
+
+### Messy trays (24 November 2026)
+
+This part tests the camera on trays as guests leave them: scooped, uneven, smeared and spilled, sometimes with tongs or a spoon left in. The question came from a classmate, and the first model failed it. Four more Gemini grids, one per level, showed the same four dishes messy (with utensils at every level, so tongs cannot stand for one level), and a fifth image made a messy Low noodle demo card that is never trained on. The level still means how much food is left. Results are in `docs/phase4_messy_results.json`, from `python -m buffetiq.camera_stress` (run from `src`).
+
+| Check | Earlier model (32 neat photos) | New model (48 photos, 16 messy) |
+| --- | --- | --- |
+| The 16 messy photos, before any were trained on | 8 of 16; 6 wrong readings confident enough to reach the board | not a fair test after training |
+| Messy photos of a dish hidden from training (four retrains, each hiding one dish) | | 13 of 16; 3 confidently wrong |
+| Messy Low noodle demo card | Full, 97% sure (wrong) | Low, 96% sure |
+| Held-out test photos cut from the grids | | 4 of 8 (both messy ones right); 3 confidently wrong |
+| Five demo cards, each changed 13 ways (rotated, tilted, angled, dark, glare, warm light, blurred, zoomed, cut off, compressed, tiny) | 50 of 65; 14 confidently wrong, 2 held back | 49 of 65; 10 confidently wrong, 8 held back |
+
+Training on messy trays clearly helps with messy trays: on a dish whose messy photos it never saw, the new model is right 13 times in 16, against 8 for the earlier model, and confident mistakes fall from 6 to 3. All three remaining errors are a messy Low read one level off (twice as Half, once Half as Empty). The messy noodle demo card is read correctly under all 13 changes, but it looks like the training grid's noodle tray, so that 13 of 13 overstates it; with the noodle photos hidden, the messy Low noodle tray was read as Half.
+
+The cost is the neat Half pancake card. The earlier model read it correctly under 12 of the 13 changes; the new model reads it correctly under 1, calling it Low or Full, mostly without enough confidence to reach the board. Overall the stress test is unchanged (77% against 75%), but the new model is more cautious: more photos are held back as "Not sure", where the runner now picks between the two closest levels, and fewer wrong readings are sent. The held-out grid photos repeat the pattern, with Low and Full read as Half. With 12 photos per level, the boundaries between Low, Half and Full are the weakest part of the model, and more Half photos are the next step. The new model is used, because messy trays are what a runner actually photographs, and the demo uses the Low pancake card and the messy Low noodle card, both read correctly.
 
 The first training run kept the round with the best validation score and stopped early. With one validation photo per level, that score is noise, so it kept round 1 (before the model had learned much) and scored 25% on the test photos and 2 of 3 demo cards. Training on sets with fewer than 5 validation photos per level now runs a fixed 100 rounds and keeps the last one. That rule was chosen for the small set before seeing the second result and applied once; it was not adjusted against the test photos or the demo cards.
 

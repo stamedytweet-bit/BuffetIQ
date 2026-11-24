@@ -1,0 +1,1023 @@
+{
+ "date": "2026-11-24",
+ "note": "AI-generated images; simulated on fictional data",
+ "stress_demo_cards": {
+  "old": [
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "original",
+    "truth": "low",
+    "pred": "full",
+    "conf": 0.97
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "rotated 90",
+    "truth": "low",
+    "pred": "full",
+    "conf": 0.98
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "upside down",
+    "truth": "low",
+    "pred": "full",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "tilted 15 degrees",
+    "truth": "low",
+    "pred": "full",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "angled shot",
+    "truth": "low",
+    "pred": "full",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "dark room",
+    "truth": "low",
+    "pred": "full",
+    "conf": 0.87
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "glare, too bright",
+    "truth": "low",
+    "pred": "full",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "warm lamp light",
+    "truth": "low",
+    "pred": "full",
+    "conf": 0.98
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "blurry (moved)",
+    "truth": "low",
+    "pred": "full",
+    "conf": 0.98
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "zoomed in",
+    "truth": "low",
+    "pred": "full",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "tray cut off at side",
+    "truth": "low",
+    "pred": "full",
+    "conf": 0.71
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "low quality jpeg",
+    "truth": "low",
+    "pred": "full",
+    "conf": 0.96
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "tiny photo",
+    "truth": "low",
+    "pred": "full",
+    "conf": 0.94
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "original",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "rotated 90",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.94
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "upside down",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "tilted 15 degrees",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.75
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "angled shot",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.9
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "dark room",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "glare, too bright",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "warm lamp light",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.96
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "blurry (moved)",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "zoomed in",
+    "truth": "empty",
+    "pred": "full",
+    "conf": 0.42
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "tray cut off at side",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "low quality jpeg",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.97
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "tiny photo",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "original",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.97
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "rotated 90",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.98
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "upside down",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.91
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "tilted 15 degrees",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "angled shot",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "dark room",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "glare, too bright",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.98
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "warm lamp light",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.9
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "blurry (moved)",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "zoomed in",
+    "truth": "full",
+    "pred": "full",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "tray cut off at side",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.96
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "low quality jpeg",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.98
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "tiny photo",
+    "truth": "full",
+    "pred": "full",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "original",
+    "truth": "half",
+    "pred": "half",
+    "conf": 0.87
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "rotated 90",
+    "truth": "half",
+    "pred": "low",
+    "conf": 0.95
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "upside down",
+    "truth": "half",
+    "pred": "half",
+    "conf": 0.56
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "tilted 15 degrees",
+    "truth": "half",
+    "pred": "half",
+    "conf": 0.84
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "angled shot",
+    "truth": "half",
+    "pred": "half",
+    "conf": 0.94
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "dark room",
+    "truth": "half",
+    "pred": "half",
+    "conf": 0.86
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "glare, too bright",
+    "truth": "half",
+    "pred": "half",
+    "conf": 0.89
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "warm lamp light",
+    "truth": "half",
+    "pred": "half",
+    "conf": 0.83
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "blurry (moved)",
+    "truth": "half",
+    "pred": "half",
+    "conf": 0.95
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "zoomed in",
+    "truth": "half",
+    "pred": "half",
+    "conf": 0.87
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "tray cut off at side",
+    "truth": "half",
+    "pred": "half",
+    "conf": 0.73
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "low quality jpeg",
+    "truth": "half",
+    "pred": "half",
+    "conf": 0.86
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "tiny photo",
+    "truth": "half",
+    "pred": "half",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "original",
+    "truth": "low",
+    "pred": "low",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "rotated 90",
+    "truth": "low",
+    "pred": "low",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "upside down",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.86
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "tilted 15 degrees",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "angled shot",
+    "truth": "low",
+    "pred": "low",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "dark room",
+    "truth": "low",
+    "pred": "low",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "glare, too bright",
+    "truth": "low",
+    "pred": "low",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "warm lamp light",
+    "truth": "low",
+    "pred": "low",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "blurry (moved)",
+    "truth": "low",
+    "pred": "low",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "zoomed in",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "tray cut off at side",
+    "truth": "low",
+    "pred": "low",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "low quality jpeg",
+    "truth": "low",
+    "pred": "low",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "tiny photo",
+    "truth": "low",
+    "pred": "low",
+    "conf": 1.0
+   }
+  ],
+  "new": [
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "original",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.96
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "rotated 90",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.98
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "upside down",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.98
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "tilted 15 degrees",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "angled shot",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.97
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "dark room",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.89
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "glare, too bright",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.63
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "warm lamp light",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.48
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "blurry (moved)",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.85
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "zoomed in",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.97
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "tray cut off at side",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.73
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "low quality jpeg",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.94
+   },
+   {
+    "card": "demo_noodles_low_messy.jpg",
+    "variant": "tiny photo",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.88
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "original",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.98
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "rotated 90",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.94
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "upside down",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.94
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "tilted 15 degrees",
+    "truth": "empty",
+    "pred": "low",
+    "conf": 0.94
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "angled shot",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.67
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "dark room",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "glare, too bright",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.91
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "warm lamp light",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.95
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "blurry (moved)",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.97
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "zoomed in",
+    "truth": "empty",
+    "pred": "low",
+    "conf": 0.76
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "tray cut off at side",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.93
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "low quality jpeg",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.79
+   },
+   {
+    "card": "demo_pancakes_empty.jpg",
+    "variant": "tiny photo",
+    "truth": "empty",
+    "pred": "empty",
+    "conf": 0.98
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "original",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "rotated 90",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.95
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "upside down",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.98
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "tilted 15 degrees",
+    "truth": "full",
+    "pred": "full",
+    "conf": 1.0
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "angled shot",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "dark room",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "glare, too bright",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.98
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "warm lamp light",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.97
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "blurry (moved)",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "zoomed in",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.98
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "tray cut off at side",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.98
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "low quality jpeg",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_full.jpg",
+    "variant": "tiny photo",
+    "truth": "full",
+    "pred": "full",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "original",
+    "truth": "half",
+    "pred": "low",
+    "conf": 0.5
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "rotated 90",
+    "truth": "half",
+    "pred": "half",
+    "conf": 0.72
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "upside down",
+    "truth": "half",
+    "pred": "low",
+    "conf": 0.75
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "tilted 15 degrees",
+    "truth": "half",
+    "pred": "low",
+    "conf": 0.58
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "angled shot",
+    "truth": "half",
+    "pred": "full",
+    "conf": 0.67
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "dark room",
+    "truth": "half",
+    "pred": "full",
+    "conf": 0.84
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "glare, too bright",
+    "truth": "half",
+    "pred": "low",
+    "conf": 0.44
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "warm lamp light",
+    "truth": "half",
+    "pred": "full",
+    "conf": 0.47
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "blurry (moved)",
+    "truth": "half",
+    "pred": "full",
+    "conf": 0.63
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "zoomed in",
+    "truth": "half",
+    "pred": "low",
+    "conf": 0.59
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "tray cut off at side",
+    "truth": "half",
+    "pred": "full",
+    "conf": 0.65
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "low quality jpeg",
+    "truth": "half",
+    "pred": "full",
+    "conf": 0.56
+   },
+   {
+    "card": "demo_pancakes_half.jpg",
+    "variant": "tiny photo",
+    "truth": "half",
+    "pred": "full",
+    "conf": 0.63
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "original",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.92
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "rotated 90",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "upside down",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.99
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "tilted 15 degrees",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.76
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "angled shot",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.9
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "dark room",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.53
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "glare, too bright",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.88
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "warm lamp light",
+    "truth": "low",
+    "pred": "half",
+    "conf": 0.94
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "blurry (moved)",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.7
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "zoomed in",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.62
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "tray cut off at side",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.62
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "low quality jpeg",
+    "truth": "low",
+    "pred": "low",
+    "conf": 0.86
+   },
+   {
+    "card": "demo_pancakes_low.jpg",
+    "variant": "tiny photo",
+    "truth": "low",
+    "pred": "half",
+    "conf": 0.62
+   }
+  ]
+ },
+ "unseen_messy_dish": [
+  {
+   "hidden_dish": "noodles (foil tray)",
+   "truth": "empty",
+   "pred": "empty",
+   "conf": 0.58
+  },
+  {
+   "hidden_dish": "noodles (foil tray)",
+   "truth": "low",
+   "pred": "half",
+   "conf": 0.69
+  },
+  {
+   "hidden_dish": "noodles (foil tray)",
+   "truth": "half",
+   "pred": "half",
+   "conf": 0.71
+  },
+  {
+   "hidden_dish": "noodles (foil tray)",
+   "truth": "full",
+   "pred": "full",
+   "conf": 1.0
+  },
+  {
+   "hidden_dish": "scrambled eggs",
+   "truth": "empty",
+   "pred": "empty",
+   "conf": 0.95
+  },
+  {
+   "hidden_dish": "scrambled eggs",
+   "truth": "low",
+   "pred": "low",
+   "conf": 0.98
+  },
+  {
+   "hidden_dish": "scrambled eggs",
+   "truth": "half",
+   "pred": "half",
+   "conf": 0.87
+  },
+  {
+   "hidden_dish": "scrambled eggs",
+   "truth": "full",
+   "pred": "full",
+   "conf": 0.75
+  },
+  {
+   "hidden_dish": "rice (round dish)",
+   "truth": "empty",
+   "pred": "empty",
+   "conf": 0.99
+  },
+  {
+   "hidden_dish": "rice (round dish)",
+   "truth": "low",
+   "pred": "half",
+   "conf": 0.68
+  },
+  {
+   "hidden_dish": "rice (round dish)",
+   "truth": "half",
+   "pred": "half",
+   "conf": 0.99
+  },
+  {
+   "hidden_dish": "rice (round dish)",
+   "truth": "full",
+   "pred": "full",
+   "conf": 0.99
+  },
+  {
+   "hidden_dish": "sausages",
+   "truth": "empty",
+   "pred": "empty",
+   "conf": 1.0
+  },
+  {
+   "hidden_dish": "sausages",
+   "truth": "low",
+   "pred": "low",
+   "conf": 0.41
+  },
+  {
+   "hidden_dish": "sausages",
+   "truth": "half",
+   "pred": "empty",
+   "conf": 0.67
+  },
+  {
+   "hidden_dish": "sausages",
+   "truth": "full",
+   "pred": "full",
+   "conf": 1.0
+  }
+ ],
+ "old_model_on_16_messy_photos": {
+  "right": 8,
+  "confidently_wrong": 6,
+  "held_back": 2
+ }
+}
