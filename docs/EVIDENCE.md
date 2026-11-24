@@ -151,6 +151,18 @@ The cost is the neat Half pancake card. The earlier model read it correctly unde
 
 Two more Half grids (one neat, one messy, 8 photos) were then tried, to strengthen the weakest level. It made things worse, as the imbalance warned it might (20 Half photos against 12 for each other level): the model pulled trays towards Half. The demo cards fell to 2 of 5 (the Low pancake card read as Half at 88%), the stress test to 39 of 65 with 23 confidently wrong (from 49 and 10), and messy photos of a hidden dish to 12 of 16 (from 13), though with 2 confident mistakes rather than 3. That model was not used; the 8 photos are kept in `tray_photos/set_aside/`. Strengthening Half needs matching photos for Low and Full at the same time, so the levels stay balanced.
 
+### Gemini as a second opinion (25 November 2026)
+
+This part asks whether Gemini, which can read images, would judge trays better than the trained model. It was tested only on the AI-generated images above, which hold no personal data; sending real tray photos would also go against the project's rule that only dish names, quantities and times leave the laptop. Gemini Flash-Lite was given each image with the level definitions and asked for a level and how sure it was. Results are in .
+
+| Check | Trained model | Gemini Flash-Lite | Trained model, asking Gemini only when not sure |
+| --- | --- | --- | --- |
+| Five demo cards, each changed 13 ways | 49 of 65; 10 confidently wrong | 48 of 65; 17 confidently wrong | 50 of 65; 15 confidently wrong (8 photos sent) |
+| Messy photos | 13 of 16 on a dish hidden from training | 10 of 16; 6 confidently wrong | 13 of 16; 3 confidently wrong (2 photos sent) |
+| Set-aside Half photos | | 1 of 8 | |
+
+Gemini does not help. It reads trays one level emptier than they are, consistently: Half as Low and Full as Half, on the demo cards, the messy photos and almost every set-aside Half photo. It also gave 0.95 as its confidence for nearly every answer, right or wrong, so the 60% rule that holds back unsure readings cannot work with it. Combined with the trained model it gains one photo on the stress test but sends five more wrong readings to the board. Gemini made these test images, which should have favoured it, so real trays are unlikely to go better. Rewording the level definitions until Gemini agreed with these labels would be tuning to the test, so it was not tried. The camera therefore stays on the trained model alone, which runs on the laptop and sends nothing out, and Gemini stays on Ask BuffetIQ, where its answers are checked against the board's numbers.
+
 The first training run kept the round with the best validation score and stopped early. With one validation photo per level, that score is noise, so it kept round 1 (before the model had learned much) and scored 25% on the test photos and 2 of 3 demo cards. Training on sets with fewer than 5 validation photos per level now runs a fixed 100 rounds and keeps the last one. That rule was chosen for the small set before seeing the second result and applied once; it was not adjusted against the test photos or the demo cards.
 
 The weakness found with the stand-in model remains: a plain grey image is read as Full at 53% (not sent) and a plain white one as Full at 68% (sent). A confidence threshold catches photos the model finds ambiguous, not photos of something that is not a tray, so runners still need to glance at the result.
