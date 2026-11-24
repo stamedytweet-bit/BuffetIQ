@@ -15,7 +15,7 @@ This file collects every metric, chart and test result in one place for the show
 | Ask BuffetIQ, scripted questions | 20 of 20 match the board typed, 20 of 20 spoken (median 0.83 seconds); 10 of 10 on added topics | Phase 6 |
 | Forecast learning | Error 7.3% with 1 month of history, 3.3% with 10 months, on the same test days | Phase 7 |
 | Camera tray check | 4 of 4 printed demo cards right; 1 of 4 held-out grid photos right (32 AI-generated training photos, too few for a reliable accuracy) | Phase 4 |
-| Gemini answers | Waiting for an API key | Phase 6 |
+| Gemini answers | Flash-Lite: 13 of 20 typed questions match the board (most misses leave out the dish name, none has a wrong number), median 1.4 seconds; Flash: the free tier allows only 20 requests a day | Phase 6 |
 | Tests | 254 automated tests pass | All |
 
 Two engine bugs were found and fixed after the first replay results had been seen; both are disclosed in Phase 5. Not every morning improves: on the data's demo morning BuffetIQ left more food than the chef rule (Phase 7).
@@ -231,10 +231,13 @@ Twenty kitchen questions were asked on the demo morning replayed to 08:40, cover
 | --- | --- | --- |
 | Typed, basic answers (no Gemini) | 20 of 20 | under 0.01 seconds |
 | Spoken by a computer voice (gTTS), then faster-whisper and basic answers | 20 of 20 | 0.88 seconds |
-| Typed and spoken with Gemini | **not yet run: waiting for a Gemini API key** | |
+| Typed, Gemini (gemini-3.5-flash-lite, 24 November 2026) | 13 of 20 (8 of 10 on added topics) | 1.37 seconds |
+| Spoken by a computer voice, then faster-whisper and Gemini Flash-Lite | 13 of 20 | 2.08 seconds |
 | Spoken in a real voice (5 recordings) | **not yet run: waiting for recordings** | |
 
 The basic answers, which also serve as the fallback, meet the target of at least 18 matching answers with the key removed. faster-whisper heard 19 of the 20 computer-voiced questions word for word, writing "Any pans near four hours." for "Any pans near 4 hours?", which still answered correctly. The test is easier than real service in two ways, so the figures above are an upper bound: at 08:40 seven of the eight dishes are on Hold, so most refill answers are the same word, and the computer voice is clearer than a chef talking over a busy kitchen. A real-voice run in noise is the more honest test of the microphone.
+
+The Gemini runs were made on 24 November 2026 with a free-tier key. gemini-3.6-flash came first, but the free tier allows that model 20 requests a day per project and each question needs two or three (one to choose the function, one to word the answer), so it answered 8 questions, taking 13 to 32 seconds each, before the limit was reached and BuffetIQ fell back to basic answers, as designed. That is too few for a showcase, so gemini-3.5-flash-lite was used instead. It answered every question, with a median of 1.4 seconds, and the number check rejected none of its answers. Of the 7 typed answers that did not match, 5 gave the board's call without naming the dish ("Hold. Next check 08:55."), 1 gave the right amount in other words ("There are 2.5 kg of scrambled eggs left on the tray" for a Full tray), and 1 did not answer the question ("When do I stop croissants?" was answered "Hold" rather than with the 09:50 last bake time). On the added topics it left out that hash browns are vegetarian, and its "We haven't thrown away any food so far" was right but did not use the expected word. Gemini's answers read more naturally but are less complete than the basic answers, and scored strictly they miss the target of 18 of 20. The results file now holds the Flash-Lite run.
 
 In an automated browser test (before the Phase 7 engine fix), holding the phone's microphone button for 3 seconds with a recorded question ("How much sausage should I cook?") returned "Cook 5 kg of chicken sausages now. The tray has been empty since 08:35." 1.5 seconds after release, matching the board at the time, and the spoken answer played and could be replayed. The same question from the kitchen board's "Hold to ask BuffetIQ" button updated the "Last voice answer" panel and was spoken through the laptop.
 
