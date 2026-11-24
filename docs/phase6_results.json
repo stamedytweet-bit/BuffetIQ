@@ -357,10 +357,10 @@
           "hold",
           "egg"
         ],
-        "answer": "Hold. The board says Hold for Scrambled eggs.",
+        "answer": "Hold the Scrambled eggs; the board call is Hold.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.33
+        "seconds": 1.69
       },
       {
         "n": 2,
@@ -369,10 +369,10 @@
           "cook 3.75 kg",
           "sausage"
         ],
-        "answer": "Cook 3.75 kg of chicken sausages; they will be ready in 5 min.",
+        "answer": "Cook 3.75 kg of chicken sausages.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.37
+        "seconds": 1.86
       },
       {
         "n": 3,
@@ -381,10 +381,10 @@
           "hold",
           "hash brown"
         ],
-        "answer": "Hold. Tray is full at 2.0 kg with 1.2 kg in reserve.",
+        "answer": "Hash browns tray is Full, 2 kg on the tray.",
         "mode": "gemini",
         "match": false,
-        "seconds": 1.55
+        "seconds": 1.45
       },
       {
         "n": 4,
@@ -393,10 +393,10 @@
           "hold",
           "pancake"
         ],
-        "answer": "Hold. Next check 08:55.",
+        "answer": "Hold the pancakes.",
         "mode": "gemini",
-        "match": false,
-        "seconds": 1.62
+        "match": true,
+        "seconds": 1.8
       },
       {
         "n": 5,
@@ -405,10 +405,10 @@
           "hold",
           "mee goreng"
         ],
-        "answer": "Hold. Next check 08:55.",
+        "answer": "Hold mee goreng. The board call is Hold.",
         "mode": "gemini",
-        "match": false,
-        "seconds": 1.32
+        "match": true,
+        "seconds": 1.91
       },
       {
         "n": 6,
@@ -417,10 +417,10 @@
           "hold",
           "rice"
         ],
-        "answer": "Hold rice. The next check is at 08:55.",
+        "answer": "Hold Nasi lemak rice. Last cooked at 09:55.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.45
+        "seconds": 1.8
       },
       {
         "n": 7,
@@ -429,10 +429,10 @@
           "hold",
           "croissant"
         ],
-        "answer": "Hold. Next check 08:55.",
+        "answer": "Hold the croissants.",
         "mode": "gemini",
-        "match": false,
-        "seconds": 1.2
+        "match": true,
+        "seconds": 1.42
       },
       {
         "n": 8,
@@ -441,10 +441,10 @@
           "hold",
           "fruit"
         ],
-        "answer": "Hold. Next check 08:55.",
+        "answer": "Hold cut fruit.",
         "mode": "gemini",
-        "match": false,
-        "seconds": 1.35
+        "match": true,
+        "seconds": 1.47
       },
       {
         "n": 9,
@@ -452,10 +452,10 @@
         "expected": [
           "chicken sausages"
         ],
-        "answer": "Chicken sausages are empty. Please check the board.",
+        "answer": "Chicken sausages is running low with tray level Empty and 0 kg.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.29
+        "seconds": 1.6
       },
       {
         "n": 10,
@@ -464,10 +464,10 @@
           "full",
           "egg"
         ],
-        "answer": "There are 2.5 kg of scrambled eggs left on the tray.",
+        "answer": "Tray level is Full, with 2.5 kg of eggs on the tray.",
         "mode": "gemini",
-        "match": false,
-        "seconds": 1.39
+        "match": true,
+        "seconds": 1.6
       },
       {
         "n": 11,
@@ -475,10 +475,10 @@
         "expected": [
           "full"
         ],
-        "answer": "The fruit tray is full, holding 5 kg with 1.6 kg in reserve.",
+        "answer": "Cut fruit tray is Full, 5.0 kg on the tray.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.49
+        "seconds": 1.76
       },
       {
         "n": 12,
@@ -486,10 +486,10 @@
         "expected": [
           "310"
         ],
-        "answer": "We are expecting 310 guests today, with 223 diners so far.",
+        "answer": "Expect 310 guests today.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.79
+        "seconds": 1.45
       },
       {
         "n": 13,
@@ -500,7 +500,7 @@
         "answer": "223 diners have come in so far.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.39
+        "seconds": 1.21
       },
       {
         "n": 14,
@@ -511,7 +511,7 @@
         "answer": "Expect 25 guests in the next 15 minutes, with a moderate crowd.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.22
+        "seconds": 1.78
       },
       {
         "n": 15,
@@ -519,10 +519,10 @@
         "expected": [
           "no pan"
         ],
-        "answer": "No pans are near four hours; all are status fine and none need swapping until past 12:00.",
+        "answer": "None of the pans are near the 4-hour limit; all pans are holding fine and well within their swap times.",
         "mode": "gemini",
-        "match": true,
-        "seconds": 1.66
+        "match": false,
+        "seconds": 1.7
       },
       {
         "n": 16,
@@ -530,10 +530,10 @@
         "expected": [
           "12:00"
         ],
-        "answer": "Swap the chicken sausages pan by 12:00.",
+        "answer": "Swap the chicken sausages by 12:00.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.38
+        "seconds": 1.73
       },
       {
         "n": 17,
@@ -541,10 +541,10 @@
         "expected": [
           "09:50"
         ],
-        "answer": "Next check 08:55. Hold croissants.",
+        "answer": "The last bake time for croissants was 09:50.",
         "mode": "gemini",
-        "match": false,
-        "seconds": 1.21
+        "match": true,
+        "seconds": 1.87
       },
       {
         "n": 18,
@@ -552,10 +552,10 @@
         "expected": [
           "09:55"
         ],
-        "answer": "The last cook for nasi lemak was at 09:55.",
+        "answer": "Last cook for nasi lemak: 09:55.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.0
+        "seconds": 1.29
       },
       {
         "n": 19,
@@ -566,7 +566,7 @@
         "answer": "Switch to cook-to-order from about 09:30: Under 12 guests per 15 minutes expected, so use smaller pans.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.35
+        "seconds": 2.0
       },
       {
         "n": 20,
@@ -577,7 +577,7 @@
         "answer": "I don't have that. Please check the board.",
         "mode": "gemini",
         "match": true,
-        "seconds": 0.59
+        "seconds": 0.79
       }
     ],
     "extra_topics_gemini": [
@@ -588,10 +588,10 @@
           "halal",
           "vegetarian"
         ],
-        "answer": "Yes, the hash brown is halal.",
+        "answer": "Yes, the hash browns are halal and vegetarian.",
         "mode": "gemini",
-        "match": false,
-        "seconds": 1.42
+        "match": true,
+        "seconds": 1.47
       },
       {
         "n": 2,
@@ -599,10 +599,10 @@
         "expected": [
           "not halal"
         ],
-        "answer": "No, the croissants are not halal.",
+        "answer": "No, the croissants are not halal; they are vegetarian.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.4
+        "seconds": 1.72
       },
       {
         "n": 3,
@@ -611,10 +611,10 @@
           "scrambled eggs",
           "cut fruit"
         ],
-        "answer": "Vegetarians can eat scrambled eggs, hash browns, pancakes, nasi lemak rice, croissants, and cut fruit.",
+        "answer": "Vegetarians can eat Scrambled eggs, Hash browns, Pancakes, Nasi lemak rice, Croissants, and Cut fruit.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.13
+        "seconds": 1.63
       },
       {
         "n": 4,
@@ -623,10 +623,10 @@
           "no",
           "peanuts"
         ],
-        "answer": "No, the mee goreng does not contain peanuts; its allergens are gluten, soy, and eggs.",
+        "answer": "Mee goreng does not have peanuts; the allergens are gluten, soy, and eggs.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.55
+        "seconds": 1.56
       },
       {
         "n": 5,
@@ -636,10 +636,10 @@
           "croissants",
           "gluten"
         ],
-        "answer": "Chicken sausages, pancakes, mee goreng, and croissants contain gluten. Please check the hotel's labels before serving guests with allergies.",
+        "answer": "Chicken sausages, Pancakes, Mee goreng, and Croissants contain gluten.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.49
+        "seconds": 2.01
       },
       {
         "n": 6,
@@ -647,10 +647,10 @@
         "expected": [
           "60"
         ],
-        "answer": "Hot food must be held at or above 60 degrees Celsius.",
+        "answer": "Hold the eggs at or above 60\u00b0C.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.09
+        "seconds": 1.5
       },
       {
         "n": 7,
@@ -658,10 +658,10 @@
         "expected": [
           "no"
         ],
-        "answer": "Food that has been out on the buffet is thrown away at close, not reheated or reused.",
+        "answer": "Throw away leftover rice. Food that has been out on the buffet is thrown away at close, not reheated or reused.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.46
+        "seconds": 1.9
       },
       {
         "n": 8,
@@ -672,7 +672,7 @@
         "answer": "The board says Cook 3.75 kg because about 72 guests are expected in the next 60 minutes. They need about 3.7 kg, and the tray is empty.",
         "mode": "basic",
         "match": true,
-        "seconds": 1.43
+        "seconds": 1.91
       },
       {
         "n": 9,
@@ -680,10 +680,10 @@
         "expected": [
           "nothing"
         ],
-        "answer": "We haven't thrown away any food so far today (0 kg for all dishes).",
+        "answer": "For scrambled eggs, chicken sausages, hash browns, pancakes, mee goreng, nasi lemak rice, croissants, and cut fruit, the amount thrown away so far today is 0 kg.",
         "mode": "gemini",
         "match": false,
-        "seconds": 1.55
+        "seconds": 1.97
       },
       {
         "n": 10,
@@ -691,10 +691,10 @@
         "expected": [
           "1.6"
         ],
-        "answer": "Likely left at close: 1.6 kg of Nasi lemak rice.",
+        "answer": "Expect 1.6 kg of Nasi lemak rice to be left at close.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.74
+        "seconds": 2.55
       }
     ],
     "spoken_gtts": [
@@ -706,10 +706,10 @@
           "hold",
           "egg"
         ],
-        "answer": "Hold scrambled eggs.",
+        "answer": "Hold the scrambled eggs.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.99,
+        "seconds": 2.47,
         "speech_to_text_seconds": 0.8
       },
       {
@@ -720,11 +720,11 @@
           "cook 3.75 kg",
           "sausage"
         ],
-        "answer": "Cook 3.75 kg of chicken sausages; they will be ready in 5 minutes.",
+        "answer": "Cook 3.75 kg of chicken sausages.",
         "mode": "gemini",
         "match": true,
-        "seconds": 2.03,
-        "speech_to_text_seconds": 0.82
+        "seconds": 2.62,
+        "speech_to_text_seconds": 0.8
       },
       {
         "n": 3,
@@ -734,10 +734,10 @@
           "hold",
           "hash brown"
         ],
-        "answer": "Hold. Next check 08:55.",
+        "answer": "Hash browns tray is Full, 2.0 kg on the tray and 1.2 kg in reserve.",
         "mode": "gemini",
         "match": false,
-        "seconds": 1.96,
+        "seconds": 2.61,
         "speech_to_text_seconds": 0.81
       },
       {
@@ -748,10 +748,10 @@
           "hold",
           "pancake"
         ],
-        "answer": "Hold. The board call is Hold.",
+        "answer": "Hold the pancakes.",
         "mode": "gemini",
-        "match": false,
-        "seconds": 1.94,
+        "match": true,
+        "seconds": 4.78,
         "speech_to_text_seconds": 0.8
       },
       {
@@ -762,10 +762,10 @@
           "hold",
           "mee goreng"
         ],
-        "answer": "Hold mee goreng. Next check is at 08:55.",
+        "answer": "Hold the mee goreng. The board call is Hold.",
         "mode": "gemini",
         "match": true,
-        "seconds": 2.07,
+        "seconds": 3.3,
         "speech_to_text_seconds": 0.83
       },
       {
@@ -776,11 +776,11 @@
           "hold",
           "rice"
         ],
-        "answer": "Hold Nasi lemak rice. The next check is at 08:55.",
+        "answer": "Hold the Nasi lemak rice.",
         "mode": "gemini",
         "match": true,
-        "seconds": 2.19,
-        "speech_to_text_seconds": 0.81
+        "seconds": 2.24,
+        "speech_to_text_seconds": 0.82
       },
       {
         "n": 7,
@@ -790,11 +790,11 @@
           "hold",
           "croissant"
         ],
-        "answer": "Hold. Next check 08:55.",
+        "answer": "Hold croissants.",
         "mode": "gemini",
-        "match": false,
-        "seconds": 2.24,
-        "speech_to_text_seconds": 0.83
+        "match": true,
+        "seconds": 2.62,
+        "speech_to_text_seconds": 0.82
       },
       {
         "n": 8,
@@ -804,11 +804,11 @@
           "hold",
           "fruit"
         ],
-        "answer": "Hold. Next check 08:55.",
+        "answer": "Hold cut fruit.",
         "mode": "gemini",
-        "match": false,
-        "seconds": 2.49,
-        "speech_to_text_seconds": 0.81
+        "match": true,
+        "seconds": 2.21,
+        "speech_to_text_seconds": 0.8
       },
       {
         "n": 9,
@@ -817,10 +817,10 @@
         "expected": [
           "chicken sausages"
         ],
-        "answer": "Chicken sausages are running low with an Empty level and 0 kg in reserve.",
+        "answer": "Chicken sausages is running low at Empty and 0 kg.",
         "mode": "gemini",
         "match": true,
-        "seconds": 2.08,
+        "seconds": 2.72,
         "speech_to_text_seconds": 0.79
       },
       {
@@ -831,11 +831,11 @@
           "full",
           "egg"
         ],
-        "answer": "There are 2.5 kg of scrambled eggs left on the tray.",
+        "answer": "For scrambled eggs, the tray is Full at 2.5 kg.",
         "mode": "gemini",
-        "match": false,
-        "seconds": 2.08,
-        "speech_to_text_seconds": 0.89
+        "match": true,
+        "seconds": 2.72,
+        "speech_to_text_seconds": 0.82
       },
       {
         "n": 11,
@@ -844,10 +844,10 @@
         "expected": [
           "full"
         ],
-        "answer": "Yes, the fruit tray is Full.",
+        "answer": "The cut fruit tray is Full with 5 kg.",
         "mode": "gemini",
         "match": true,
-        "seconds": 2.02,
+        "seconds": 3.73,
         "speech_to_text_seconds": 0.8
       },
       {
@@ -857,11 +857,11 @@
         "expected": [
           "310"
         ],
-        "answer": "We have 310 guests expected today, with 223 diners so far.",
+        "answer": "We are expecting 310 guests today.",
         "mode": "gemini",
         "match": true,
-        "seconds": 2.02,
-        "speech_to_text_seconds": 0.83
+        "seconds": 2.14,
+        "speech_to_text_seconds": 0.8
       },
       {
         "n": 13,
@@ -870,11 +870,11 @@
         "expected": [
           "223"
         ],
-        "answer": "223 diners have come in so far.",
+        "answer": "223 diners have come in so far today.",
         "mode": "gemini",
         "match": true,
-        "seconds": 2.39,
-        "speech_to_text_seconds": 0.86
+        "seconds": 2.65,
+        "speech_to_text_seconds": 0.81
       },
       {
         "n": 14,
@@ -886,8 +886,8 @@
         "answer": "Expect 25 guests in the next 15 minutes, with a moderate crowd.",
         "mode": "gemini",
         "match": true,
-        "seconds": 2.17,
-        "speech_to_text_seconds": 0.83
+        "seconds": 2.23,
+        "speech_to_text_seconds": 0.82
       },
       {
         "n": 15,
@@ -896,11 +896,11 @@
         "expected": [
           "no pan"
         ],
-        "answer": "All pans are fine and well within their four-hour limit.",
+        "answer": "No pans are near four hours. All pans are fine.",
         "mode": "gemini",
-        "match": false,
-        "seconds": 2.08,
-        "speech_to_text_seconds": 0.81
+        "match": true,
+        "seconds": 2.37,
+        "speech_to_text_seconds": 0.8
       },
       {
         "n": 16,
@@ -909,11 +909,11 @@
         "expected": [
           "12:00"
         ],
-        "answer": "Swap the chicken sausages pan by 12:00.",
+        "answer": "Swap the Chicken sausages pan by 12:00.",
         "mode": "gemini",
         "match": true,
-        "seconds": 2.39,
-        "speech_to_text_seconds": 0.82
+        "seconds": 2.53,
+        "speech_to_text_seconds": 0.83
       },
       {
         "n": 17,
@@ -922,11 +922,11 @@
         "expected": [
           "09:50"
         ],
-        "answer": "Hold. Next check 08:55.",
+        "answer": "Stop baking croissants. The last bake was at 09:50 for croissants.",
         "mode": "gemini",
-        "match": false,
-        "seconds": 2.13,
-        "speech_to_text_seconds": 0.81
+        "match": true,
+        "seconds": 2.72,
+        "speech_to_text_seconds": 0.84
       },
       {
         "n": 18,
@@ -935,11 +935,11 @@
         "expected": [
           "09:55"
         ],
-        "answer": "The last cook for nasi lemak was at 09:55.",
+        "answer": "Last cook for nasi lemak: 09:55.",
         "mode": "gemini",
         "match": true,
-        "seconds": 2.47,
-        "speech_to_text_seconds": 0.95
+        "seconds": 2.49,
+        "speech_to_text_seconds": 0.85
       },
       {
         "n": 19,
@@ -948,11 +948,11 @@
         "expected": [
           "switch to cook-to-order from about 09:30"
         ],
-        "answer": "Switch to cook-to-order from about 09:30. Under 12 guests per 15 minutes expected, so use smaller pans.",
+        "answer": "Switch to cook-to-order from about 09:30: Under 12 guests per 15 minutes expected, so use smaller pans.",
         "mode": "gemini",
         "match": true,
-        "seconds": 2.05,
-        "speech_to_text_seconds": 0.79
+        "seconds": 2.19,
+        "speech_to_text_seconds": 0.82
       },
       {
         "n": 20,
@@ -964,8 +964,8 @@
         "answer": "I don't have that. Please check the board.",
         "mode": "gemini",
         "match": true,
-        "seconds": 1.6,
-        "speech_to_text_seconds": 0.83
+        "seconds": 1.71,
+        "speech_to_text_seconds": 0.85
       }
     ]
   },
@@ -984,21 +984,21 @@
     },
     "typed_gemini": {
       "questions": 20,
-      "matched": 13,
-      "median_seconds": 1.36,
-      "max_seconds": 1.79
+      "matched": 18,
+      "median_seconds": 1.69,
+      "max_seconds": 2.0
     },
     "extra_topics_gemini": {
       "questions": 10,
-      "matched": 8,
-      "median_seconds": 1.44,
-      "max_seconds": 1.74
+      "matched": 9,
+      "median_seconds": 1.81,
+      "max_seconds": 2.55
     },
     "spoken_gtts": {
       "questions": 20,
-      "matched": 13,
-      "median_seconds": 2.08,
-      "max_seconds": 2.49
+      "matched": 19,
+      "median_seconds": 2.57,
+      "max_seconds": 4.78
     }
   }
 }

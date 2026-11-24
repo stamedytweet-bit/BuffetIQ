@@ -295,6 +295,10 @@ SYSTEM = (
     "you receive; never guess or use outside knowledge. Reply in one or two short sentences in a plain spoken style, "
     "with the instruction first. Use the numbers exactly as the results give them: kilograms with at most one decimal "
     "place, whole minutes, croissants as whole pieces, times as HH:MM. Copy the board_call wording, such as 'Cook 4 kg'. "
+    "Always name the dish the answer is about, such as 'Hold the pancakes.', because cooks may hear only the answer. "
+    "Answer the exact question asked: for when to stop or the last cook or bake, give the last cook or bake time; "
+    "for a tray, give its level word (Full, Half, Low or Empty) and the amount; for whether a dish is halal or "
+    "vegetarian, give both. "
     f"If the functions do not answer the question, reply exactly: {NO_ANSWER}"
 )
 
