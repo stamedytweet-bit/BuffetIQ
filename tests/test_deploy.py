@@ -32,6 +32,13 @@ def test_files_sent_include_space_settings_and_no_secrets():
     assert not any(f == ".env" or f.startswith(".github/") for f in files)
 
 
+def test_no_tracked_file_is_matched_by_gitignore():
+    # Hugging Face skips uploaded files that the Space's .gitignore matches, so the
+    # forecast data once went missing on the Space although git tracked it.
+    assert push.ignored_but_tracked() == []
+    assert "data/synthetic_breakfast.csv" in push.build_files()
+
+
 def test_space_settings_copy_only_the_app_secrets_and_never_the_token():
     env = {"GEMINI_API_KEY": "k", "BUFFETIQ_PASSCODE": " p ", "GEMINI_MODEL": "m",
            "HF_TOKEN": "hf_secret", "OTHER": "x"}

@@ -68,8 +68,19 @@ def tracked_files() -> list[str]:
     return [f for f in files if (ROOT / f).is_file()]
 
 
+def ignored_but_tracked() -> list[str]:
+    """Files git tracks although .gitignore matches them. The Hub skips these on upload."""
+    out = subprocess.run(["git", "ls-files", "-i", "-c", "--exclude-standard"], cwd=ROOT,
+                         capture_output=True, text=True, check=True).stdout
+    return [f for f in out.splitlines() if f]
+
+
 def build_files() -> dict[str, bytes]:
     """Every file for the Space, as {path in the Space: contents}."""
+    skipped = ignored_but_tracked()
+    if skipped:
+        raise SystemExit("These files are tracked but matched by .gitignore, so Hugging Face would skip them: "
+                         + ", ".join(skipped) + ". Add a !path line for each to .gitignore, then try again.")
     files = {f: (ROOT / f).read_bytes() for f in tracked_files()}
     if ".env" in files or any(f.startswith(".env.") and f != ".env.example" for f in files):
         raise SystemExit("A .env file is tracked by git. Remove it from git before publishing.")

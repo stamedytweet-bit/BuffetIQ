@@ -17,6 +17,8 @@ venv/
 data/*
 !data/.gitkeep
 !data/samples/
+# The fictional history the forecast trains on; the Space needs it
+!data/synthetic_breakfast.csv
 models/*
 !models/.gitkeep
 *.pt
