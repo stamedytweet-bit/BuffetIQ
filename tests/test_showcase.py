@@ -119,3 +119,36 @@ def test_five_wrong_tries_lock_the_box_for_a_minute(no_space, monkeypatch):
     assert not session["open"] and "Wait" in msg
     session, msg = about_page.try_passcode(session, "kaya toast 42", now=1061.0)
     assert session["open"]
+
+
+def test_start_breakfast_jumps_to_0800_and_runs_live(live):
+    s = state.load_showcase()
+    assert showcase.can_start()
+    showcase.start_breakfast()
+    assert s.clock.strftime("%H:%M") == showcase.LIVE_START and showcase.CLOCK.speed == 1
+    assert not showcase.can_start()                       # the board now offers Restart
+    showcase.CLOCK.set_speed(0)
+    s.advance_to(state.minutes("08:40"))
+    showcase.start_breakfast()                            # a later clock is never wound back
+    assert s.clock.strftime("%H:%M") == "08:40"
+
+
+def test_restart_goes_back_to_0615_stopped_with_no_arrivals(live):
+    s = state.load_showcase()
+    showcase.start_breakfast()
+    s.log_arrivals(5)
+    showcase.restart_morning()
+    s = state.service()
+    assert s.clock.strftime("%H:%M") == "06:15" and showcase.CLOCK.speed == 0 and showcase.can_start()
+    assert s.mode == "showcase"
+
+
+def test_board_start_button_needs_a_second_tap_to_restart(live):
+    from buffetiq.ui import kitchen
+
+    state.load_showcase()
+    assert kitchen.start_button(0.0)["value"] == "Start breakfast"
+    showcase.start_breakfast()
+    assert kitchen.start_button(0.0)["value"] == "Restart"
+    assert kitchen.start_button(time.time() + 5)["value"] == "Tap again to restart"
+    assert kitchen.start_button(time.time() - 1)["value"] == "Restart"   # the second tap came too late

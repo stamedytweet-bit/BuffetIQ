@@ -26,7 +26,7 @@ This script runs the five-minute BuffetIQ showcase demo with one presenter, a la
 
 ### 3. A tour group nobody booked (1:15 to 2:00)
 
-**Do:** On the About page, set **Jump to** to **08:00** and click **Jump**. On the board, tap **Log arrivals +5** once to show how the host logs guests at the door.
+**Do:** On the board, tap **Start breakfast**. The clock jumps to 08:00 and then runs in real time, one minute a minute. Tap **+5** once to show how the host logs guests at the door (the **+1** and **+2** buttons log smaller parties). The About page's **Jump to** and **Clock speed** still work if you need a later time quickly.
 
 **Say:** "It is now just after 08:00, and an unannounced tour group of 24 arrived at 07:45. Nothing in last night's bookings knew about them. BuffetIQ's nowcast, a forecast revised with what has already happened this morning, sees more diners than expected and raises today's total." Point at the alert **"Tour group of 24 arrived at 07:45 · Expected diners raised from 277 to 306"** and the **Expected today** pill, now about 311 with "was 277", and **Next 15 minutes: Busy**.
 
@@ -59,5 +59,5 @@ This script runs the five-minute BuffetIQ showcase demo with one presenter, a la
 * **The board does not update:** wait 5 seconds (it refreshes on a timer), then press the browser's reload key.
 * **The camera result is wrong:** use **Wrong level? Fix it**; this is the designed fallback.
 * **No microphone or no internet for speech:** type the question; answers appear as text.
-* **The morning is in a strange state:** click **Reset to 06:15** and **Load showcase morning**, then jump to the step you need.
+* **The morning is in a strange state:** tap **Restart** on the board twice (or click **Reset to 06:15** on the About page), then **Start breakfast** or jump to the step you need.
 * **Wi-Fi, the Space or Colab fails:** play the backup video (see the README).

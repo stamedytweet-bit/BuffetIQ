@@ -36,6 +36,7 @@ Layout: a header row, a 4 x 2 grid of dish cards on the left, a 460px right rail
 - Right rail, middle: "Alerts" with at most three, newest first, each with a round icon (coral "!" for a stock-out or pan at 4 hours, teal "i" for information, saffron "›" for a suggestion), a bold title and one short line. Older alerts move to the log, not to a scrolling list.
 - Right rail, bottom: "Last voice answer" with the question in quotes and the answer in 22px bold, so the whole kitchen hears and sees the same number.
 - Bottom strip, four buttons at 96px tall with icons: "Log arrivals +5", "Check a tray", "Hold to ask BuffetIQ" (the only saffron button), and "Override a call".
+  - Change agreed on 24 November 2026: the strip now has five 96px slots. "Start breakfast" (runs the clock live from 08:00, then reads "Restart", which needs a second tap and goes back to 06:15) comes first, and "Log arrivals" splits into +1, +2 and +5 buttons.
 - Updates: refresh from shared state every 5 seconds with `gr.Timer`, with no animation apart from the change itself.
 
 Gradio mapping: one `gr.HTML` per region (header, dish grid, arrivals, alerts, last answer), each rendered by a Python function from shared state, and native `gr.Button`s for the strip, styled through `elem_classes`.

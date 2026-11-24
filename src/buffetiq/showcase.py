@@ -100,3 +100,34 @@ class Clock:
 
 
 CLOCK = Clock()
+
+
+# ---------------------------------------------------------------------------
+# Start and Restart on the kitchen board
+# ---------------------------------------------------------------------------
+
+LIVE_START = "08:00"   # "Start breakfast" brings a morning that has not reached this time up to it
+
+
+def running() -> bool:
+    return bool(CLOCK.speed)
+
+
+def can_start() -> bool:
+    """True when the board should offer "Start breakfast": the clock is stopped before the end of service."""
+    svc = state.service()
+    return not running() and svc.clock_minutes() < state.minutes(svc.config["service"]["end"])
+
+
+def start_breakfast(at: str = LIVE_START) -> None:
+    """Bring the morning up to `at` (simulated guests and tray rounds included), then run the clock in real time."""
+    svc = state.service()
+    if svc.clock_minutes() < state.minutes(at):
+        svc.advance_to(state.minutes(at))
+    CLOCK.set_speed(1)
+
+
+def restart_morning() -> None:
+    """Stop the clock and go back to 06:15 of the same morning, with no arrivals, checks or calls."""
+    CLOCK.set_speed(0)
+    state.reset()

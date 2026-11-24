@@ -2,14 +2,17 @@
 
 Read, not touched: full screen on a TV at the pass, fixed dish order, no scrolling.
 Each read-only region is a gr.HTML rendered from the kitchen engine in state.py
-and refreshed every 5 seconds with gr.Timer. The four backup buttons are native
-gr.Buttons: "Log arrivals +5" counts diners, "Check a tray" shows a QR code for
-the runner page, and "Override a call" opens the override chooser. "Hold to ask
+and refreshed every 5 seconds with gr.Timer. The backup buttons are native
+gr.Buttons: "Start breakfast" runs the clock live from 08:00 and then becomes
+"Restart" (two taps, back to 06:15), +1, +2 and +5 log diners at the door,
+"Check a tray" shows a QR code for the runner page, and "Override a call" opens the override chooser. "Hold to ask
 BuffetIQ" records from the laptop microphone; the answer is spoken through the
 laptop and shown in the "Last voice answer" panel.
 """
 
 from __future__ import annotations
+
+import time
 
 import gradio as gr
 
@@ -261,6 +264,22 @@ def refresh_all():
     return (*refresh(), render_voice(live_voice()))
 
 
+LOG_STEPS = (1, 2, 5)
+RESTART_CONFIRM_SECONDS = 6
+ARRIVALS_LABEL = (f'<div class="k-arr-label">{icon("user-plus", 28)}<span>Log<br>arrivals</span></div>')
+
+
+def start_button(pending: float) -> dict:
+    """Label and look of the Start / Restart slot: Start while the clock is stopped, Restart once it runs."""
+    from buffetiq import showcase
+
+    if pending and time.time() < pending:
+        return {"value": "Tap again to restart", "elem_classes": ["bq-btn", "bq-ico-refresh", "k-confirm"]}
+    if showcase.can_start():
+        return {"value": "Start breakfast", "elem_classes": ["bq-btn", "bq-ico-play"]}
+    return {"value": "Restart", "elem_classes": ["bq-btn", "bq-ico-refresh"]}
+
+
 OVERRIDE_ACTIONS = [("Cook a batch now", "cook"), ("Hold", "hold"), ("Let it run down", "run_down"),
                     ("Cook to order", "cook_to_order"), ("Discard the pan (4-hour rule or spoiled)", "discard")]
 OVERRIDE_REASONS = ["VIP or event breakfast", "Dropped or spoiled tray", "Quality problem",
@@ -281,7 +300,10 @@ def build_page() -> dict:
                     alerts = gr.HTML(lambda: render_alerts(live_alerts()), elem_id="bq-alerts")
                     voice_panel = gr.HTML(lambda: render_voice(live_voice()), elem_id="bq-voice")
             with gr.Row(elem_id="bq-strip"):
-                log_btn = gr.Button("Log arrivals +5", elem_id="k-log", elem_classes=["bq-btn", "bq-ico-user-plus"])
+                start_btn = gr.Button(**start_button(0.0), elem_id="k-start")
+                with gr.Row(elem_id="k-arrivals"):
+                    gr.HTML(ARRIVALS_LABEL, elem_id="k-arr-label")
+                    log_btns = {n: gr.Button(f"+{n}", elem_id=f"k-log-{n}", elem_classes=["bq-btn"]) for n in LOG_STEPS}
                 tray_btn = gr.Button("Check a tray", elem_id="k-tray", elem_classes=["bq-btn", "bq-ico-camera"])
                 ask_btn = voice.hold_button("Hold to ask BuffetIQ", "Hold to ask BuffetIQ", "board", "k-ask")
                 override_btn = gr.Button("Override a call", elem_id="k-override", elem_classes=["bq-btn", "bq-ico-pencil"])
@@ -302,8 +324,27 @@ def build_page() -> dict:
 
     board_audio = gr.HTML("", elem_id="k-answer-audio", elem_classes=["bq-hidden-audio"])
 
+    pending = gr.State(0.0)   # when set, Restart has been tapped once and waits for a second tap until this time
     timer = gr.Timer(REFRESH_SECONDS)
-    timer.tick(refresh_all, None, [header, dishes, arrivals, alerts, voice_panel], show_progress="hidden", queue=False)
+    timer.tick(lambda pend: (*refresh_all(), gr.update(**start_button(pend))), pending,
+               [header, dishes, arrivals, alerts, voice_panel, start_btn], show_progress="hidden", queue=False)
+
+    def start_or_restart(pend):
+        """Start runs the clock live from 08:00; Restart needs a second tap within a few seconds."""
+        from buffetiq import showcase
+
+        if showcase.can_start():
+            showcase.start_breakfast()
+            pend = 0.0
+        elif pend and time.time() < pend:
+            showcase.restart_morning()
+            pend = 0.0
+        else:
+            pend = time.time() + RESTART_CONFIRM_SECONDS
+        return (*refresh_all(), gr.update(**start_button(pend)), pend)
+
+    start_btn.click(start_or_restart, pending, [header, dishes, arrivals, alerts, voice_panel, start_btn, pending],
+                    show_progress="hidden")
 
     def ask_aloud(path):
         """Board microphone: transcribe, answer, speak through the laptop and show it in the panel."""
@@ -317,11 +358,14 @@ def build_page() -> dict:
 
     ask_btn.submit(ask_aloud, ask_btn, [voice_panel, board_audio], show_progress="hidden")
 
-    def log_five():
-        state.service().log_arrivals(5)
-        return refresh()
+    def logger(n: int):
+        def log_n():
+            state.service().log_arrivals(n)
+            return refresh()
+        return log_n
 
-    log_btn.click(log_five, None, [header, dishes, arrivals, alerts], show_progress="hidden")
+    for n, btn in log_btns.items():
+        btn.click(logger(n), None, [header, dishes, arrivals, alerts], show_progress="hidden")
 
     def open_tray(request: gr.Request):
         from buffetiq import qr
@@ -354,5 +398,5 @@ def build_page() -> dict:
 
     return {
         "timer": timer, "header": header, "dishes": dishes, "arrivals": arrivals, "alerts": alerts, "voice": voice_panel,
-        "log": log_btn, "tray": tray_btn, "ask": ask_btn, "override": override_btn,
+        "start": start_btn, "log": log_btns, "tray": tray_btn, "ask": ask_btn, "override": override_btn,
     }

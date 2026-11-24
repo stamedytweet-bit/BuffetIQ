@@ -96,6 +96,7 @@ ICONS = {
     "users": '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5c2.6.2 4.7 2 5.5 5.5"/>',
     "pin": '<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
     "download": '<path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/>',
+    "play": '<path d="M7 4.5v15l12-7.5z"/>',
     "refresh": '<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/>',
 }
 
@@ -254,7 +255,14 @@ KITCHEN_BOARD_CSS = """
 #bq-rail > * { flex: none; }
 #bq-alerts { flex: 1 1 auto !important; min-height: 0; }
 #bq-dishes > .html-container, #bq-dishes .prose, #bq-alerts > .html-container, #bq-alerts .prose { height: 100%; }
-#bq-strip { height: 96px; display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px !important; }
+#bq-strip { height: 96px; display: grid !important; gap: 20px !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.75fr) repeat(3, minmax(0, 1fr)); }
+#k-arrivals { display: flex !important; flex-wrap: nowrap !important; gap: 10px !important; height: 96px; min-width: 0; }
+#k-arrivals > * { min-width: 0 !important; }
+#k-arr-label { flex: none !important; width: 132px !important; padding: 0 !important; }
+.k-arr-label { height: 96px; display: flex; align-items: center; gap: 10px; color: var(--bq-text-2);
+  font-size: 20px; font-weight: 700; line-height: 1.15; }
+#k-arrivals .bq-btn { flex: 1 1 0 !important; padding: 0 8px !important; font-variant-numeric: tabular-nums; }
 
 .k-header { height: 96px; display: flex; align-items: center; justify-content: space-between; gap: 32px; }
 .k-brand { display: flex; flex-direction: column; gap: 8px; }
@@ -342,6 +350,7 @@ KITCHEN_BOARD_CSS = """
 .bq-hold[data-state="thinking"] { background: var(--bq-raised); color: var(--bq-text); }
 .bq-hold-wrap-phone { display: flex; justify-content: center; }
 .bq-hold .lbl { white-space: nowrap; }
+.bq-hold svg { flex: none; }
 .bq-hidden-audio { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; }
 .k-voice .a.empty { font-size: 18px; font-weight: 600; color: var(--bq-text-3); }
 .k-voice .a.problem { font-size: 18px; color: var(--bq-act); }
@@ -385,6 +394,7 @@ KITCHEN_BOARD_CSS = """
 #bq-strip .bq-btn.bq-primary { background: var(--bq-act) !important; border-color: var(--bq-act) !important;
   color: var(--bq-act-ink) !important; font-weight: 800 !important; }
 #bq-strip .bq-btn:hover { border-color: var(--bq-text-3) !important; }
+#bq-strip .bq-btn.k-confirm, #bq-strip .bq-btn.k-confirm:hover { border-color: var(--bq-empty) !important; font-size: 22px !important; }
 #bq-strip .bq-btn.bq-primary:hover { filter: brightness(1.05); }
 """
 
@@ -741,6 +751,9 @@ ARIA_LABELS = {
     "g-veg-minus": "One fewer vegetarian meal",
     "g-veg-plus": "One more vegetarian meal",
     "r-replay": "Replay spoken answer",
+    "k-log-1": "Log 1 arrival",
+    "k-log-2": "Log 2 arrivals",
+    "k-log-5": "Log 5 arrivals",
 }
 
 
