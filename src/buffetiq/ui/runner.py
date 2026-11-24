@@ -6,8 +6,11 @@ that is not on the design screens (agreed in Phase 0).
 
 Tray check (Phase 4): "Check tray" opens the phone camera, the photo is
 classified by camera.py, and a sure result updates the dish's level on the
-kitchen board. Below 0.6 confidence the "Not sure about this one" card appears
-and nothing is sent. "Camera not working? Set the level by hand" and "Wrong
+kitchen board. Below 0.6 confidence the "Not sure about this one" card appears,
+nothing is sent, and the two closest levels are offered as buttons ("Mark as Low",
+"Mark as Half"); the runner's pick goes to the board as a manual reading and the
+photo is kept in that level's folder for the next training run, so the trays the
+model struggles with (often messy ones) become training photos. "Camera not working? Set the level by hand" and "Wrong
 level? Fix it" open the manual level buttons, labelled as manual. "Record
 leftovers" at the end of service writes the amount left to the history instead.
 
@@ -84,7 +87,7 @@ def render_viewfinder(dish: str) -> str:
 <div class="r-viewfinder" role="img" aria-label="Camera viewfinder">
   <span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
   <div class="tray">{esc(dish)} tray</div>
-  <div class="hint">Hold the phone above the tray</div>
+  <div class="hint">Hold the phone straight above the tray</div>
   <div class="hint2">Whole tray in frame · flash off</div>
 </div>""")
 
@@ -125,12 +128,21 @@ def render_result(r: dict) -> str:
 </section>""")
 
 
-def render_unsure(level: str, confidence: float) -> str:
+FILL_ORDER = ("full", "half", "low", "empty")
+
+
+def closest_two(probs: dict) -> list[str]:
+    """The two most likely levels, shown fullest first so the buttons read in tray order."""
+    top = sorted(probs, key=probs.get, reverse=True)[:2]
+    return sorted(top, key=FILL_ORDER.index)
+
+
+def render_unsure(levels: list[str]) -> str:
+    a, b = (camera.WORDS[lv] for lv in levels)
     return check_copy(f"""
 <section class="r-result act r-unsure" aria-label="Result" role="status">
   <div class="title">{icon('warning', 30, 2.4)} Not sure about this one</div>
-  <div class="est">Closest guess: {esc(camera.WORDS[level])} ({round(confidence * 100)}% sure). Nothing was sent to the kitchen board.</div>
-  <div class="est">Retake the photo with the whole tray in frame and the flash off, or set the level by hand.</div>
+  <div class="est">It looks between {esc(a)} and {esc(b)}. Messy trays are hard to read, so judge how much food is left and pick one below. Nothing has been sent to the kitchen board yet.</div>
 </section>""")
 
 
@@ -265,6 +277,8 @@ def build_page() -> dict:
             result_done = gr.HTML("")
             model_note = gr.HTML("")
             gr.HTML("", elem_classes=["bq-spacer"])
+            with gr.Row(elem_classes=["r-two"], visible=False) as pick_row:
+                pick_btns = [gr.Button("", elem_classes=["bq-btn", "r-raised", "r-pick"]) for _ in range(2)]
             next_btn = gr.Button("Check next tray", elem_classes=["bq-btn", "r-primary"])
             retake_primary = gr.Button("Retake photo", visible=False, elem_classes=["bq-btn", "r-primary", "bq-ico-camera"])
             with gr.Row(elem_classes=["r-two"]):
@@ -349,22 +363,26 @@ def build_page() -> dict:
             return (*show(v_manual), image, False, render_manual_head(d, False), gr.update(), gr.update(),
                     gr.update(), gr.update(), gr.update(), gr.update(value=None), gr.update())
         if not res.sure:
+            two = closest_two(res.probs)
             return (*show(v_result), image, False, gr.update(), meta, render_photo(d, image),
-                    render_unsure(res.level, res.confidence), "", render_model_note(res.model_kind),
-                    gr.update(value=None), "unsure")
+                    render_unsure(two), "", render_model_note(res.model_kind),
+                    gr.update(value=None), "unsure", two)
         out = outcome(d, res.level, res.confidence, "camera", left)
         return (*show(v_result), image, False, gr.update(), meta, render_photo(d, image), out["card"],
-                out["done"], render_model_note(res.model_kind), gr.update(value=None), "sure")
+                out["done"], render_model_note(res.model_kind), gr.update(value=None), "sure", [])
 
     mode = gr.State("sure")
+    choices = gr.State([])           # the two closest levels offered after an unsure photo
     camera_input.upload(on_photo, [camera_input, dish, leftover],
                         [*views, photo, fixing, manual_head, result_meta, result_photo, result_card, result_done,
-                         model_note, camera_input, mode]
+                         model_note, camera_input, mode, choices]
                         ).then(
-        lambda m: (gr.update(visible=m != "unsure"), gr.update(visible=m == "unsure"),
-                   gr.update(visible=m != "unsure"),
-                   gr.update(value="Set the level by hand" if m == "unsure" else "Wrong level? Fix it")),
-        mode, [next_btn, retake_primary, retake_btn, fix_btn])
+        lambda m, two: (gr.update(visible=m != "unsure"), gr.update(visible=m == "unsure"),
+                        gr.update(visible=m != "unsure"),
+                        gr.update(value="Another level" if m == "unsure" else "Wrong level? Fix it"),
+                        gr.update(visible=m == "unsure"),
+                        *[gr.update(value=f"Mark as {camera.WORDS[lv]}") for lv in two or ["full", "half"]]),
+        [mode, choices], [next_btn, retake_primary, retake_btn, fix_btn, pick_row, *pick_btns])
 
     # ---- manual levels ----
     manual_btn.click(lambda d: (*show(v_manual), render_manual_head(d, False), False), dish,
@@ -380,12 +398,18 @@ def build_page() -> dict:
         meta = f'<span class="r-label">{esc(d)} · {clock()}</span>'
         return (*show(v_result), meta, render_photo(d, img), out["card"], out["done"], "",
                 gr.update(visible=True), gr.update(visible=False), gr.update(visible=True),
-                gr.update(value="Wrong level? Fix it"))
+                gr.update(value="Wrong level? Fix it"), gr.update(visible=False))
 
+    set_outputs = [*views, result_meta, result_photo, result_card, result_done, model_note,
+                   next_btn, retake_primary, retake_btn, fix_btn, pick_row]
     for lv, b in level_btns.items():
         b.click(lambda d, img, fix, left, lv=lv: set_level(lv, d, img, fix, left), [dish, photo, fixing, leftover],
-                [*views, result_meta, result_photo, result_card, result_done, model_note,
-                 next_btn, retake_primary, retake_btn, fix_btn])
+                set_outputs)
+
+    # After an unsure photo, the runner's pick is the level, and the photo is kept to train the model on
+    for i, b in enumerate(pick_btns):
+        b.click(lambda two, d, img, left, i=i: set_level(two[i], d, img, True, left),
+                [choices, dish, photo, leftover], set_outputs)
 
     for b in (back_btn, next_btn):
         b.click(lambda: (*show(v_check), None), None, [*views, photo])

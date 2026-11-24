@@ -75,8 +75,10 @@ def test_no_model_means_manual_buttons(monkeypatch):
 
 
 def test_unsure_card_sends_nothing_and_says_so():
-    html = runner.render_unsure("low", 0.52)
-    assert "Not sure about this one" in html and "Nothing was sent" in html and "52% sure" in html
+    html = runner.render_unsure(["half", "low"])
+    assert "Not sure about this one" in html and "Nothing has been sent" in html
+    assert "between Half and Low" in html and "%" not in html            # no confusing percentage
+    assert runner.closest_two({"full": 0.1, "half": 0.3, "low": 0.45, "empty": 0.15}) == ["half", "low"]
 
 
 def test_sure_result_updates_the_board_and_the_log(svc):
