@@ -744,6 +744,9 @@ ARIA_LABELS = {
 }
 
 
+HF_BADGE_BAND = 56   # px kept clear above the kitchen board for the Hugging Face badge
+
+
 def build_js() -> str:
     import json
 
@@ -754,8 +757,12 @@ def build_js() -> str:
   const fit = () => {{
     const board = document.getElementById('bq-board');
     if (!board) return;
-    const s = Math.min(window.innerWidth / {BOARD_W}, window.innerHeight / {BOARD_H});
-    const x = (window.innerWidth - {BOARD_W} * s) / 2, y = (window.innerHeight - {BOARD_H} * s) / 2;
+    // On a Hugging Face Space opened directly, the Hub's badge sits over the top right corner,
+    // so keep a band clear for it (not inside the Space page's own frame, which has no badge).
+    const top = (location.hostname.endsWith('.hf.space') && window.self === window.top) ? {HF_BADGE_BAND} : 0;
+    const h = window.innerHeight - top;
+    const s = Math.min(window.innerWidth / {BOARD_W}, h / {BOARD_H});
+    const x = (window.innerWidth - {BOARD_W} * s) / 2, y = top + (h - {BOARD_H} * s) / 2;
     board.style.setProperty('--bq-board-scale', s);
     board.style.setProperty('--bq-board-x', x + 'px');
     board.style.setProperty('--bq-board-y', y + 'px');

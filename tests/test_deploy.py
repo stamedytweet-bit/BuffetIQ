@@ -87,3 +87,10 @@ def test_guest_qr_uses_the_space_address(monkeypatch):
     assert qr.guest_url("10.0.0.5:7860") == "https://someone-buffetiq.hf.space/guest"
     monkeypatch.setenv("BUFFETIQ_PUBLIC_URL", "https://example.org/")
     assert qr.guest_url() == "https://example.org/guest"
+
+
+def test_kitchen_board_keeps_clear_of_the_hugging_face_badge_only_on_a_space():
+    from buffetiq import style
+
+    assert "location.hostname.endsWith('.hf.space')" in style.JS
+    assert f"? {style.HF_BADGE_BAND} : 0" in style.JS
