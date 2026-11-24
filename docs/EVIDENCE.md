@@ -16,7 +16,7 @@ This file collects every metric, chart and test result in one place for the show
 | Forecast learning | Error 7.3% with 1 month of history, 3.3% with 10 months, on the same test days | Phase 7 |
 | Camera tray check | 4 of 4 printed demo cards right; 1 of 4 held-out grid photos right (32 AI-generated training photos, too few for a reliable accuracy) | Phase 4 |
 | Gemini answers | Waiting for an API key | Phase 6 |
-| Tests | 235 automated tests pass | All |
+| Tests | 254 automated tests pass | All |
 
 Two engine bugs were found and fixed after the first replay results had been seen; both are disclosed in Phase 5. Not every morning improves: on the data's demo morning BuffetIQ left more food than the chef rule (Phase 7).
 
