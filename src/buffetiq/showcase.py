@@ -106,7 +106,7 @@ CLOCK = Clock()
 # Start and Restart on the kitchen board
 # ---------------------------------------------------------------------------
 
-LIVE_START = "08:00"   # "Start breakfast" brings a morning that has not reached this time up to it
+LIVE_START = "06:30"   # "Start breakfast" opens service at this time (or carries on from a later clock)
 
 
 def running() -> bool:
@@ -120,8 +120,14 @@ def can_start() -> bool:
 
 
 def start_breakfast(at: str = LIVE_START) -> None:
-    """Bring the morning up to `at` (simulated guests and tray rounds included), then run the clock in real time."""
+    """Open service at `at` and run the clock in real time.
+
+    From here nothing happens by itself: no simulated guests and no simulated tray
+    checks, so only the diners logged with +1, +2 and +5, tray photos and the
+    chef's actions change the board.
+    """
     svc = state.service()
+    svc.auto_guests = False
     if svc.clock_minutes() < state.minutes(at):
         svc.advance_to(state.minutes(at))
     CLOCK.set_speed(1)

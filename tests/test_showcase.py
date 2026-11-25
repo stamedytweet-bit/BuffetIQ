@@ -121,16 +121,27 @@ def test_five_wrong_tries_lock_the_box_for_a_minute(no_space, monkeypatch):
     assert session["open"]
 
 
-def test_start_breakfast_jumps_to_0800_and_runs_live(live):
+def test_start_breakfast_opens_at_0630_and_runs_live(live):
     s = state.load_showcase()
     assert showcase.can_start()
     showcase.start_breakfast()
-    assert s.clock.strftime("%H:%M") == showcase.LIVE_START and showcase.CLOCK.speed == 1
+    assert s.clock.strftime("%H:%M") == showcase.LIVE_START == "06:30" and showcase.CLOCK.speed == 1
     assert not showcase.can_start()                       # the board now offers Restart
     showcase.CLOCK.set_speed(0)
     s.advance_to(state.minutes("08:40"))
     showcase.start_breakfast()                            # a later clock is never wound back
     assert s.clock.strftime("%H:%M") == "08:40"
+
+
+def test_after_start_only_logged_diners_count(live):
+    s = state.load_showcase()
+    showcase.start_breakfast()
+    showcase.CLOCK.set_speed(0)
+    s.log_arrivals(5)
+    s.log_arrivals(2)
+    s.advance_to(state.minutes("08:15"))                  # past the tour group's slot
+    assert s.kitchen().arrivals.sum() == 7                # nobody added by the simulation
+    assert not any(a.key == "tour-group" for a in s.kitchen().alerts)
 
 
 def test_restart_goes_back_to_0615_stopped_with_no_arrivals(live):

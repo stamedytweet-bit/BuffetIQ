@@ -178,6 +178,7 @@ class Service:
         self.trays: dict[str, dict] = {}         # latest tray level per dish id
         self.last_answer: dict | None = None     # the last Ask BuffetIQ answer, shown on the board
         self.world = None                        # simulated kitchen after replay_to (demo only)
+        self.auto_guests = True                  # False after "Start breakfast": only logged diners count
         self.world_rng = None
         self._logged_engine = 0                  # engine log entries already written to the service log
         self._tour_alerted = False
@@ -339,7 +340,7 @@ class Service:
 
         with LOCK:
             minute = min(max(minute, self.clock_minutes_exact()), SERVICE_END)
-            if minute >= SERVICE_START:
+            if minute >= SERVICE_START and self.auto_guests:
                 if self.world is None:
                     self._start_world()
                 step = self.config["replay"]["step_minutes"]
@@ -358,6 +359,7 @@ class Service:
             self.engine = self._new_engine()
             self._logged_engine = 0
             self.world = None
+            self.auto_guests = True
             self._tour_alerted = False
             self.clock = datetime.strptime(f"{self.service_date} {DEFAULT_CLOCK}", "%Y-%m-%d %H:%M")
             self._start_world(seed)
@@ -368,7 +370,7 @@ class Service:
 
     def _showcase_events(self) -> None:
         """In the showcase morning, name the tour group when its 24 guests have been logged."""
-        if self.mode != "showcase" or self._tour_alerted:
+        if self.mode != "showcase" or self._tour_alerted or not self.auto_guests:
             return
         from buffetiq import showcase
         from buffetiq.nowcast import EngineAlert

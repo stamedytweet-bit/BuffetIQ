@@ -25,7 +25,7 @@ const start = async (e) => {
   if (rec && rec.state === 'recording') return;
   try {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { send('ERROR:SecurityError'); return; }
-    stream = await navigator.mediaDevices.getUserMedia({audio: true});
+    stream = await navigator.mediaDevices.getUserMedia({audio: {channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true}});   // the browser filters steady room noise and levels the voice
     rec = new MediaRecorder(stream); chunks = []; started = Date.now();
     rec.ondataavailable = ev => { if (ev.data.size) chunks.push(ev.data); };
     rec.onstop = async () => {

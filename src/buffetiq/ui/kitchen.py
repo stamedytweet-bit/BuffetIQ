@@ -3,7 +3,7 @@
 Read, not touched: full screen on a TV at the pass, fixed dish order, no scrolling.
 Each read-only region is a gr.HTML rendered from the kitchen engine in state.py
 and refreshed every 5 seconds with gr.Timer. The backup buttons are native
-gr.Buttons: "Start breakfast" runs the clock live from 08:00 and then becomes
+gr.Buttons: "Start breakfast" runs the clock live from 06:30 (only logged diners count) and then becomes
 "Restart" (two taps, back to 06:15), +1, +2 and +5 log diners at the door,
 "Check a tray" shows a QR code for the runner page, and "Override a call" opens the override chooser. "Hold to ask
 BuffetIQ" records from the laptop microphone; the answer is spoken through the
@@ -330,7 +330,7 @@ def build_page() -> dict:
                [header, dishes, arrivals, alerts, voice_panel, start_btn], show_progress="hidden", queue=False)
 
     def start_or_restart(pend):
-        """Start runs the clock live from 08:00; Restart needs a second tap within a few seconds."""
+        """Start runs the clock live from 06:30; Restart needs a second tap within a few seconds."""
         from buffetiq import showcase
 
         if showcase.can_start():
