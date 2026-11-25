@@ -26,7 +26,7 @@ This script runs the five-minute BuffetIQ showcase demo with one presenter, a la
 
 ### 3. A tour group nobody booked (1:15 to 2:00)
 
-**Do:** On the About page, set **Jump to** to **08:00** and click **Jump**. Jumping replays the morning with simulated guests, which is what brings in the tour group. (The board's **Start breakfast** button is for a live demo instead: it opens service at 06:30 and runs the clock in real time, and from then on nothing is added by itself, so only the diners you log with **+1**, **+2** and **+5** count.)
+**Do:** On the About page, set **Jump to** to **08:00** and click **Jump**. Jumping replays the morning with simulated guests, which is what brings in the tour group. (The board's **Start breakfast** button is for a live demo instead: it opens service at 06:30 and runs the clock at 5 times real speed with simulated guests; tap a red dish card and choose **Tray topped up** when the kitchen refills it.)
 
 **Say:** "It is now just after 08:00, and an unannounced tour group of 24 arrived at 07:45. Nothing in last night's bookings knew about them. BuffetIQ's nowcast, a forecast revised with what has already happened this morning, sees more diners than expected and raises today's total." Point at the alert **"Tour group of 24 arrived at 07:45 · Expected diners raised from 277 to 306"** and the **Expected today** pill, now about 311 with "was 277", and **Next 15 minutes: Busy**.
 

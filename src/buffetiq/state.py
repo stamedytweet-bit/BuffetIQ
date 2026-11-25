@@ -320,6 +320,35 @@ class Service:
                                unit=self.dish(dish_id)["unit"], note=reason, source="chef")
             e.step(self.clock_minutes())
 
+    def top_up(self, dish_id: str) -> None:
+        """The chef has filled the tray. A batch BuffetIQ asked for counts as out now; with none cooking, the pan is full."""
+        from buffetiq import camera
+
+        with LOCK:
+            e = self.kitchen()
+            now = self.clock_minutes()
+            batches = [b for b in e.batches if b.dish == dish_id]
+            if batches:
+                for b in batches:
+                    e.batches.remove(b)
+                    e.stock[dish_id] = e.stock.get(dish_id, 0.0) + b.amount
+                    e.out_at[dish_id] = now
+                    e.empty_since.pop(dish_id, None)
+                    e.served_out.append(b)
+                    e.log.append((now, "batch_out", dish_id, b.amount, "topped up"))
+                if self.world is not None:      # the simulated kitchen brings the same food out now
+                    for p in [p for p in self.world.pending if p[1] == dish_id]:
+                        self.world.pending.remove(p)
+                        self.world.stock[dish_id] += p[2]
+            else:
+                full = camera.estimate("full", self.dish(dish_id))["amount"]
+                e.tray_check(dish_id, full, "full", now)
+                if self.world is not None:
+                    self.world.cook(dish_id, max(full - self.world.stock[dish_id], 0.0), now)
+                    self.world.bring_out(now)
+            self.log_event("topped_up", dish=dish_id, source="chef")
+            e.step(now)
+
     def _start_world(self, seed: int | None = None) -> None:
         """The simulated kitchen for this morning: guests arrive and trays are checked by themselves."""
         import random as _random

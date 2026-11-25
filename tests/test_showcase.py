@@ -125,7 +125,7 @@ def test_start_breakfast_opens_at_0630_and_runs_live(live):
     s = state.load_showcase()
     assert showcase.can_start()
     showcase.start_breakfast()
-    assert s.clock.strftime("%H:%M") == showcase.LIVE_START == "06:30" and showcase.CLOCK.speed == 1
+    assert s.clock.strftime("%H:%M") == showcase.LIVE_START == "06:30" and showcase.CLOCK.speed == showcase.LIVE_SPEED > 1
     assert not showcase.can_start()                       # the board now offers Restart
     showcase.CLOCK.set_speed(0)
     s.advance_to(state.minutes("08:40"))
@@ -133,15 +133,35 @@ def test_start_breakfast_opens_at_0630_and_runs_live(live):
     assert s.clock.strftime("%H:%M") == "08:40"
 
 
-def test_after_start_only_logged_diners_count(live):
+def test_after_start_simulated_guests_arrive_and_logged_ones_add_on(live):
     s = state.load_showcase()
     showcase.start_breakfast()
     showcase.CLOCK.set_speed(0)
     s.log_arrivals(5)
-    s.log_arrivals(2)
-    s.advance_to(state.minutes("08:15"))                  # past the tour group's slot
-    assert s.kitchen().arrivals.sum() == 7                # nobody added by the simulation
-    assert not any(a.key == "tour-group" for a in s.kitchen().alerts)
+    s.advance_to(state.minutes("07:30"))
+    assert s.kitchen().arrivals.sum() > 5                  # the simulated morning is running again
+
+
+def test_topping_up_fills_an_empty_tray_at_once(live):
+    s = state.load_showcase()
+    showcase.start_breakfast()
+    showcase.CLOCK.set_speed(0)
+    s.record_tray("scrambled_eggs", "empty", source="manual")
+    assert s.kitchen().stock["scrambled_eggs"] == 0
+    s.top_up("scrambled_eggs")
+    e = s.kitchen()
+    assert e.stock["scrambled_eggs"] > 0 and "scrambled_eggs" not in e.empty_since and not e.batches_for("scrambled_eggs")
+
+
+def test_topping_up_brings_a_cooking_batch_out_now(live):
+    s = state.load_showcase()
+    showcase.start_breakfast()
+    showcase.CLOCK.set_speed(0)
+    s.override("scrambled_eggs", "cook", "test")                     # a batch starts cooking
+    before = s.kitchen().stock["scrambled_eggs"]
+    cooking = s.kitchen().cooking("scrambled_eggs")
+    s.top_up("scrambled_eggs")
+    assert s.kitchen().stock["scrambled_eggs"] == before + cooking and not s.kitchen().batches_for("scrambled_eggs")
 
 
 def test_restart_goes_back_to_0615_stopped_with_no_arrivals(live):

@@ -377,6 +377,10 @@ KITCHEN_BOARD_CSS = """
 .k-sheet .k-choice label { min-height: 56px; font-size: 20px !important; background: var(--bq-raised) !important;
   border: 2px solid var(--bq-border-strong) !important; color: var(--bq-text) !important; border-radius: 14px !important; padding: 0 16px !important; }
 .k-sheet .k-choice label { position: relative; }
+.k-sheet .k-grid .wrap { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px !important; }
+.k-sheet .k-grid label { min-height: 52px; font-size: 18px !important; justify-content: center; text-align: center; }
+#bq-dishes .k-card { cursor: pointer; }
+#bq-dishes .k-card:focus-visible { outline: 3px solid var(--bq-brand); outline-offset: 3px; }
 .k-sheet .k-choice label input { position: absolute; inset: 0; width: 100% !important; height: 100% !important; margin: 0 !important;
   opacity: 0; cursor: pointer; }
 .k-sheet .k-choice label span { margin: 0 !important; color: inherit !important; }
@@ -786,6 +790,21 @@ def build_js() -> str:
       if (el && el.getAttribute('aria-label') !== text) el.setAttribute('aria-label', text);
     }}
   }};
+  const pickCard = (card) => {{
+    const btn = document.getElementById('k-pick-' + card.dataset.pick);
+    if (btn) btn.click();
+  }};
+  if (!window.bqCardPick) {{
+    window.bqCardPick = true;
+    document.addEventListener('click', (ev) => {{
+      const card = ev.target.closest('#bq-dishes .k-card');
+      if (card) pickCard(card);
+    }});
+    document.addEventListener('keydown', (ev) => {{
+      const card = ev.target.closest && ev.target.closest('#bq-dishes .k-card');
+      if (card && (ev.key === 'Enter' || ev.key === ' ')) {{ ev.preventDefault(); pickCard(card); }}
+    }});
+  }}
   const tick = () => {{ fit(); label(); }};
   window.addEventListener('resize', fit);
   new MutationObserver(tick).observe(document.body, {{ childList: true, subtree: true }});

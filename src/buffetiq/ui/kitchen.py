@@ -65,7 +65,7 @@ def render_dish_card(d: dict) -> str:
     foot_cls = {"warn": " warn", "limit": " limit"}.get(d["timer_kind"], "")
     foot_icon = "warning" if d["timer_kind"] in ("warn", "limit") else "clock"
     return f"""
-<article class="k-card{card_cls}" aria-label="{esc(d['name'])}">
+<article class="k-card{card_cls}" aria-label="{esc(d['name'])}" data-pick="{d.get('index', '')}" role="button" tabindex="0" title="Tap to top up or change the call">
   <div class="top"><h2>{esc(d['name'])}</h2><span class="station">{esc(d['station'])}</span></div>
   <div class="k-level">
     <div class="k-bar" role="img" aria-label="Tray {d['fill_pct']}% full"><span class="{colour}-bg" style="width:{d['fill_pct']}%"></span></div>
@@ -204,7 +204,7 @@ def live_dishes() -> list[dict]:
     e = s.kitchen()
     now = s.clock_minutes()
     cards = []
-    for d in s.config["dishes"]:
+    for index, d in enumerate(s.config["dishes"]):
         did, cap = d["id"], float(d["pan_capacity"])
         stock = e.stock.get(did, cap)            # before service the opening pan is ready
         word = _level_word(stock, cap)
@@ -228,7 +228,7 @@ def live_dishes() -> list[dict]:
         if kind == "empty":
             border = "empty"
         cards.append({
-            "name": d["name"], "station": d["station"], "level": word,
+            "name": d["name"], "index": index, "station": d["station"], "level": word,
             "fill_pct": round(100 * min(stock, cap) / cap),
             "amount": fmt_amount(min(stock, cap), cap, d["unit"]),
             "action": action, "action_kind": kind, "action_line": line,
@@ -280,7 +280,7 @@ def start_button(pending: float) -> dict:
     return {"value": "Restart", "elem_classes": ["bq-btn", "bq-ico-refresh"]}
 
 
-OVERRIDE_ACTIONS = [("Cook a batch now", "cook"), ("Hold", "hold"), ("Let it run down", "run_down"),
+OVERRIDE_ACTIONS = [("Tray topped up (now full)", "topped_up"), ("Cook a batch now", "cook"), ("Hold", "hold"), ("Let it run down", "run_down"),
                     ("Cook to order", "cook_to_order"), ("Discard the pan (4-hour rule or spoiled)", "discard")]
 OVERRIDE_REASONS = ["VIP or event breakfast", "Dropped or spoiled tray", "Quality problem",
                     "Looks different by eye", "Pan reached 4 hours", "Other"]
@@ -310,14 +310,16 @@ def build_page() -> dict:
 
             # ---- touch backups, shown over the board only when asked for ----
             with gr.Column(visible=False, elem_id="k-panel-override", elem_classes=["k-sheet"]) as override_panel:
-                gr.HTML('<h2 class="k-sheet-title">Override a call</h2>')
-                o_dish = gr.Dropdown(dish_names, value=dish_names[0], label="Dish", elem_classes=["k-field"])
+                gr.HTML('<h2 class="k-sheet-title">Top up or change a call</h2>')
+                # Tap-to-pick chips, not dropdowns: no typing, every dish visible, and no browser card autofill
+                o_dish = gr.Radio(dish_names, value=dish_names[0], label="Dish", elem_classes=["k-field", "k-choice", "k-grid"])
                 o_action = gr.Radio([a for a, _ in OVERRIDE_ACTIONS], value=OVERRIDE_ACTIONS[0][0], label="New action",
                                     elem_classes=["k-field", "k-choice"])
-                o_reason = gr.Dropdown(OVERRIDE_REASONS, value=OVERRIDE_REASONS[0], label="Reason", elem_classes=["k-field"])
+                o_reason = gr.Radio(OVERRIDE_REASONS, value=OVERRIDE_REASONS[0], label="Reason (for overrides)",
+                                    elem_classes=["k-field", "k-choice", "k-grid"])
                 with gr.Row(elem_classes=["k-sheet-buttons"]):
                     o_cancel = gr.Button("Cancel", elem_classes=["bq-btn", "k-sheet-secondary"])
-                    o_apply = gr.Button("Apply override", elem_classes=["bq-btn", "k-sheet-primary"])
+                    o_apply = gr.Button("Apply", elem_classes=["bq-btn", "k-sheet-primary"])
             with gr.Column(visible=False, elem_id="k-panel-tray", elem_classes=["k-sheet"]) as tray_panel:
                 tray_html = gr.HTML("")
                 tray_close = gr.Button("Close", elem_classes=["bq-btn", "k-sheet-secondary"])
@@ -326,8 +328,15 @@ def build_page() -> dict:
 
     pending = gr.State(0.0)   # when set, Restart has been tapped once and waits for a second tap until this time
     timer = gr.Timer(REFRESH_SECONDS)
-    timer.tick(lambda pend: (*refresh_all(), gr.update(**start_button(pend))), pending,
-               [header, dishes, arrivals, alerts, voice_panel, start_btn], show_progress="hidden", queue=False)
+    last_html = gr.State(())    # what this screen last received, so a refresh sends only what changed
+
+    def tick(pend, last):
+        fresh = refresh_all()
+        sent = [gr.skip() if last and last[i] == html else html for i, html in enumerate(fresh)]
+        return (*sent, gr.update(**start_button(pend)), fresh)
+
+    timer.tick(tick, [pending, last_html], [header, dishes, arrivals, alerts, voice_panel, start_btn, last_html],
+               show_progress="hidden", queue=False)
 
     def start_or_restart(pend):
         """Start runs the clock live from 06:30; Restart needs a second tap within a few seconds."""
@@ -386,12 +395,21 @@ def build_page() -> dict:
     tray_close.click(lambda: gr.update(visible=False), None, tray_panel)
 
     override_btn.click(lambda: gr.update(visible=True), None, override_panel)
+
+    # Tapping a dish card opens the same sheet with that dish picked and "Tray topped up" ready
+    for i, name in enumerate(dish_names):
+        pick = gr.Button(name, elem_id=f"k-pick-{i}", elem_classes=["bq-hidden-audio"])
+        pick.click(lambda name=name: (gr.update(visible=True), gr.update(value=name), gr.update(value=OVERRIDE_ACTIONS[0][0])),
+                   None, [override_panel, o_dish, o_action], show_progress="hidden")
     o_cancel.click(lambda: gr.update(visible=False), None, override_panel)
 
     def apply_override(name, action_label, reason):
         dish_id = next(d["id"] for d in state.load_config()["dishes"] if d["name"] == name)
         action = dict(OVERRIDE_ACTIONS)[action_label]
-        state.service().override(dish_id, action, reason)
+        if action == "topped_up":
+            state.service().top_up(dish_id)
+        else:
+            state.service().override(dish_id, action, reason)
         return (gr.update(visible=False), *refresh())
 
     o_apply.click(apply_override, [o_dish, o_action, o_reason], [override_panel, header, dishes, arrivals, alerts])
